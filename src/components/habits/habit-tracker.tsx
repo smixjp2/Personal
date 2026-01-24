@@ -14,6 +14,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { AnimatePresence, motion } from "framer-motion";
 import { iconMap } from "./habit-icons";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 export function HabitTracker({ initialHabits }: { initialHabits: Habit[] }) {
   const [habits, setHabits] = useState<Habit[]>(initialHabits);
@@ -35,6 +37,10 @@ export function HabitTracker({ initialHabits }: { initialHabits: Habit[] }) {
         h.id === id ? { ...h, progress: h.progress === 1 ? 0 : 1 } : h
       )
     );
+  };
+
+  const deleteHabit = (id: string) => {
+    setHabits((prev) => prev.filter((h) => h.id !== id));
   };
   
   const renderHabits = (frequency: "daily" | "monthly" | "yearly") => {
@@ -77,6 +83,15 @@ export function HabitTracker({ initialHabits }: { initialHabits: Habit[] }) {
                     <span className="text-xs font-mono text-muted-foreground">{habit.progress}%</span>
                   </div>
                 )}
+                 <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive" 
+                    onClick={() => deleteHabit(habit.id)}
+                >
+                    <Trash2 className="h-4 w-4" />
+                    <span className="sr-only">Delete habit</span>
+                </Button>
               </div>
             </div>
           </motion.li>
