@@ -85,7 +85,7 @@ export function GoalCard({ goal: initialGoal }: { goal: Goal }) {
 
       </CardContent>
       <CardFooter>
-        <AITaskGenerator onTasksGenerated={onTasksGenerated} />
+        <AITaskGenerator onTasksGenerated={onTasksGenerated} goal={goal} />
       </CardFooter>
     </Card>
   );
