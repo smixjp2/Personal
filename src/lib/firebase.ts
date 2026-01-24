@@ -16,17 +16,16 @@ let db: Firestore | null = null;
 let auth: Auth | null = null;
 let googleProvider: GoogleAuthProvider | null = null;
 
-// Check if all required config values are present.
+// This check prevents the app from crashing both during development and in production builds
+// if the environment variables are missing.
 const isConfigValid = Object.values(firebaseConfig).every(Boolean);
 
 if (isConfigValid) {
+  // We only initialize the app if the config is valid.
   app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
   db = getFirestore(app);
   auth = getAuth(app);
   googleProvider = new GoogleAuthProvider();
-} else if (process.env.NODE_ENV === 'development') {
-    console.warn("Firebase config is missing or incomplete. Please set up your .env.local file.");
 }
-
 
 export { app, db, auth, googleProvider };
