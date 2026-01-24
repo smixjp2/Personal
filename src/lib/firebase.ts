@@ -11,16 +11,11 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// This block provides a better error message if the keys are missing.
+// This block provides a better developer experience if the keys are missing.
+// It throws a specific, identifiable error that our custom error.tsx
+// boundary can catch and display a helpful guide.
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-    const message = "Your Firebase configuration is missing. Please copy the .env.local.example file to a new file named .env.local, fill in your Firebase project details, and then restart the development server.";
-    // We only want to throw an error on the server, as it would crash the client.
-    if (typeof window === 'undefined') {
-        throw new Error(message);
-    } else {
-        // On the client, Firebase will throw its own error, but we can add context.
-        console.error(message);
-    }
+    throw new Error('ACTION REQUIRED: Your Firebase configuration is missing!');
 }
 
 
