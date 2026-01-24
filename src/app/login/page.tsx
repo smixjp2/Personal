@@ -17,7 +17,11 @@ export default function LoginPage() {
   // If Firebase config is missing, auth and provider will be null.
   // We can't show a login form, so show the warning component instead.
   if (!auth || !googleProvider) {
-    return <FirebaseConfigWarning />;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <FirebaseConfigWarning />
+      </div>
+    );
   }
 
   const handleSignIn = async () => {
