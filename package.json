@@ -4,7 +4,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smixjp2/Personal-.git"
+    "url": "git+https://github.com/smixjp2/Personal.git"
   },
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
