@@ -1,18 +1,4 @@
 import type { Habit, Goal, Task } from "./types";
-import {
-  BookOpen,
-  Briefcase,
-  Calendar,
-  Check,
-  Dumbbell,
-  Heart,
-  Leaf,
-  PenTool,
-  Repeat,
-  Target,
-  TrendingUp,
-  Wind,
-} from "lucide-react";
 
 export const tasks: Task[] = [
   { id: "task-1", title: "Outline Chapter 1 of new course", completed: true, dueDate: "2024-08-15" },
@@ -54,12 +40,12 @@ export const goals: Goal[] = [
 ];
 
 export const habits: Habit[] = [
-  { id: "habit-1", name: "Daily Meditation", frequency: "daily", progress: 1, goal: 1, icon: Wind },
-  { id: "habit-2", name: "Workout 3x a week", frequency: "daily", progress: 0, goal: 1, icon: Dumbbell },
-  { id: "habit-3", name: "Read 10 pages", frequency: "daily", progress: 1, goal: 1, icon: BookOpen },
-  { id: "habit-4", name: "Drink 8 glasses of water", frequency: "daily", progress: 0, goal: 1, icon: Leaf },
-  { id: "habit-5", name: "Review Weekly Goals", frequency: "monthly", progress: 75, goal: 4, icon: Repeat },
-  { id: "habit-6", name: "Publish One Article", frequency: "monthly", progress: 50, goal: 1, icon: PenTool },
-  { id: "habit-7", name: "Annual Performance Review Prep", frequency: "yearly", progress: 20, goal: 1, icon: TrendingUp },
-  { id: "habit-8", name: "Plan Vacation", frequency: "yearly", progress: 80, goal: 1, icon: Heart },
+  { id: "habit-1", name: "Daily Meditation", frequency: "daily", progress: 1, goal: 1, icon: "Wind" },
+  { id: "habit-2", name: "Workout 3x a week", frequency: "daily", progress: 0, goal: 1, icon: "Dumbbell" },
+  { id: "habit-3", name: "Read 10 pages", frequency: "daily", progress: 1, goal: 1, icon: "BookOpen" },
+  { id: "habit-4", name: "Drink 8 glasses of water", frequency: "daily", progress: 0, goal: 1, icon: "Leaf" },
+  { id: "habit-5", name: "Review Weekly Goals", frequency: "monthly", progress: 75, goal: 4, icon: "Repeat" },
+  { id: "habit-6", name: "Publish One Article", frequency: "monthly", progress: 50, goal: 1, icon: "PenTool" },
+  { id: "habit-7", name: "Annual Performance Review Prep", frequency: "yearly", progress: 20, goal: 1, icon: "TrendingUp" },
+  { id: "habit-8", name: "Plan Vacation", frequency: "yearly", progress: 80, goal: 1, icon: "Heart" },
 ];

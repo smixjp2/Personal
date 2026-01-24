@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Plus, BookOpen, Dumbbell, Leaf, PenTool, Repeat, Wind } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,17 +33,8 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-
-const iconMap = {
-    Wind: Wind,
-    Dumbbell: Dumbbell,
-    BookOpen: BookOpen,
-    Leaf: Leaf,
-    Repeat: Repeat,
-    PenTool: PenTool
-};
-type IconName = keyof typeof iconMap;
-const iconNames = Object.keys(iconMap) as IconName[];
+import type { Habit } from "@/lib/types";
+import { iconMap, iconNames } from "./habit-icons";
 
 const habitSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -52,7 +43,7 @@ const habitSchema = z.object({
 });
 
 type AddHabitDialogProps = {
-  onAddHabit: (habit: Omit<Habit, "id" | "progress" | "goal" | "icon"> & { icon: React.ElementType }) => void;
+  onAddHabit: (habit: Omit<Habit, "id" | "progress" | "goal">) => void;
 };
 
 export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
@@ -67,8 +58,7 @@ export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
   });
 
   function onSubmit(values: z.infer<typeof habitSchema>) {
-    const IconComponent = iconMap[values.icon];
-    onAddHabit({ ...values, icon: IconComponent, goal: 1 });
+    onAddHabit({ ...values, goal: 1 });
     form.reset();
     setIsOpen(false);
   }

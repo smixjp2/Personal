@@ -10,10 +10,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { AnimatePresence, motion } from "framer-motion";
+import { iconMap } from "./habit-icons";
 
 export function HabitTracker({ initialHabits }: { initialHabits: Habit[] }) {
   const [habits, setHabits] = useState<Habit[]>(initialHabits);
@@ -47,7 +47,9 @@ export function HabitTracker({ initialHabits }: { initialHabits: Habit[] }) {
     return (
       <ul className="space-y-3">
         <AnimatePresence>
-        {filteredHabits.map((habit, index) => (
+        {filteredHabits.map((habit, index) => {
+          const Icon = iconMap[habit.icon];
+          return (
           <motion.li
             key={habit.id}
             layout
@@ -59,7 +61,7 @@ export function HabitTracker({ initialHabits }: { initialHabits: Habit[] }) {
           >
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <habit.icon className="h-5 w-5 text-primary" />
+                <Icon className="h-5 w-5 text-primary" />
                 <span className="font-medium">{habit.name}</span>
               </div>
               <div className="flex items-center gap-4">
@@ -78,7 +80,7 @@ export function HabitTracker({ initialHabits }: { initialHabits: Habit[] }) {
               </div>
             </div>
           </motion.li>
-        ))}
+        )})}
         </AnimatePresence>
       </ul>
     );

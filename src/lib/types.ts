@@ -1,10 +1,12 @@
+import type { IconName } from "@/components/habits/habit-icons";
+
 export type Habit = {
   id: string;
   name: string;
   frequency: "daily" | "monthly" | "yearly";
   progress: number; // 0-100 for monthly/yearly, 0 or 1 for daily
   goal: number;
-  icon: React.ElementType;
+  icon: IconName;
 };
 
 export type Goal = {
