@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from "date-fns";
+import { format, startOfDay } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -56,6 +56,7 @@ type AddGoalDialogProps = {
 
 export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const form = useForm<z.infer<typeof goalSchema>>({
     resolver: zodResolver(goalSchema),
     defaultValues: {
@@ -138,7 +139,7 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
                     render={({ field }) => (
                         <FormItem className="flex flex-col pt-2">
                         <FormLabel className="mb-[11px]">Due Date</FormLabel>
-                        <Popover>
+                        <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                             <PopoverTrigger asChild>
                             <FormControl>
                                 <Button
@@ -161,9 +162,12 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
                             <Calendar
                                 mode="single"
                                 selected={field.value}
-                                onSelect={field.onChange}
+                                onSelect={(date) => {
+                                    field.onChange(date);
+                                    setIsCalendarOpen(false);
+                                }}
                                 disabled={(date) =>
-                                date < new Date() || date < new Date("1900-01-01")
+                                  date < startOfDay(new Date())
                                 }
                                 initialFocus
                             />
