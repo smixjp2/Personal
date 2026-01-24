@@ -7,11 +7,18 @@ import { auth, googleProvider } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bot } from 'lucide-react';
+import { FirebaseConfigWarning } from '@/components/auth/firebase-config-warning';
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  // If Firebase config is missing, auth and provider will be null.
+  // We can't show a login form, so show the warning component instead.
+  if (!auth || !googleProvider) {
+    return <FirebaseConfigWarning />;
+  }
 
   const handleSignIn = async () => {
     setIsLoading(true);

@@ -7,6 +7,7 @@ import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { FirebaseConfigWarning } from './firebase-config-warning';
 
 const ALLOWED_EMAIL = 'serrou.mohammed@outlook.com';
 
@@ -16,26 +17,41 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
 
+  // Directly check if the Firebase auth object was initialized.
+  // If not, the config is missing, and we should show the warning.
+  if (!auth) {
+    return <FirebaseConfigWarning />;
+  }
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        if (currentUser.email?.toLowerCase() !== ALLOWED_EMAIL.toLowerCase()) {
-          setAccessDenied(true);
+    // Because of the check above, 'auth' is guaranteed to be non-null here.
+    const unsubscribe = onAuthStateChanged(auth,
+      (currentUser) => {
+        if (currentUser) {
+          setUser(currentUser);
+          if (currentUser.email?.toLowerCase() !== ALLOWED_EMAIL.toLowerCase()) {
+            setAccessDenied(true);
+          } else {
+            setAccessDenied(false);
+          }
         } else {
-          setAccessDenied(false);
+          setUser(null);
+          router.push('/login');
         }
-      } else {
-        setUser(null);
-        router.push('/login');
+        setLoading(false);
+      },
+      (error) => {
+        // This is now a fallback for other unexpected auth errors.
+        console.error("Firebase Auth Error:", error);
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    );
 
     return () => unsubscribe();
   }, [router]);
 
   const handleLogout = async () => {
+    // 'auth' is guaranteed to be non-null here as well.
     await signOut(auth);
     router.push('/login');
   };

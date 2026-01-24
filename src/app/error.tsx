@@ -1,12 +1,8 @@
 'use client'; // Error components must be Client Components
 
 import { useEffect } from 'react';
-import { FirebaseConfigWarning } from '@/components/auth/firebase-config-warning';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
-// The key phrase to look for in the error message
-const FIREBASE_CONFIG_ERROR_IDENTIFIER = 'ACTION REQUIRED: Your Firebase configuration is missing!';
 
 export default function Error({
   error,
@@ -20,12 +16,8 @@ export default function Error({
     console.error(error);
   }, [error]);
 
-  // Check if this is the specific Firebase config error
-  if (error.message.includes(FIREBASE_CONFIG_ERROR_IDENTIFIER)) {
-    return <FirebaseConfigWarning />;
-  }
-
-  // Render a generic fallback error UI for all other errors
+  // The specific Firebase config error is now handled gracefully in the AuthGuard component.
+  // This component now serves as a generic fallback for other unexpected errors.
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <Card className="w-full max-w-lg text-center">
