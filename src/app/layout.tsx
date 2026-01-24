@@ -1,23 +1,26 @@
-import type { Metadata } from "next";
+'use client'
+
+import { usePathname } from "next/navigation";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { Header } from "@/components/layout/header";
 import { Toaster } from "@/components/ui/toaster";
+import AuthGuard from "@/components/auth/auth-guard";
 import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "Life Architect",
-  description: "Track habits and achieve your goals.",
-};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isLoginPage = pathname === '/login';
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <title>Life Architect</title>
+        <meta name="description" content="Track habits and achieve your goals." />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -30,13 +33,19 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <SidebarProvider>
-          <SidebarNav />
-          <SidebarInset>
-            <Header />
-            <main className="p-4 sm:p-6 lg:p-8">{children}</main>
-          </SidebarInset>
-        </SidebarProvider>
+        {isLoginPage ? (
+          children
+        ) : (
+          <SidebarProvider>
+            <SidebarNav />
+            <SidebarInset>
+              <Header />
+              <main className="p-4 sm:p-6 lg:p-8">
+                <AuthGuard>{children}</AuthGuard>
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
+        )}
         <Toaster />
       </body>
     </html>
