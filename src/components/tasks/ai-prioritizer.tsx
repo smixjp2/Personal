@@ -18,6 +18,20 @@ export function AiPrioritizer() {
   const { toast } = useToast();
 
   useEffect(() => {
+    if (!db) {
+      setIsLoading(false);
+      return;
+    }
+
+    let loadCount = 0;
+    const sources = 2;
+    const checkLoading = () => {
+        loadCount++;
+        if (loadCount >= sources) {
+            setIsLoading(false);
+        }
+    };
+
     const qTasks = query(collection(db, "tasks"));
     const unsubTasks = onSnapshot(qTasks, (querySnapshot) => {
       const tasksData: Task[] = [];
@@ -26,7 +40,7 @@ export function AiPrioritizer() {
       });
       setTasks(tasksData);
       checkLoading();
-    });
+    }, () => checkLoading());
 
     const qGoals = query(collection(db, "goals"));
     const unsubGoals = onSnapshot(qGoals, (querySnapshot) => {
@@ -36,15 +50,7 @@ export function AiPrioritizer() {
       });
       setGoals(goalsData);
       checkLoading();
-    });
-
-    let loadCount = 0;
-    const checkLoading = () => {
-        loadCount++;
-        if (loadCount >= 2) {
-            setIsLoading(false);
-        }
-    };
+    }, () => checkLoading());
 
     return () => {
       unsubTasks();
@@ -53,6 +59,14 @@ export function AiPrioritizer() {
   }, []);
 
   const handlePrioritize = async () => {
+    if (!db) {
+        toast({
+            variant: "destructive",
+            title: "Firebase Not Configured",
+            description: "Please configure your Firebase credentials to use this feature.",
+        });
+        return;
+    }
     setIsPrioritizing(true);
     try {
       const aiTasks = tasks.map(t => ({ name: t.title, deadline: t.dueDate }));

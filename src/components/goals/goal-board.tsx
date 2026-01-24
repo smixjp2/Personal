@@ -24,6 +24,10 @@ export function GoalBoard() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!db) {
+      setIsLoading(false);
+      return;
+    }
     const q = query(collection(db, "goals"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const goalsData: Goal[] = [];
@@ -32,11 +36,14 @@ export function GoalBoard() {
       });
       setGoals(goalsData);
       setIsLoading(false);
+    }, () => {
+        setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   const addGoal = async (newGoalData: Omit<Goal, 'id' | 'progress'>) => {
+    if (!db) return;
     try {
       await addDoc(collection(db, "goals"), {
         ...newGoalData,

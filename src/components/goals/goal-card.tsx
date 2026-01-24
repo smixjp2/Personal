@@ -31,7 +31,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
   const [progress, setProgress] = useState(goal.progress);
 
   useEffect(() => {
-    if (!goal.id) return;
+    if (!goal.id || !db) return;
     const q = query(collection(db, "tasks"), where("goalId", "==", goal.id));
     const unsubscribe = onSnapshot(q, async (querySnapshot) => {
       const tasksData: Task[] = [];
@@ -48,11 +48,11 @@ export function GoalCard({ goal }: { goal: Goal }) {
           : 0;
       
       // Update goal progress in Firestore if it has changed
-      if (newProgress !== progress) {
+      if (db && newProgress !== progress) {
         setProgress(newProgress);
         const goalRef = doc(db, "goals", goal.id);
         await updateDoc(goalRef, { progress: newProgress });
-      } else if (tasksData.length === 0 && progress !== 0) {
+      } else if (db && tasksData.length === 0 && progress !== 0) {
         setProgress(0);
         const goalRef = doc(db, "goals", goal.id);
         await updateDoc(goalRef, { progress: 0 });
@@ -63,6 +63,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
   }, [goal.id, goal.progress, progress]);
 
   const onTasksGenerated = async (newTasks: string[]) => {
+    if (!db) return;
     const batch = writeBatch(db);
     newTasks.forEach((title) => {
       const newTaskRef = doc(collection(db, "tasks"));
@@ -77,6 +78,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
   };
 
   const toggleTask = async (taskId: string) => {
+    if (!db) return;
     const taskRef = doc(db, "tasks", taskId);
     const taskToToggle = tasks.find((t) => t.id === taskId);
     if (taskToToggle) {

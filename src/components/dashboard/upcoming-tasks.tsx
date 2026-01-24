@@ -20,6 +20,11 @@ export function UpcomingTasks() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!db) {
+      setIsLoading(false);
+      return;
+    }
+
     const today = new Date();
     today.setHours(0,0,0,0);
     const tomorrow = new Date(today);
@@ -37,6 +42,8 @@ export function UpcomingTasks() {
         tasksData.push({ id: doc.id, ...doc.data() } as Task);
       });
       setUpcomingTasks(tasksData);
+      setIsLoading(false);
+    }, () => {
       setIsLoading(false);
     });
 

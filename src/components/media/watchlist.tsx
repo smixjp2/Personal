@@ -23,6 +23,10 @@ export function Watchlist() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!db) {
+      setIsLoading(false);
+      return;
+    }
     const q = query(collection(db, "watchlist"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const itemsData: WatchlistItem[] = [];
@@ -31,11 +35,14 @@ export function Watchlist() {
       });
       setItems(itemsData);
       setIsLoading(false);
+    }, () => {
+        setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   const addItem = async (newItemData: Omit<WatchlistItem, "id" | "watched">) => {
+    if (!db) return;
     await addDoc(collection(db, "watchlist"), {
       ...newItemData,
       watched: false,
@@ -43,6 +50,7 @@ export function Watchlist() {
   };
 
   const toggleItem = async (itemId: string) => {
+    if (!db) return;
     const itemRef = doc(db, "watchlist", itemId);
     const itemToToggle = items.find(i => i.id === itemId);
     if (itemToToggle) {
@@ -51,6 +59,7 @@ export function Watchlist() {
   };
 
   const deleteItem = async (itemId: string) => {
+    if (!db) return;
     await deleteDoc(doc(db, "watchlist", itemId));
   };
   

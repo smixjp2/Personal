@@ -16,8 +16,13 @@ import { db } from "@/lib/firebase";
 export function EventCalendar() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!db) {
+      setIsLoading(false);
+      return;
+    }
     const q = query(collection(db, "tasks"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const tasksData: Task[] = [];
@@ -25,11 +30,13 @@ export function EventCalendar() {
         tasksData.push({ id: doc.id, ...doc.data() } as Task);
       });
       setTasks(tasksData);
+      setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   const eventsByDate = tasks.reduce((acc, task) => {
+    if (!task.dueDate) return acc;
     const taskDate = new Date(task.dueDate).toDateString();
     if (!acc[taskDate]) {
       acc[taskDate] = [];
@@ -81,7 +88,9 @@ export function EventCalendar() {
           <CardDescription>Tasks scheduled for this day.</CardDescription>
         </CardHeader>
         <CardContent>
-          {selectedDayEvents.length > 0 ? (
+          {isLoading ? (
+             <p className="text-sm text-muted-foreground">Loading events...</p>
+          ) : selectedDayEvents.length > 0 ? (
             <ul className="space-y-2">
               {selectedDayEvents.map((task) => (
                 <li

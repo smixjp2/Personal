@@ -23,6 +23,10 @@ export function ShoppingList() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!db) {
+      setIsLoading(false);
+      return;
+    }
     const q = query(collection(db, "shoppingList"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const itemsData: ShoppingItem[] = [];
@@ -31,11 +35,14 @@ export function ShoppingList() {
       });
       setItems(itemsData);
       setIsLoading(false);
+    }, () => {
+        setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   const addItem = async (newItemData: Omit<ShoppingItem, "id" | "purchased">) => {
+    if (!db) return;
     await addDoc(collection(db, "shoppingList"), {
       ...newItemData,
       purchased: false,
@@ -43,6 +50,7 @@ export function ShoppingList() {
   };
 
   const toggleItem = async (itemId: string) => {
+    if (!db) return;
     const itemRef = doc(db, "shoppingList", itemId);
     const itemToToggle = items.find(i => i.id === itemId);
     if (itemToToggle) {
@@ -51,6 +59,7 @@ export function ShoppingList() {
   };
 
   const deleteItem = async (itemId: string) => {
+    if (!db) return;
     await deleteDoc(doc(db, "shoppingList", itemId));
   };
   

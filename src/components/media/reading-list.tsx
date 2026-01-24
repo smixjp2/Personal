@@ -23,6 +23,10 @@ export function ReadingList() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!db) {
+      setIsLoading(false);
+      return;
+    }
     const q = query(collection(db, "readingList"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const booksData: Book[] = [];
@@ -31,11 +35,14 @@ export function ReadingList() {
       });
       setBooks(booksData);
       setIsLoading(false);
+    }, () => {
+        setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   const addBook = async (newBookData: Omit<Book, "id" | "read">) => {
+    if (!db) return;
     await addDoc(collection(db, "readingList"), {
       ...newBookData,
       read: false,
@@ -43,6 +50,7 @@ export function ReadingList() {
   };
 
   const toggleBook = async (bookId: string) => {
+    if (!db) return;
     const bookRef = doc(db, "readingList", bookId);
     const bookToToggle = books.find(b => b.id === bookId);
     if (bookToToggle) {
@@ -51,6 +59,7 @@ export function ReadingList() {
   };
 
   const deleteBook = async (bookId: string) => {
+    if (!db) return;
     await deleteDoc(doc(db, "readingList", bookId));
   };
   

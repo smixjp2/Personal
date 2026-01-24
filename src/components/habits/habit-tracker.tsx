@@ -25,6 +25,10 @@ export function HabitTracker() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!db) {
+      setIsLoading(false);
+      return;
+    }
     const q = query(collection(db, "habits"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const habitsData: Habit[] = [];
@@ -33,11 +37,14 @@ export function HabitTracker() {
       });
       setHabits(habitsData);
       setIsLoading(false);
+    }, () => {
+        setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   const addHabit = async (newHabit: Omit<Habit, "id" | "progress">) => {
+    if (!db) return;
     await addDoc(collection(db, "habits"), {
       ...newHabit,
       progress: 0,
@@ -45,6 +52,7 @@ export function HabitTracker() {
   };
 
   const toggleDailyHabit = async (id: string) => {
+    if (!db) return;
     const habitRef = doc(db, "habits", id);
     const habitToToggle = habits.find(h => h.id === id);
     if (habitToToggle) {
@@ -53,6 +61,7 @@ export function HabitTracker() {
   };
 
   const deleteHabit = async (id: string) => {
+    if (!db) return;
     await deleteDoc(doc(db, "habits", id));
   };
   

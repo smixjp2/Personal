@@ -15,14 +15,29 @@ export function StatsCards() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!db) {
+      setIsLoading(false);
+      return;
+    }
+
+    let loadCount = 0;
+    const sources = 3;
+    const checkLoading = () => {
+        loadCount++;
+        if (loadCount >= sources) {
+            setIsLoading(false);
+        }
+    };
+
     const unsubHabits = onSnapshot(collection(db, "habits"), (snap) => {
       setHabits(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Habit)));
       checkLoading();
-    });
+    }, () => checkLoading());
+
     const unsubGoals = onSnapshot(collection(db, "goals"), (snap) => {
       setGoals(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Goal)));
       checkLoading();
-    });
+    }, () => checkLoading());
     
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -37,15 +52,7 @@ export function StatsCards() {
     const unsubTasks = onSnapshot(q, (snap) => {
       setTasks(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Task)));
       checkLoading();
-    });
-
-    let loadCount = 0;
-    const checkLoading = () => {
-        loadCount++;
-        if (loadCount >= 3) {
-            setIsLoading(false);
-        }
-    };
+    }, () => checkLoading());
 
     return () => {
       unsubHabits();

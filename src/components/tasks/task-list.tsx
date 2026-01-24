@@ -17,6 +17,7 @@ const priorityStyles = {
 export function TaskList({ tasks }: { tasks: Task[] }) {
   
   const toggleTask = async (task: Task) => {
+    if (!db) return;
     const taskRef = doc(db, "tasks", task.id);
     await updateDoc(taskRef, {
         completed: !task.completed
