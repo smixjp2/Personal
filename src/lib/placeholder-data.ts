@@ -1,4 +1,4 @@
-import type { Habit, Goal, Task } from "./types";
+import type { Habit, Goal, Task, ShoppingItem } from "./types";
 
 export const tasks: Task[] = [
   { id: "task-1", title: "Outline Chapter 1 of new course", completed: true, dueDate: "2024-08-15" },
@@ -48,4 +48,11 @@ export const habits: Habit[] = [
   { id: "habit-6", name: "Publish One Article", frequency: "monthly", progress: 50, goal: 1, icon: "PenTool" },
   { id: "habit-7", name: "Annual Performance Review Prep", frequency: "yearly", progress: 20, goal: 1, icon: "TrendingUp" },
   { id: "habit-8", name: "Plan Vacation", frequency: "yearly", progress: 80, goal: 1, icon: "Heart" },
+];
+
+export const shoppingList: ShoppingItem[] = [
+  { id: "item-1", name: "New running shoes", price: 120, purchased: false },
+  { id: "item-2", name: "React Advanced Course", price: 89, purchased: true },
+  { id: "item-3", name: "Protein powder", purchased: false },
+  { id: "item-4", name: "New monitor", price: 350, purchased: false },
 ];

@@ -9,6 +9,7 @@ import {
   ListTodo,
   Target,
   Bot,
+  ShoppingCart,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ const navItems = [
   { href: "/goals", label: "Goals", icon: Target },
   { href: "/tasks", label: "Tasks", icon: ListTodo },
   { href: "/calendar", label: "Calendar", icon: Calendar },
+  { href: "/shopping", label: "Achats", icon: ShoppingCart },
 ];
 
 export function SidebarNav() {

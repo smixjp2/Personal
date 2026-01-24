@@ -26,3 +26,10 @@ export type Task = {
   dueDate: string;
   priority?: "low" | "medium" | "high";
 };
+
+export type ShoppingItem = {
+  id: string;
+  name: string;
+  price?: number;
+  purchased: boolean;
+};

@@ -29,6 +29,7 @@ const pageTitles: { [key: string]: string } = {
   "/goals": "Goal Management",
   "/tasks": "Task Inbox",
   "/calendar": "Calendar",
+  "/shopping": "Liste d'achats",
 };
 
 export function Header() {
