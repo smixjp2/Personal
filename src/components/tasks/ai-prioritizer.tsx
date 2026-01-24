@@ -6,21 +6,8 @@ import type { Task } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { TaskList } from "./task-list";
 import { useToast } from "@/hooks/use-toast";
-
-const prioritizeWithAI = async (tasks: Task[]): Promise<Task[]> => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Mock AI logic: shuffle tasks and assign random priorities
-  const priorities: Array<Task['priority']> = ["high", "medium", "low"];
-  const prioritized = [...tasks]
-    .sort(() => Math.random() - 0.5)
-    .map(task => ({
-      ...task,
-      priority: priorities[Math.floor(Math.random() * priorities.length)],
-    }));
-  
-  return prioritized;
-};
+import { prioritizeTasks } from "@/ai/ai-task-prioritization";
+import { goals } from "@/lib/placeholder-data";
 
 export function AiPrioritizer({ initialTasks }: { initialTasks: Task[] }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
@@ -30,14 +17,36 @@ export function AiPrioritizer({ initialTasks }: { initialTasks: Task[] }) {
   const handlePrioritize = async () => {
     setIsLoading(true);
     try {
-      const prioritizedTasks = await prioritizeWithAI(tasks);
-      setTasks(prioritizedTasks);
+      const aiTasks = tasks.map(t => ({ name: t.title, deadline: t.dueDate }));
+      const aiGoals = goals.map(g => `${g.name}: ${g.description}`);
+
+      const result = await prioritizeTasks({ tasks: aiTasks, goals: aiGoals });
+      
+      const priorityMap = new Map<string, "low" | "medium" | "high">();
+      result.prioritizedTasks.forEach(p => {
+        priorityMap.set(p.name, p.priority);
+      });
+
+      const updatedTasks = tasks.map(task => ({
+        ...task,
+        priority: priorityMap.get(task.title) || task.priority,
+      }));
+
+      const priorityOrder = { high: 1, medium: 2, low: 3 };
+      updatedTasks.sort((a, b) => {
+        const pA = a.priority ? priorityOrder[a.priority] : 4;
+        const pB = b.priority ? priorityOrder[b.priority] : 4;
+        return pA - pB;
+      });
+
+      setTasks(updatedTasks);
       toast({
         title: "Tasks Prioritized!",
         description: "Your tasks have been re-ordered by AI.",
       });
     } catch (error) {
-       toast({
+      console.error(error);
+      toast({
         variant: "destructive",
         title: "AI Error",
         description: "Could not prioritize tasks at this time.",

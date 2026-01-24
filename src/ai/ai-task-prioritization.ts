@@ -16,7 +16,6 @@ const PrioritizeTasksInputSchema = z.object({
     z.object({
       name: z.string().describe('The name of the task.'),
       deadline: z.string().optional().describe('The deadline for the task (ISO format).'),
-      goal: z.string().describe('The goal this task contributes to.'),
     })
   ).describe('A list of tasks to prioritize.'),
   goals: z.array(z.string()).describe('A list of active goals.'),
@@ -27,7 +26,7 @@ const PrioritizeTasksOutputSchema = z.object({
   prioritizedTasks: z.array(
     z.object({
       name: z.string().describe('The name of the task.'),
-      priority: z.number().describe('The priority of the task (1-10, 1 being highest).'),
+      priority: z.enum(["low", "medium", "high"]).describe('The priority of the task (low, medium, or high).'),
       reason: z.string().describe('The reasoning behind the assigned priority.'),
     })
   ).describe('A list of tasks with assigned priorities and reasons.'),
@@ -44,18 +43,22 @@ const prioritizeTasksPrompt = ai.definePrompt({
   output: {schema: PrioritizeTasksOutputSchema},
   prompt: `You are an AI assistant designed to prioritize a user's tasks based on their goals and deadlines.
 
-  Here are the user's goals: {{goals}}
+  Here are the user's goals:
+  {{#each goals}}
+  - {{this}}
+  {{/each}}
 
   Here are the user's tasks:
   {{#each tasks}}
   - Name: {{this.name}}
     Deadline: {{this.deadline}}
-    Goal: {{this.goal}}
   {{/each}}
 
-  Prioritize the tasks based on how well they align with the user's goals and how soon their deadlines are. Output a numbered list of prioritized tasks, each with a priority (1-10, 1 being highest) and a brief explanation of why it was assigned that priority.
+  Analyze the tasks and goals. Prioritize the tasks based on how well they align with the user's goals and how soon their deadlines are. Tasks that contribute to a goal should be prioritized higher. Urgency based on deadline is also a key factor.
 
-  Format your response as a JSON object conforming to the following schema:
+  Output a prioritized list of tasks, each with a priority ("low", "medium", or "high") and a brief explanation of why it was assigned that priority.
+  
+  Format your response as a JSON object conforming to the following schema. Do not include any other text or explanations.
   {{outputSchemaDescription}}`,
 });
 
