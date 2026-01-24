@@ -16,15 +16,16 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
-
-  // Directly check if the Firebase auth object was initialized.
-  // If not, the config is missing, and we should show the warning.
-  if (!auth) {
-    return <FirebaseConfigWarning />;
-  }
+  const [configMissing, setConfigMissing] = useState(false);
 
   useEffect(() => {
-    // Because of the check above, 'auth' is guaranteed to be non-null here.
+    // Defer the check until the component has mounted on the client
+    if (!auth) {
+      setConfigMissing(true);
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth,
       (currentUser) => {
         if (currentUser) {
@@ -41,8 +42,12 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
         setLoading(false);
       },
       (error) => {
-        // This is now a fallback for other unexpected auth errors.
+        // This can happen if the API keys are present but invalid.
+        // Treat it as a config issue.
         console.error("Firebase Auth Error:", error);
+        if (error.code === 'auth/invalid-api-key') {
+            setConfigMissing(true);
+        }
         setLoading(false);
       }
     );
@@ -51,10 +56,18 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   const handleLogout = async () => {
-    // 'auth' is guaranteed to be non-null here as well.
-    await signOut(auth);
-    router.push('/login');
+    // 'auth' will be non-null here unless config is missing, in which case the button isn't shown
+    if (auth) {
+      await signOut(auth);
+      router.push('/login');
+    }
   };
+
+  // Render the warning component if config is missing.
+  // This will now render within the page layout correctly.
+  if (configMissing) {
+    return <FirebaseConfigWarning />;
+  }
 
   if (loading) {
     return (
