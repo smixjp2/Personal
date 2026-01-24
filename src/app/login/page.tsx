@@ -17,16 +17,18 @@ export default function LoginPage() {
   // If Firebase config is missing, auth and provider will be null.
   // We can't show a login form, so show the warning component instead.
   if (!auth || !googleProvider) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <FirebaseConfigWarning />
-      </div>
-    );
+    // The configuration is missing. The user has requested to remove the warning.
+    // We will render the login form, but sign-in will fail.
   }
 
   const handleSignIn = async () => {
     setIsLoading(true);
     setError(null);
+    if (!auth || !googleProvider) {
+      setError('Firebase is not configured. Cannot sign in.');
+      setIsLoading(false);
+      return;
+    }
     try {
       await signInWithPopup(auth, googleProvider);
       router.push('/');

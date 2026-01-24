@@ -21,7 +21,8 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Defer the check until the component has mounted on the client
     if (!auth) {
-      setConfigMissing(true);
+      // User has requested to remove the warning.
+      // The app will not be functional, but we will not show the warning.
       setLoading(false);
       return;
     }
@@ -42,11 +43,9 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
         setLoading(false);
       },
       (error) => {
-        // This can happen if the API keys are present but invalid.
-        // Treat it as a config issue.
         console.error("Firebase Auth Error:", error);
         if (error.code === 'auth/invalid-api-key') {
-            setConfigMissing(true);
+            // User has requested to remove the warning.
         }
         setLoading(false);
       }
@@ -56,18 +55,11 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   const handleLogout = async () => {
-    // 'auth' will be non-null here unless config is missing, in which case the button isn't shown
     if (auth) {
       await signOut(auth);
       router.push('/login');
     }
   };
-
-  // Render the warning component if config is missing.
-  // This will now render within the page layout correctly.
-  if (configMissing) {
-    return <FirebaseConfigWarning />;
-  }
 
   if (loading) {
     return (
@@ -88,6 +80,10 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
             </div>
         </div>
     );
+  }
+  
+  if (!auth) {
+    return <>{children}</>;
   }
 
   if (accessDenied) {
