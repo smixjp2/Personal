@@ -16,7 +16,6 @@ export type Goal = {
   category: "personal" | "professional" | "course";
   dueDate: string;
   progress: number; // 0-100
-  tasks: Task[];
 };
 
 export type Task = {
@@ -25,6 +24,7 @@ export type Task = {
   completed: boolean;
   dueDate: string;
   priority?: "low" | "medium" | "high";
+  goalId?: string;
 };
 
 export type ShoppingItem = {

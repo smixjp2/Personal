@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ShoppingItem } from "@/lib/types";
 import {
   Card,
@@ -15,29 +15,43 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query } from "firebase/firestore";
 
-export function ShoppingList({ initialItems }: { initialItems: ShoppingItem[] }) {
-  const [items, setItems] = useState<ShoppingItem[]>(initialItems);
+export function ShoppingList() {
+  const [items, setItems] = useState<ShoppingItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const addItem = (newItemData: Omit<ShoppingItem, "id" | "purchased">) => {
-    const newItem: ShoppingItem = {
+  useEffect(() => {
+    const q = query(collection(db, "shoppingList"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const itemsData: ShoppingItem[] = [];
+      querySnapshot.forEach((doc) => {
+        itemsData.push({ id: doc.id, ...doc.data() } as ShoppingItem);
+      });
+      setItems(itemsData);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const addItem = async (newItemData: Omit<ShoppingItem, "id" | "purchased">) => {
+    await addDoc(collection(db, "shoppingList"), {
       ...newItemData,
-      id: `item-${Date.now()}`,
       purchased: false,
-    };
-    setItems((prev) => [...prev, newItem]);
+    });
   };
 
-  const toggleItem = (itemId: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, purchased: !item.purchased } : item
-      )
-    );
+  const toggleItem = async (itemId: string) => {
+    const itemRef = doc(db, "shoppingList", itemId);
+    const itemToToggle = items.find(i => i.id === itemId);
+    if (itemToToggle) {
+        await updateDoc(itemRef, { purchased: !itemToToggle.purchased });
+    }
   };
 
-  const deleteItem = (itemId: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== itemId));
+  const deleteItem = async (itemId: string) => {
+    await deleteDoc(doc(db, "shoppingList", itemId));
   };
   
   const totalCost = items.reduce((sum, item) => sum + (item.price || 0), 0);
@@ -55,7 +69,8 @@ export function ShoppingList({ initialItems }: { initialItems: ShoppingItem[] })
         <AddItemDialog onAddItem={addItem} />
       </CardHeader>
       <CardContent>
-        {items.length > 0 ? (
+        {isLoading && <p className="text-muted-foreground p-8 text-center">Loading...</p>}
+        {!isLoading && items.length > 0 ? (
           <ul className="space-y-3">
             <AnimatePresence>
               {items.map((item, index) => (
@@ -107,7 +122,7 @@ export function ShoppingList({ initialItems }: { initialItems: ShoppingItem[] })
             </AnimatePresence>
           </ul>
         ) : (
-          <p className="text-muted-foreground p-8 text-center">
+          !isLoading && <p className="text-muted-foreground p-8 text-center">
             Your shopping list is empty. Add an item to get started!
           </p>
         )}

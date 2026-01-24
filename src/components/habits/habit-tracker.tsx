@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Habit } from "@/lib/types";
 import { AddHabitDialog } from "./add-habit-dialog";
 import {
@@ -16,36 +16,59 @@ import { AnimatePresence, motion } from "framer-motion";
 import { iconMap } from "./habit-icons";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query } from "firebase/firestore";
+import { Skeleton } from "../ui/skeleton";
 
-export function HabitTracker({ initialHabits }: { initialHabits: Habit[] }) {
-  const [habits, setHabits] = useState<Habit[]>(initialHabits);
+export function HabitTracker() {
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const addHabit = (newHabit: Omit<Habit, "id" | "progress">) => {
-    setHabits((prev) => [
-      ...prev,
-      {
-        ...newHabit,
-        id: `habit-${Date.now()}`,
-        progress: 0,
-      },
-    ]);
+  useEffect(() => {
+    const q = query(collection(db, "habits"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const habitsData: Habit[] = [];
+      querySnapshot.forEach((doc) => {
+        habitsData.push({ id: doc.id, ...doc.data() } as Habit);
+      });
+      setHabits(habitsData);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const addHabit = async (newHabit: Omit<Habit, "id" | "progress">) => {
+    await addDoc(collection(db, "habits"), {
+      ...newHabit,
+      progress: 0,
+    });
   };
 
-  const toggleDailyHabit = (id: string) => {
-    setHabits(
-      habits.map((h) =>
-        h.id === id ? { ...h, progress: h.progress === 1 ? 0 : 1 } : h
-      )
-    );
+  const toggleDailyHabit = async (id: string) => {
+    const habitRef = doc(db, "habits", id);
+    const habitToToggle = habits.find(h => h.id === id);
+    if (habitToToggle) {
+        await updateDoc(habitRef, { progress: habitToToggle.progress === 1 ? 0 : 1 });
+    }
   };
 
-  const deleteHabit = (id: string) => {
-    setHabits((prev) => prev.filter((h) => h.id !== id));
+  const deleteHabit = async (id: string) => {
+    await deleteDoc(doc(db, "habits", id));
   };
   
   const renderHabits = (frequency: "daily" | "monthly" | "yearly") => {
     const filteredHabits = habits.filter((h) => h.frequency === frequency);
     
+    if (isLoading) {
+        return (
+            <div className="space-y-3">
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+            </div>
+        )
+    }
+
     if (filteredHabits.length === 0) {
       return <p className="text-muted-foreground p-8 text-center">No {frequency} habits yet. Add one to get started!</p>
     }

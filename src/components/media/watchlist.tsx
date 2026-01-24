@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { WatchlistItem } from "@/lib/types";
 import {
   Card,
@@ -15,29 +15,43 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Film, Tv } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query } from "firebase/firestore";
 
-export function Watchlist({ initialItems }: { initialItems: WatchlistItem[] }) {
-  const [items, setItems] = useState<WatchlistItem[]>(initialItems);
+export function Watchlist() {
+  const [items, setItems] = useState<WatchlistItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const addItem = (newItemData: Omit<WatchlistItem, "id" | "watched">) => {
-    const newItem: WatchlistItem = {
+  useEffect(() => {
+    const q = query(collection(db, "watchlist"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const itemsData: WatchlistItem[] = [];
+      querySnapshot.forEach((doc) => {
+        itemsData.push({ id: doc.id, ...doc.data() } as WatchlistItem);
+      });
+      setItems(itemsData);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const addItem = async (newItemData: Omit<WatchlistItem, "id" | "watched">) => {
+    await addDoc(collection(db, "watchlist"), {
       ...newItemData,
-      id: `wl-${Date.now()}`,
       watched: false,
-    };
-    setItems((prev) => [...prev, newItem]);
+    });
   };
 
-  const toggleItem = (itemId: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, watched: !item.watched } : item
-      )
-    );
+  const toggleItem = async (itemId: string) => {
+    const itemRef = doc(db, "watchlist", itemId);
+    const itemToToggle = items.find(i => i.id === itemId);
+    if (itemToToggle) {
+        await updateDoc(itemRef, { watched: !itemToToggle.watched });
+    }
   };
 
-  const deleteItem = (itemId: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== itemId));
+  const deleteItem = async (itemId: string) => {
+    await deleteDoc(doc(db, "watchlist", itemId));
   };
   
   const itemsWatched = items.filter(i => i.watched).length;
@@ -54,7 +68,8 @@ export function Watchlist({ initialItems }: { initialItems: WatchlistItem[] }) {
         <AddWatchlistItemDialog onAddItem={addItem} />
       </CardHeader>
       <CardContent>
-        {items.length > 0 ? (
+        {isLoading && <p className="text-muted-foreground p-8 text-center">Loading...</p>}
+        {!isLoading && items.length > 0 ? (
           <ul className="space-y-3">
             <AnimatePresence>
               {items.map((item, index) => (
@@ -104,7 +119,7 @@ export function Watchlist({ initialItems }: { initialItems: WatchlistItem[] }) {
             </AnimatePresence>
           </ul>
         ) : (
-          <p className="text-muted-foreground p-8 text-center">
+          !isLoading && <p className="text-muted-foreground p-8 text-center">
             Votre liste de visionnage est vide. Ajoutez un film ou une série pour commencer !
           </p>
         )}

@@ -51,7 +51,7 @@ const goalSchema = z.object({
 
 type AddGoalDialogProps = {
   children: React.ReactNode;
-  onAddGoal: (goal: Omit<Goal, 'id' | 'progress' | 'tasks'>) => void;
+  onAddGoal: (goal: Omit<Goal, 'id' | 'progress'>) => void;
 };
 
 export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {

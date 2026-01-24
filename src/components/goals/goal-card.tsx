@@ -1,34 +1,88 @@
 "use client";
 
-import type { Goal } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Goal, Task } from "@/lib/types";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Calendar, CheckCircle } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { AITaskGenerator } from "./ai-task-generator";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Checkbox } from "../ui/checkbox";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  writeBatch,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 
-export function GoalCard({ goal: initialGoal }: { goal: Goal }) {
-  const [goal, setGoal] = useState(initialGoal);
+export function GoalCard({ goal }: { goal: Goal }) {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [progress, setProgress] = useState(goal.progress);
 
-  const onTasksGenerated = (newTasks: string[]) => {
-    const newTaskList = newTasks.map((title, index) => ({
-        id: `task-${goal.id}-${Date.now()}-${index}`,
+  useEffect(() => {
+    if (!goal.id) return;
+    const q = query(collection(db, "tasks"), where("goalId", "==", goal.id));
+    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+      const tasksData: Task[] = [];
+      querySnapshot.forEach((doc) => {
+        tasksData.push({ id: doc.id, ...doc.data() } as Task);
+      });
+      setTasks(tasksData);
+
+      // Recalculate progress
+      const completedTasks = tasksData.filter((t) => t.completed).length;
+      const newProgress =
+        tasksData.length > 0
+          ? Math.round((completedTasks / tasksData.length) * 100)
+          : 0;
+      
+      // Update goal progress in Firestore if it has changed
+      if (newProgress !== progress) {
+        setProgress(newProgress);
+        const goalRef = doc(db, "goals", goal.id);
+        await updateDoc(goalRef, { progress: newProgress });
+      } else if (tasksData.length === 0 && progress !== 0) {
+        setProgress(0);
+        const goalRef = doc(db, "goals", goal.id);
+        await updateDoc(goalRef, { progress: 0 });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [goal.id, goal.progress, progress]);
+
+  const onTasksGenerated = async (newTasks: string[]) => {
+    const batch = writeBatch(db);
+    newTasks.forEach((title) => {
+      const newTaskRef = doc(collection(db, "tasks"));
+      batch.set(newTaskRef, {
         title,
         completed: false,
-        dueDate: goal.dueDate
-    }));
-    setGoal(g => ({...g, tasks: [...g.tasks, ...newTaskList]}));
+        dueDate: goal.dueDate,
+        goalId: goal.id,
+      });
+    });
+    await batch.commit();
   };
 
-  const toggleTask = (taskId: string) => {
-    const newTasks = goal.tasks.map(t => t.id === taskId ? {...t, completed: !t.completed} : t);
-    const completedTasks = newTasks.filter(t => t.completed).length;
-    const newProgress = newTasks.length > 0 ? Math.round((completedTasks / newTasks.length) * 100) : 0;
-    setGoal({...goal, tasks: newTasks, progress: newProgress });
-  }
+  const toggleTask = async (taskId: string) => {
+    const taskRef = doc(db, "tasks", taskId);
+    const taskToToggle = tasks.find((t) => t.id === taskId);
+    if (taskToToggle) {
+      await updateDoc(taskRef, { completed: !taskToToggle.completed });
+    }
+  };
 
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
@@ -44,45 +98,46 @@ export function GoalCard({ goal: initialGoal }: { goal: Goal }) {
           <span>Due by {new Date(goal.dueDate).toLocaleDateString()}</span>
         </div>
         <div className="space-y-2">
-            <div className="flex justify-between items-center">
-                <p className="text-sm font-medium">Progress</p>
-                <p className="text-sm font-bold text-primary">{goal.progress}%</p>
-            </div>
-            <Progress value={goal.progress} />
+          <div className="flex justify-between items-center">
+            <p className="text-sm font-medium">Progress</p>
+            <p className="text-sm font-bold text-primary">{progress}%</p>
+          </div>
+          <Progress value={progress} />
         </div>
-        
-        {goal.tasks.length > 0 && (
+
+        {tasks.length > 0 && (
           <div className="space-y-2 pt-2">
             <h4 className="font-medium text-sm">Tasks</h4>
             <ul className="space-y-2">
-                <AnimatePresence>
-              {goal.tasks.map((task) => (
-                <motion.li 
-                    key={task.id} 
+              <AnimatePresence>
+                {tasks.map((task) => (
+                  <motion.li
+                    key={task.id}
                     layout
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="flex items-center gap-2 text-sm"
-                >
-                  <Checkbox 
-                    id={`task-${task.id}`}
-                    checked={task.completed} 
-                    onCheckedChange={() => toggleTask(task.id)}
-                  />
-                  <label 
-                    htmlFor={`task-${task.id}`}
-                    className={`flex-grow cursor-pointer ${task.completed ? 'text-muted-foreground line-through' : ''}`}
                   >
-                    {task.title}
-                  </label>
-                </motion.li>
-              ))}
+                    <Checkbox
+                      id={`task-${task.id}`}
+                      checked={task.completed}
+                      onCheckedChange={() => toggleTask(task.id)}
+                    />
+                    <label
+                      htmlFor={`task-${task.id}`}
+                      className={`flex-grow cursor-pointer ${
+                        task.completed ? "text-muted-foreground line-through" : ""
+                      }`}
+                    >
+                      {task.title}
+                    </label>
+                  </motion.li>
+                ))}
               </AnimatePresence>
             </ul>
           </div>
         )}
-
       </CardContent>
       <CardFooter>
         <AITaskGenerator onTasksGenerated={onTasksGenerated} goal={goal} />

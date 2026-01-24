@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Goal } from "@/lib/types";
 import { GoalCard } from "./goal-card";
 import { AddGoalDialog } from "./add-goal-dialog";
 import { Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, addDoc, query } from "firebase/firestore";
+import { Skeleton } from "../ui/skeleton";
 
 const columns: {
   id: Goal["category"];
@@ -16,18 +19,58 @@ const columns: {
   { id: "course", title: "Courses" },
 ];
 
-export function GoalBoard({ initialGoals }: { initialGoals: Goal[] }) {
-  const [goals, setGoals] = useState(initialGoals);
+export function GoalBoard() {
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const addGoal = (newGoalData: Omit<Goal, 'id' | 'progress' | 'tasks'>) => {
-    const newGoal: Goal = {
-      ...newGoalData,
-      id: `goal-${Date.now()}`,
-      progress: 0,
-      tasks: [],
-    };
-    setGoals(prev => [...prev, newGoal]);
+  useEffect(() => {
+    const q = query(collection(db, "goals"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const goalsData: Goal[] = [];
+      querySnapshot.forEach((doc) => {
+        goalsData.push({ id: doc.id, ...doc.data() } as Goal);
+      });
+      setGoals(goalsData);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const addGoal = async (newGoalData: Omit<Goal, 'id' | 'progress'>) => {
+    try {
+      await addDoc(collection(db, "goals"), {
+        ...newGoalData,
+        progress: 0,
+      });
+    } catch (error) {
+      console.error("Error adding goal: ", error);
+    }
   };
+
+  if (isLoading) {
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold font-headline">Goals</h1>
+                <Skeleton className="h-10 w-28" />
+            </div>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {columns.map(column => (
+                    <div key={column.id} className="rounded-xl bg-card/50 p-4">
+                        <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
+                            {column.title}
+                        </h2>
+                        <div className="space-y-4">
+                            <Skeleton className="h-48 w-full" />
+                            <Skeleton className="h-48 w-full" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+      </div>
+    )
+  }
+
 
   return (
     <div className="space-y-6">

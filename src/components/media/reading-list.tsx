@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Book } from "@/lib/types";
 import {
   Card,
@@ -15,29 +15,43 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query } from "firebase/firestore";
 
-export function ReadingList({ initialBooks }: { initialBooks: Book[] }) {
-  const [books, setBooks] = useState<Book[]>(initialBooks);
+export function ReadingList() {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const addBook = (newBookData: Omit<Book, "id" | "read">) => {
-    const newBook: Book = {
+  useEffect(() => {
+    const q = query(collection(db, "readingList"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const booksData: Book[] = [];
+      querySnapshot.forEach((doc) => {
+        booksData.push({ id: doc.id, ...doc.data() } as Book);
+      });
+      setBooks(booksData);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const addBook = async (newBookData: Omit<Book, "id" | "read">) => {
+    await addDoc(collection(db, "readingList"), {
       ...newBookData,
-      id: `book-${Date.now()}`,
       read: false,
-    };
-    setBooks((prev) => [...prev, newBook]);
+    });
   };
 
-  const toggleBook = (bookId: string) => {
-    setBooks((prev) =>
-      prev.map((book) =>
-        book.id === bookId ? { ...book, read: !book.read } : book
-      )
-    );
+  const toggleBook = async (bookId: string) => {
+    const bookRef = doc(db, "readingList", bookId);
+    const bookToToggle = books.find(b => b.id === bookId);
+    if (bookToToggle) {
+        await updateDoc(bookRef, { read: !bookToToggle.read });
+    }
   };
 
-  const deleteBook = (bookId: string) => {
-    setBooks((prev) => prev.filter((book) => book.id !== bookId));
+  const deleteBook = async (bookId: string) => {
+    await deleteDoc(doc(db, "readingList", bookId));
   };
   
   const booksRead = books.filter(b => b.read).length;
@@ -54,7 +68,8 @@ export function ReadingList({ initialBooks }: { initialBooks: Book[] }) {
         <AddBookDialog onAddBook={addBook} />
       </CardHeader>
       <CardContent>
-        {books.length > 0 ? (
+        {isLoading && <p className="text-muted-foreground p-8 text-center">Loading...</p>}
+        {!isLoading && books.length > 0 ? (
           <ul className="space-y-3">
             <AnimatePresence>
               {books.map((book, index) => (
@@ -104,7 +119,7 @@ export function ReadingList({ initialBooks }: { initialBooks: Book[] }) {
             </AnimatePresence>
           </ul>
         ) : (
-          <p className="text-muted-foreground p-8 text-center">
+          !isLoading && <p className="text-muted-foreground p-8 text-center">
             Votre liste de lecture est vide. Ajoutez un livre pour commencer !
           </p>
         )}

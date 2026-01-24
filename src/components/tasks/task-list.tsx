@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Task } from "@/lib/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const priorityStyles = {
   high: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800",
@@ -13,15 +14,13 @@ const priorityStyles = {
   low: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800",
 };
 
-export function TaskList({ tasks: initialTasks }: { tasks: Task[] }) {
-  const [tasks, setTasks] = useState(initialTasks);
-
-  const toggleTask = (taskId: string) => {
-    setTasks(
-      tasks.map((t) =>
-        t.id === taskId ? { ...t, completed: !t.completed } : t
-      )
-    );
+export function TaskList({ tasks }: { tasks: Task[] }) {
+  
+  const toggleTask = async (task: Task) => {
+    const taskRef = doc(db, "tasks", task.id);
+    await updateDoc(taskRef, {
+        completed: !task.completed
+    });
   };
   
   if (tasks.length === 0) {
@@ -44,7 +43,7 @@ export function TaskList({ tasks: initialTasks }: { tasks: Task[] }) {
             <Checkbox
               id={`task-${task.id}`}
               checked={task.completed}
-              onCheckedChange={() => toggleTask(task.id)}
+              onCheckedChange={() => toggleTask(task)}
             />
             <label
               htmlFor={`task-${task.id}`}

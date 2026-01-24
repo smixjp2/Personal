@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Task } from "@/lib/types";
 import {
   Card,
@@ -10,9 +10,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
+import { collection, onSnapshot, query } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-export function EventCalendar({ tasks }: { tasks: Task[] }) {
+export function EventCalendar() {
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [date, setDate] = useState<Date | undefined>(new Date());
+
+  useEffect(() => {
+    const q = query(collection(db, "tasks"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const tasksData: Task[] = [];
+      querySnapshot.forEach((doc) => {
+        tasksData.push({ id: doc.id, ...doc.data() } as Task);
+      });
+      setTasks(tasksData);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const eventsByDate = tasks.reduce((acc, task) => {
     const taskDate = new Date(task.dueDate).toDateString();
