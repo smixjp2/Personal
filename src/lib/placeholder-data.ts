@@ -1,4 +1,4 @@
-import type { Habit, Goal, Task, ShoppingItem } from "./types";
+import type { Habit, Goal, Task, ShoppingItem, WatchlistItem, Book } from "./types";
 
 export const tasks: Task[] = [
   { id: "task-1", title: "Outline Chapter 1 of new course", completed: true, dueDate: "2024-08-15" },
@@ -55,4 +55,17 @@ export const shoppingList: ShoppingItem[] = [
   { id: "item-2", name: "React Advanced Course", price: 89, purchased: true },
   { id: "item-3", name: "Protein powder", purchased: false },
   { id: "item-4", name: "New monitor", price: 350, purchased: false },
+];
+
+export const watchlist: WatchlistItem[] = [
+  { id: "w-1", title: "Dune: Part Two", category: "movie", watched: false },
+  { id: "w-2", title: "Shōgun", category: "tv-show", watched: true },
+  { id: "w-3", title: "The Three-Body Problem", category: "tv-show", watched: false },
+  { id: "w-4", title: "Oppenheimer", category: "movie", watched: true },
+];
+
+export const readingList: Book[] = [
+  { id: "b-1", title: "The Three-Body Problem", author: "Cixin Liu", read: false },
+  { id: "b-2", title: "Project Hail Mary", author: "Andy Weir", read: true },
+  { id: "b-3", title: "Atomic Habits", author: "James Clear", read: false },
 ];

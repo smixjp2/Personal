@@ -10,6 +10,7 @@ import {
   Target,
   Bot,
   ShoppingCart,
+  Library,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -30,6 +31,7 @@ const navItems = [
   { href: "/tasks", label: "Tasks", icon: ListTodo },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/shopping", label: "Achats", icon: ShoppingCart },
+  { href: "/media", label: "Médiathèque", icon: Library },
 ];
 
 export function SidebarNav() {

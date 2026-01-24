@@ -33,3 +33,17 @@ export type ShoppingItem = {
   price?: number;
   purchased: boolean;
 };
+
+export type WatchlistItem = {
+  id: string;
+  title: string;
+  category: "movie" | "tv-show";
+  watched: boolean;
+};
+
+export type Book = {
+  id: string;
+  title: string;
+  author?: string;
+  read: boolean;
+};
