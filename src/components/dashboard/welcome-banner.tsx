@@ -22,6 +22,7 @@ export function WelcomeBanner() {
           data-ai-hint={welcomeImage.imageHint}
           fill
           className="object-cover"
+          priority
         />
       )}
       <div className="relative bg-gradient-to-r from-black/70 to-black/30 p-8 md:p-12">
