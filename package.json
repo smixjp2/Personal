@@ -2,10 +2,6 @@
   "name": "nextn",
   "version": "0.1.0",
   "private": true,
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/smixjp2/Personal.git"
-  },
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
