@@ -42,6 +42,7 @@ export function Header() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    if (!auth) return; // Do not run auth logic if Firebase is not configured
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
@@ -49,6 +50,7 @@ export function Header() {
   }, []);
 
   const handleLogout = async () => {
+    if (!auth) return; // Do not run auth logic if Firebase is not configured
     await signOut(auth);
     router.push('/login');
   };

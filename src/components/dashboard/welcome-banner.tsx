@@ -13,6 +13,7 @@ export function WelcomeBanner() {
   );
 
   useEffect(() => {
+    if (!auth) return; // Do not run auth logic if Firebase is not configured
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
