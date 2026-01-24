@@ -11,14 +11,13 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+// This check prevents the app from crashing if the environment variables are missing.
+const isConfigValid = Object.values(firebaseConfig).every(Boolean);
+
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
 let auth: Auth | null = null;
 let googleProvider: GoogleAuthProvider | null = null;
-
-// This check prevents the app from crashing both during development and in production builds
-// if the environment variables are missing.
-const isConfigValid = Object.values(firebaseConfig).every(Boolean);
 
 if (isConfigValid) {
   // We only initialize the app if the config is valid.
@@ -27,5 +26,9 @@ if (isConfigValid) {
   auth = getAuth(app);
   googleProvider = new GoogleAuthProvider();
 }
+
+// Note: If the config is invalid, app, db, auth, and googleProvider will be null.
+// The UI components (AuthGuard, LoginPage) are designed to handle this gracefully
+// by showing a FirebaseConfigWarning component.
 
 export { app, db, auth, googleProvider };
