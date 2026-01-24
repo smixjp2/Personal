@@ -1,0 +1,113 @@
+"use client";
+
+import { useState } from "react";
+import type { Habit } from "@/lib/types";
+import { AddHabitDialog } from "./add-habit-dialog";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
+import { AnimatePresence, motion } from "framer-motion";
+
+export function HabitTracker({ initialHabits }: { initialHabits: Habit[] }) {
+  const [habits, setHabits] = useState<Habit[]>(initialHabits);
+
+  const addHabit = (newHabit: Omit<Habit, "id" | "progress">) => {
+    setHabits((prev) => [
+      ...prev,
+      {
+        ...newHabit,
+        id: `habit-${Date.now()}`,
+        progress: 0,
+      },
+    ]);
+  };
+
+  const toggleDailyHabit = (id: string) => {
+    setHabits(
+      habits.map((h) =>
+        h.id === id ? { ...h, progress: h.progress === 1 ? 0 : 1 } : h
+      )
+    );
+  };
+  
+  const renderHabits = (frequency: "daily" | "monthly" | "yearly") => {
+    const filteredHabits = habits.filter((h) => h.frequency === frequency);
+    
+    if (filteredHabits.length === 0) {
+      return <p className="text-muted-foreground p-8 text-center">No {frequency} habits yet. Add one to get started!</p>
+    }
+
+    return (
+      <ul className="space-y-3">
+        <AnimatePresence>
+        {filteredHabits.map((habit, index) => (
+          <motion.li
+            key={habit.id}
+            layout
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+            className="rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <habit.icon className="h-5 w-5 text-primary" />
+                <span className="font-medium">{habit.name}</span>
+              </div>
+              <div className="flex items-center gap-4">
+                {habit.frequency === "daily" ? (
+                  <Checkbox
+                    id={`habit-check-${habit.id}`}
+                    checked={habit.progress === 1}
+                    onCheckedChange={() => toggleDailyHabit(habit.id)}
+                  />
+                ) : (
+                  <div className="w-32 flex items-center gap-2">
+                    <Progress value={habit.progress} className="h-2" />
+                    <span className="text-xs font-mono text-muted-foreground">{habit.progress}%</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.li>
+        ))}
+        </AnimatePresence>
+      </ul>
+    );
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Habit Tracker</CardTitle>
+        <AddHabitDialog onAddHabit={addHabit} />
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="daily">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="daily">Daily</TabsTrigger>
+            <TabsTrigger value="monthly">Monthly</TabsTrigger>
+            <TabsTrigger value="yearly">Yearly</TabsTrigger>
+          </TabsList>
+          <TabsContent value="daily" className="mt-4">
+            {renderHabits("daily")}
+          </TabsContent>
+          <TabsContent value="monthly" className="mt-4">
+            {renderHabits("monthly")}
+          </TabsContent>
+          <TabsContent value="yearly" className="mt-4">
+            {renderHabits("yearly")}
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+}
