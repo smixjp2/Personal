@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -34,70 +35,18 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function FirebaseConfigWarning() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Terminal className="h-6 w-6 text-destructive" />
-            Configuration Requise
-          </CardTitle>
-          <CardDescription>
-            Votre application doit être connectée à Firebase pour que l'authentification fonctionne.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm">
-          <p>
-            Il semble que votre projet ne soit pas entièrement configuré. Pour des raisons de sécurité, vous êtes la seule personne à pouvoir le faire.
-          </p>
-          <div className="rounded-md border border-dashed p-4">
-            <h3 className="font-semibold mb-2">Étapes à suivre :</h3>
-            <ol className="list-decimal list-inside space-y-2">
-              <li>
-                Rendez-vous sur la <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">console Firebase</a>, créez un projet, puis une application web.
-              </li>
-              <li>
-                **Activez la connexion Google :** Allez dans la section `Authentication` &gt; `Sign-in method`, activez **Google** et enregistrez.
-              </li>
-              <li>
-                Créez une copie du fichier <code className="bg-muted px-1 py-0.5 rounded">.env.local.example</code>, renommez-la en <code className="bg-muted px-1 py-0.5 rounded">.env.local</code>.
-              </li>
-              <li>
-                Copiez les clés de votre application web Firebase dans votre nouveau fichier <code className="bg-muted px-1 py-0.5 rounded">.env.local</code>.
-              </li>
-              <li>
-                Redémarrez le serveur de développement. Cette page se mettra à jour automatiquement.
-              </li>
-            </ol>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            N'oubliez pas d'ajouter également ces clés dans les "Environment Variables" de votre projet Vercel pour le déploiement en ligne.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-
 export default function LoginPage() {
   const app = useFirebaseApp();
   const router = useRouter();
   const { toast } = useToast();
   const allowedEmail = 'serroumohammed7@gmail.com';
-  const firebaseConfigured = hasFirebaseConfig();
-
-  if (!firebaseConfigured) {
-    return <FirebaseConfigWarning />;
-  }
-
+  
   const handleGoogleSignIn = async () => {
-    if (!app) {
+    if (!hasFirebaseConfig() || !app) {
         toast({
             variant: "destructive",
             title: "Erreur de Configuration",
-            description: "L'application Firebase n'est pas initialisée. Vérifiez vos clés dans .env.local.",
+            description: "L'application Firebase n'est pas configurée. Vérifiez vos clés dans .env.local.",
         });
         return;
     }
