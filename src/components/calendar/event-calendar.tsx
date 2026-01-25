@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { Task } from "@/lib/types";
 import {
   Card,
@@ -10,30 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
-import { collection, onSnapshot, query } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { useData } from "@/contexts/data-context";
 
 export function EventCalendar() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks, isInitialized } = useData();
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!db) {
-      setIsLoading(false);
-      return;
-    }
-    const q = query(collection(db, "tasks"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const tasksData: Task[] = [];
-      querySnapshot.forEach((doc) => {
-        tasksData.push({ id: doc.id, ...doc.data() } as Task);
-      });
-      setTasks(tasksData);
-      setIsLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
 
   const eventsByDate = tasks.reduce((acc, task) => {
     if (!task.dueDate) return acc;
@@ -88,7 +69,7 @@ export function EventCalendar() {
           <CardDescription>Tasks scheduled for this day.</CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {!isInitialized ? (
              <p className="text-sm text-muted-foreground">Loading events...</p>
           ) : selectedDayEvents.length > 0 ? (
             <ul className="space-y-2">

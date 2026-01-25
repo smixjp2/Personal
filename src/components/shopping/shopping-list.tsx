@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import type { ShoppingItem } from "@/lib/types";
 import {
   Card,
@@ -15,102 +14,29 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { db } from "@/lib/firebase";
-import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query } from "firebase/firestore";
-import { useToast } from "@/hooks/use-toast";
+import { useData } from "@/contexts/data-context";
+import { v4 as uuidv4 } from "uuid";
 
 export function ShoppingList() {
-  const [items, setItems] = useState<ShoppingItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+  const { shoppingList: items, setShoppingList: setItems, isInitialized } = useData();
 
-  useEffect(() => {
-    if (!db) {
-      setIsLoading(false);
-      return;
-    }
-    const q = query(collection(db, "shoppingList"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const itemsData: ShoppingItem[] = [];
-      querySnapshot.forEach((doc) => {
-        itemsData.push({ id: doc.id, ...doc.data() } as ShoppingItem);
-      });
-      setItems(itemsData);
-      setIsLoading(false);
-    }, () => {
-        setIsLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const addItem = async (newItemData: Omit<ShoppingItem, "id" | "purchased">) => {
-    if (!db) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de configuration",
-        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
-      });
-      return;
-    }
-    try {
-      await addDoc(collection(db, "shoppingList"), {
-        ...newItemData,
-        purchased: false,
-      });
-    } catch (error) {
-      console.error("Error adding item: ", error);
-      toast({
-        variant: "destructive",
-        title: "Oh non ! Quelque chose s'est mal passé.",
-        description: "Impossible d'ajouter l'article. Veuillez réessayer.",
-      });
-    }
+  const addItem = (newItemData: Omit<ShoppingItem, "id" | "purchased">) => {
+    const newItem: ShoppingItem = {
+      ...newItemData,
+      id: uuidv4(),
+      purchased: false,
+    };
+    setItems(prev => [...prev, newItem]);
   };
 
-  const toggleItem = async (itemId: string) => {
-    if (!db) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de configuration",
-        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
-      });
-      return;
-    }
-    const itemRef = doc(db, "shoppingList", itemId);
-    const itemToToggle = items.find(i => i.id === itemId);
-    if (itemToToggle) {
-      try {
-        await updateDoc(itemRef, { purchased: !itemToToggle.purchased });
-      } catch (error) {
-        console.error("Error toggling item: ", error);
-        toast({
-          variant: "destructive",
-          title: "Oh non ! Quelque chose s'est mal passé.",
-          description: "Impossible de mettre à jour l'article. Veuillez réessayer.",
-        });
-      }
-    }
+  const toggleItem = (itemId: string) => {
+    setItems(prev =>
+      prev.map(i => (i.id === itemId ? { ...i, purchased: !i.purchased } : i))
+    );
   };
 
-  const deleteItem = async (itemId: string) => {
-    if (!db) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de configuration",
-        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
-      });
-      return;
-    }
-    try {
-      await deleteDoc(doc(db, "shoppingList", itemId));
-    } catch (error) {
-      console.error("Error deleting item: ", error);
-      toast({
-        variant: "destructive",
-        title: "Oh non ! Quelque chose s'est mal passé.",
-        description: "Impossible de supprimer l'article. Veuillez réessayer.",
-      });
-    }
+  const deleteItem = (itemId: string) => {
+    setItems(prev => prev.filter(i => i.id !== itemId));
   };
   
   const totalCost = items.reduce((sum, item) => sum + (item.price || 0), 0);
@@ -128,8 +54,8 @@ export function ShoppingList() {
         <AddItemDialog onAddItem={addItem} />
       </CardHeader>
       <CardContent>
-        {isLoading && <p className="text-muted-foreground p-8 text-center">Loading...</p>}
-        {!isLoading && items.length > 0 ? (
+        {!isInitialized && <p className="text-muted-foreground p-8 text-center">Loading...</p>}
+        {isInitialized && items.length > 0 ? (
           <ul className="space-y-3">
             <AnimatePresence>
               {items.map((item, index) => (
@@ -181,7 +107,7 @@ export function ShoppingList() {
             </AnimatePresence>
           </ul>
         ) : (
-          !isLoading && <p className="text-muted-foreground p-8 text-center">
+          isInitialized && <p className="text-muted-foreground p-8 text-center">
             Your shopping list is empty. Add an item to get started!
           </p>
         )}

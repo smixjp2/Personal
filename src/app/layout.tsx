@@ -1,11 +1,10 @@
 'use client'
 
-import { usePathname } from "next/navigation";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { Header } from "@/components/layout/header";
 import { Toaster } from "@/components/ui/toaster";
-import AuthGuard from "@/components/auth/auth-guard";
+import { DataProvider } from "@/contexts/data-context";
 import "./globals.css";
 
 export default function RootLayout({
@@ -13,8 +12,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname();
-  const isLoginPage = pathname === '/login';
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -33,19 +30,17 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        {isLoginPage ? (
-          children
-        ) : (
+        <DataProvider>
           <SidebarProvider>
             <SidebarNav />
             <SidebarInset>
               <Header />
               <main className="p-4 sm:p-6 lg:p-8">
-                <AuthGuard>{children}</AuthGuard>
+                {children}
               </main>
             </SidebarInset>
           </SidebarProvider>
-        )}
+        </DataProvider>
         <Toaster />
       </body>
     </html>

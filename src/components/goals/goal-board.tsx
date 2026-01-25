@@ -1,15 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import type { Goal } from "@/lib/types";
 import { GoalCard } from "./goal-card";
 import { AddGoalDialog } from "./add-goal-dialog";
 import { Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { db } from "@/lib/firebase";
-import { collection, onSnapshot, addDoc, query } from "firebase/firestore";
 import { Skeleton } from "../ui/skeleton";
-import { useToast } from "@/hooks/use-toast";
+import { useData } from "@/contexts/data-context";
+import { v4 as uuidv4 } from 'uuid';
 
 const columns: {
   id: Goal["category"];
@@ -21,54 +19,18 @@ const columns: {
 ];
 
 export function GoalBoard() {
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+  const { goals, setGoals, isInitialized } = useData();
 
-  useEffect(() => {
-    if (!db) {
-      setIsLoading(false);
-      return;
-    }
-    const q = query(collection(db, "goals"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const goalsData: Goal[] = [];
-      querySnapshot.forEach((doc) => {
-        goalsData.push({ id: doc.id, ...doc.data() } as Goal);
-      });
-      setGoals(goalsData);
-      setIsLoading(false);
-    }, () => {
-        setIsLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const addGoal = async (newGoalData: Omit<Goal, 'id' | 'progress'>) => {
-    if (!db) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de configuration",
-        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
-      });
-      return;
-    }
-    try {
-      await addDoc(collection(db, "goals"), {
-        ...newGoalData,
-        progress: 0,
-      });
-    } catch (error) {
-      console.error("Error adding goal: ", error);
-      toast({
-        variant: "destructive",
-        title: "Oh non ! Quelque chose s'est mal passé.",
-        description: "Impossible d'ajouter l'objectif. Veuillez réessayer.",
-      });
-    }
+  const addGoal = (newGoalData: Omit<Goal, 'id' | 'progress'>) => {
+    const newGoal: Goal = {
+      ...newGoalData,
+      id: uuidv4(),
+      progress: 0,
+    };
+    setGoals(prev => [...prev, newGoal]);
   };
 
-  if (isLoading) {
+  if (!isInitialized) {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">

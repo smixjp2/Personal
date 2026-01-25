@@ -2,23 +2,11 @@
 
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { useState, useEffect } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 
 export function WelcomeBanner() {
-  const [user, setUser] = useState<User | null>(null);
   const welcomeImage = PlaceHolderImages.find(
     (img) => img.id === "welcome-banner"
   );
-
-  useEffect(() => {
-    if (!auth) return; // Do not run auth logic if Firebase is not configured
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
 
   const today = new Date();
   const greeting =
@@ -28,7 +16,7 @@ export function WelcomeBanner() {
       ? "Good Afternoon"
       : "Good Evening";
   
-  const displayName = user?.displayName?.split(' ')[0] || "User";
+  const displayName = "Architect";
 
   return (
     <div className="relative overflow-hidden rounded-lg">

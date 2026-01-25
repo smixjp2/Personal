@@ -1,11 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
 import Image from "next/image";
-import { Bell, Search, LogOut } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-import { signOut, onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { Bell, Search, Bot } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -38,23 +35,6 @@ const pageTitles: { [key: string]: string } = {
 
 export function Header() {
   const pathname = usePathname();
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    if (!auth) return; // Do not run auth logic if Firebase is not configured
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const handleLogout = async () => {
-    if (!auth) return; // Do not run auth logic if Firebase is not configured
-    await signOut(auth);
-    router.push('/login');
-  };
-
   const avatarImage = PlaceHolderImages.find((img) => img.id === "user-avatar");
 
   return (
@@ -117,12 +97,7 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full">
               <Avatar className="h-9 w-9">
-                {user?.photoURL ? (
-                  <AvatarImage
-                    src={user.photoURL}
-                    alt={user.displayName || 'User Avatar'}
-                  />
-                ) : avatarImage && (
+                {avatarImage && (
                   <AvatarImage
                     src={avatarImage.imageUrl}
                     alt="User Avatar"
@@ -130,21 +105,16 @@ export function Header() {
                   />
                 )}
                 <AvatarFallback>
-                  {user?.displayName ? user.displayName.charAt(0).toUpperCase() : 'LA'}
+                  <Bot />
                 </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>{user?.displayName || 'My Account'}</DropdownMenuLabel>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Logout</span>
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

@@ -5,9 +5,8 @@ import type { Task } from "@/lib/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import { useData } from "@/contexts/data-context";
 
 const priorityStyles = {
   high: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800",
@@ -17,29 +16,14 @@ const priorityStyles = {
 
 export function TaskList({ tasks }: { tasks: Task[] }) {
   const { toast } = useToast();
+  const { setTasks } = useData();
   
-  const toggleTask = async (task: Task) => {
-    if (!db) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de configuration",
-        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
-      });
-      return;
-    }
-    const taskRef = doc(db, "tasks", task.id);
-    try {
-      await updateDoc(taskRef, {
-          completed: !task.completed
-      });
-    } catch (error) {
-      console.error("Error toggling task: ", error);
-      toast({
-        variant: "destructive",
-        title: "Oh non ! Quelque chose s'est mal passé.",
-        description: "Impossible de mettre à jour la tâche. Veuillez réessayer.",
-      });
-    }
+  const toggleTask = async (taskToToggle: Task) => {
+    setTasks(prev =>
+      prev.map(task =>
+        task.id === taskToToggle.id ? { ...task, completed: !task.completed } : task
+      )
+    );
   };
   
   if (tasks.length === 0) {

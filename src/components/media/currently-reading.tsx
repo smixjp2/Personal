@@ -1,49 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import type { Book } from '@/lib/types';
-import { db } from '@/lib/firebase';
-import { collection, query, where, limit, onSnapshot } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookOpen } from 'lucide-react';
+import { useData } from '@/contexts/data-context';
 
 export function CurrentlyReading() {
-  const [currentBook, setCurrentBook] = useState<Book | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { readingList, isInitialized } = useData();
+
+  const currentBook = readingList.find(b => !b.read) || null;
 
   const readingImage = PlaceHolderImages.find(
     (img) => img.id === 'currently-reading'
   );
-
-  useEffect(() => {
-    if (!db) {
-      setIsLoading(false);
-      return;
-    }
-
-    const q = query(
-      collection(db, 'readingList'),
-      where('read', '==', false),
-      limit(1)
-    );
-
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      if (!querySnapshot.empty) {
-        const doc = querySnapshot.docs[0];
-        setCurrentBook({ id: doc.id, ...doc.data() } as Book);
-      } else {
-        setCurrentBook(null);
-      }
-      setIsLoading(false);
-    }, () => {
-        setIsLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   return (
     <Card className="flex flex-col">
@@ -51,7 +23,7 @@ export function CurrentlyReading() {
         <CardTitle>Lecture en cours</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow">
-        {isLoading ? (
+        {!isInitialized ? (
           <div className="space-y-2">
             <Skeleton className="h-40 w-full" />
             <Skeleton className="h-6 w-3/4" />

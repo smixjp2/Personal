@@ -2,66 +2,13 @@
 
 import { CheckSquare, ListTodo, Target } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState, useEffect } from "react";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import type { Habit, Goal, Task } from "@/lib/types";
+import { useData } from "@/contexts/data-context";
 import { Skeleton } from "../ui/skeleton";
 
 export function StatsCards() {
-  const [habits, setHabits] = useState<Habit[]>([]);
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { habits, goals, tasks, isInitialized } = useData();
 
-  useEffect(() => {
-    if (!db) {
-      setIsLoading(false);
-      return;
-    }
-
-    let loadCount = 0;
-    const sources = 3;
-    const checkLoading = () => {
-        loadCount++;
-        if (loadCount >= sources) {
-            setIsLoading(false);
-        }
-    };
-
-    const unsubHabits = onSnapshot(collection(db, "habits"), (snap) => {
-      setHabits(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Habit)));
-      checkLoading();
-    }, () => checkLoading());
-
-    const unsubGoals = onSnapshot(collection(db, "goals"), (snap) => {
-      setGoals(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Goal)));
-      checkLoading();
-    }, () => checkLoading());
-    
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const q = query(
-        collection(db, "tasks"), 
-        where("dueDate", ">=", today.toISOString().split('T')[0]),
-        where("dueDate", "<", tomorrow.toISOString().split('T')[0])
-    );
-    const unsubTasks = onSnapshot(q, (snap) => {
-      setTasks(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Task)));
-      checkLoading();
-    }, () => checkLoading());
-
-    return () => {
-      unsubHabits();
-      unsubGoals();
-      unsubTasks();
-    };
-  }, []);
-  
-  if (isLoading) {
+  if (!isInitialized) {
     return (
         <div className="grid gap-4 md:grid-cols-3">
             <Skeleton className="h-[125px]" />
@@ -71,10 +18,19 @@ export function StatsCards() {
     )
   }
 
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
   const dailyHabitsCompleted = habits.filter(h => h.frequency === 'daily' && h.progress === 1).length;
   const dailyHabitsTotal = habits.filter(h => h.frequency === 'daily').length;
   const goalsInProgress = goals.filter(g => g.progress > 0 && g.progress < 100).length;
-  const tasksDueToday = tasks.filter(t => !t.completed).length;
+  const tasksDueToday = tasks.filter(t => {
+    if (t.completed) return false;
+    const dueDate = new Date(t.dueDate);
+    return dueDate >= today && dueDate < tomorrow;
+  }).length;
 
   const stats = [
     {

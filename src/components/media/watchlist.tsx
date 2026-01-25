@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import type { WatchlistItem } from "@/lib/types";
 import {
   Card,
@@ -15,102 +14,29 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Film, Tv } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { db } from "@/lib/firebase";
-import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query } from "firebase/firestore";
-import { useToast } from "@/hooks/use-toast";
+import { useData } from "@/contexts/data-context";
+import { v4 as uuidv4 } from "uuid";
 
 export function Watchlist() {
-  const [items, setItems] = useState<WatchlistItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+  const { watchlist: items, setWatchlist: setItems, isInitialized } = useData();
 
-  useEffect(() => {
-    if (!db) {
-      setIsLoading(false);
-      return;
-    }
-    const q = query(collection(db, "watchlist"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const itemsData: WatchlistItem[] = [];
-      querySnapshot.forEach((doc) => {
-        itemsData.push({ id: doc.id, ...doc.data() } as WatchlistItem);
-      });
-      setItems(itemsData);
-      setIsLoading(false);
-    }, () => {
-        setIsLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const addItem = async (newItemData: Omit<WatchlistItem, "id" | "watched">) => {
-    if (!db) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de configuration",
-        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
-      });
-      return;
-    }
-    try {
-      await addDoc(collection(db, "watchlist"), {
-        ...newItemData,
-        watched: false,
-      });
-    } catch (error) {
-      console.error("Error adding item: ", error);
-      toast({
-        variant: "destructive",
-        title: "Oh non ! Quelque chose s'est mal passé.",
-        description: "Impossible d'ajouter l'élément. Veuillez réessayer.",
-      });
-    }
+  const addItem = (newItemData: Omit<WatchlistItem, "id" | "watched">) => {
+    const newItem: WatchlistItem = {
+      ...newItemData,
+      id: uuidv4(),
+      watched: false,
+    };
+    setItems(prev => [...prev, newItem]);
   };
 
-  const toggleItem = async (itemId: string) => {
-    if (!db) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de configuration",
-        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
-      });
-      return;
-    }
-    const itemRef = doc(db, "watchlist", itemId);
-    const itemToToggle = items.find(i => i.id === itemId);
-    if (itemToToggle) {
-      try {
-        await updateDoc(itemRef, { watched: !itemToToggle.watched });
-      } catch (error) {
-        console.error("Error toggling item: ", error);
-        toast({
-          variant: "destructive",
-          title: "Oh non ! Quelque chose s'est mal passé.",
-          description: "Impossible de mettre à jour l'élément. Veuillez réessayer.",
-        });
-      }
-    }
+  const toggleItem = (itemId: string) => {
+    setItems(prev =>
+      prev.map(i => (i.id === itemId ? { ...i, watched: !i.watched } : i))
+    );
   };
 
-  const deleteItem = async (itemId: string) => {
-    if (!db) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de configuration",
-        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
-      });
-      return;
-    }
-    try {
-      await deleteDoc(doc(db, "watchlist", itemId));
-    } catch (error) {
-      console.error("Error deleting item: ", error);
-      toast({
-        variant: "destructive",
-        title: "Oh non ! Quelque chose s'est mal passé.",
-        description: "Impossible de supprimer l'élément. Veuillez réessayer.",
-      });
-    }
+  const deleteItem = (itemId: string) => {
+    setItems(prev => prev.filter(i => i.id !== itemId));
   };
   
   const itemsWatched = items.filter(i => i.watched).length;
@@ -127,8 +53,8 @@ export function Watchlist() {
         <AddWatchlistItemDialog onAddItem={addItem} />
       </CardHeader>
       <CardContent>
-        {isLoading && <p className="text-muted-foreground p-8 text-center">Loading...</p>}
-        {!isLoading && items.length > 0 ? (
+        {!isInitialized && <p className="text-muted-foreground p-8 text-center">Loading...</p>}
+        {isInitialized && items.length > 0 ? (
           <ul className="space-y-3">
             <AnimatePresence>
               {items.map((item, index) => (
@@ -178,7 +104,7 @@ export function Watchlist() {
             </AnimatePresence>
           </ul>
         ) : (
-          !isLoading && <p className="text-muted-foreground p-8 text-center">
+          isInitialized && <p className="text-muted-foreground p-8 text-center">
             Votre liste de visionnage est vide. Ajoutez un film ou une série pour commencer !
           </p>
         )}
