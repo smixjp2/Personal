@@ -3,9 +3,11 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { Header } from "@/components/layout/header";
-import { Toaster } from "@/components/ui/toaster";
-import { DataProvider } from "@/contexts/data-context";
+import { FirebaseClientProvider } from "@/firebase/client-provider";
+import { AuthGuard } from "@/components/auth/auth-guard";
 import "./globals.css";
+import { usePathname } from "next/navigation";
+
 
 export default function RootLayout({
   children,
@@ -30,19 +32,37 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <DataProvider>
-          <SidebarProvider>
-            <SidebarNav />
-            <SidebarInset>
-              <Header />
-              <main className="p-4 sm:p-6 lg:p-8">
-                {children}
-              </main>
-            </SidebarInset>
-          </SidebarProvider>
-        </DataProvider>
-        <Toaster />
+        <FirebaseClientProvider>
+          <AuthGuard>
+            <AppLayout>
+              {children}
+            </AppLayout>
+          </AuthGuard>
+        </FirebaseClientProvider>
       </body>
     </html>
   );
+}
+
+// We extract the main app layout to conditionally render it
+// based on the authentication status or route.
+function AppLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
+  // Don't show the main layout on the login page
+  if (pathname === '/login') {
+    return <>{children}</>;
+  }
+
+  return (
+    <SidebarProvider>
+      <SidebarNav />
+      <SidebarInset>
+        <Header />
+        <main className="p-4 sm:p-6 lg:p-8">
+          {children}
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  )
 }

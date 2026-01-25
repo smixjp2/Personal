@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { Bell, Search, Bot } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { Bell, Search, Bot, LogOut } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { getAuth, signOut } from "firebase/auth";
 
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -22,6 +23,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useFirebaseApp, useUser } from "@/firebase";
 
 const pageTitles: { [key: string]: string } = {
   "/": "Dashboard",
@@ -35,7 +37,15 @@ const pageTitles: { [key: string]: string } = {
 
 export function Header() {
   const pathname = usePathname();
-  const avatarImage = PlaceHolderImages.find((img) => img.id === "user-avatar");
+  const router = useRouter();
+  const app = useFirebaseApp();
+  const { user } = useUser();
+
+  const handleSignOut = async () => {
+    const auth = getAuth(app);
+    await signOut(auth);
+    router.push('/login');
+  };
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6 lg:px-8">
@@ -97,24 +107,28 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full">
               <Avatar className="h-9 w-9">
-                {avatarImage && (
+                {user?.photoURL && (
                   <AvatarImage
-                    src={avatarImage.imageUrl}
-                    alt="User Avatar"
-                    data-ai-hint={avatarImage.imageHint}
+                    src={user.photoURL}
+                    alt={user.displayName || 'User Avatar'}
                   />
                 )}
                 <AvatarFallback>
-                  <Bot />
+                  {user?.displayName?.charAt(0) || <Bot />}
                 </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>{user?.displayName || 'My Account'}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

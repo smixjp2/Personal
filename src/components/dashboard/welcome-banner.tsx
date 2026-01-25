@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { useUser } from "@/firebase";
 
 export function WelcomeBanner() {
+  const { user } = useUser();
   const welcomeImage = PlaceHolderImages.find(
     (img) => img.id === "welcome-banner"
   );
@@ -16,7 +18,7 @@ export function WelcomeBanner() {
       ? "Good Afternoon"
       : "Good Evening";
   
-  const displayName = "Architect";
+  const displayName = user?.displayName?.split(' ')[0] || "Architect";
 
   return (
     <div className="relative overflow-hidden rounded-lg">
