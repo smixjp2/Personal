@@ -19,6 +19,7 @@ import { useFirebaseApp } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { hasFirebaseConfig } from '@/firebase/config';
 
 export default function LoginPage() {
   const app = useFirebaseApp();
@@ -26,6 +27,15 @@ export default function LoginPage() {
   const { toast } = useToast();
 
   const handleGoogleSignIn = async () => {
+    if (!app || !hasFirebaseConfig()) {
+        toast({
+            variant: 'destructive',
+            title: 'Configuration Error',
+            description: 'Firebase is not configured correctly. Please check your environment variables.',
+        });
+        return;
+    }
+
     const auth = getAuth(app);
     const firestore = getFirestore(app);
     const provider = new GoogleAuthProvider();
