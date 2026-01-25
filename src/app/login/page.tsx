@@ -97,8 +97,8 @@ export default function LoginPage() {
     if (!app) {
         toast({
             variant: 'destructive',
-            title: 'Erreur de Configuration',
-            description: 'L\'application Firebase n\'est pas initialisée. Vérifiez vos clés dans .env.local.',
+            title: "Erreur de Configuration",
+            description: "L'application Firebase n'est pas initialisée. Vérifiez vos clés dans .env.local.",
         });
         return;
     }
@@ -113,7 +113,7 @@ export default function LoginPage() {
         await signOut(auth);
         toast({
           variant: 'destructive',
-          title: 'Accès non autorisé',
+          title: "Accès non autorisé",
           description: `Seul l'email ${allowedEmail} est autorisé à se connecter.`,
         });
         return;
@@ -124,9 +124,9 @@ export default function LoginPage() {
     } catch (error: any) {
       toast({
         variant: 'destructive',
-        title: 'Échec de l'authentification',
+        title: "Échec de l'authentification",
         description:
-          error.message || 'Impossible de vous connecter avec Google. Veuillez réessayer.',
+          error.message || "Impossible de vous connecter avec Google. Veuillez réessayer.",
       });
       console.error('Authentication error:', error);
     }
