@@ -4,12 +4,13 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useUser } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import type { Habit, Goal, Task, ShoppingItem, WatchlistItem, Book } from '@/lib/types';
+import type { Habit, Goal, Task, ShoppingItem, WatchlistItem, Book, Project } from '@/lib/types';
 
 interface DataContextType {
   isInitialized: boolean;
   habits: Habit[];
   goals: Goal[];
+  projects: Project[];
   tasks: Task[];
   shoppingList: ShoppingItem[];
   watchlist: WatchlistItem[];
@@ -27,6 +28,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const { data: goals, isLoading: loadingGoals } = useCollection<Goal>(
     user ? `users/${user.uid}/goals` : null
   );
+  const { data: projects, isLoading: loadingProjects } = useCollection<Project>(
+    user ? `users/${user.uid}/projects` : null
+  );
   const { data: tasks, isLoading: loadingTasks } = useCollection<Task>(
     user ? `users/${user.uid}/tasks` : null
   );
@@ -40,12 +44,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     user ? `users/${user.uid}/reading-list` : null
   );
   
-  const isInitialized = !loadingHabits && !loadingGoals && !loadingTasks && !loadingShopping && !loadingWatchlist && !loadingReading;
+  const isInitialized = !loadingHabits && !loadingGoals && !loadingTasks && !loadingShopping && !loadingWatchlist && !loadingReading && !loadingProjects;
 
   const value: DataContextType = {
     isInitialized,
     habits: habits || [],
     goals: goals || [],
+    projects: projects || [],
     tasks: tasks || [],
     shoppingList: shoppingList || [],
     watchlist: watchlist || [],

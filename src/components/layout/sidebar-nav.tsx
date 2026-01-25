@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -11,6 +12,7 @@ import {
   Bot,
   ShoppingCart,
   Library,
+  Briefcase,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +30,7 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/habits", label: "Habits", icon: CheckSquare },
   { href: "/goals", label: "Goals", icon: Target },
+  { href: "/projects", label: "Projets", icon: Briefcase },
   { href: "/tasks", label: "Tasks", icon: ListTodo },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/shopping", label: "Achats", icon: ShoppingCart },

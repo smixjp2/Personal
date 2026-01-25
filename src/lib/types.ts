@@ -23,12 +23,21 @@ export type Goal = BaseEntity & {
   progress: number;
 };
 
+export type Project = BaseEntity & {
+  name: string;
+  description: string;
+  status: "idea" | "in-progress" | "completed";
+  dueDate?: string;
+};
+
+
 export type Task = BaseEntity & {
   title: string;
   completed: boolean;
   dueDate: string;
   priority?: "low" | "medium" | "high";
   goalId?: string;
+  projectId?: string;
 };
 
 export type ShoppingItem = BaseEntity & {

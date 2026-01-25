@@ -57,6 +57,20 @@
       },
       "required": ["name", "description", "category", "dueDate", "createdAt", "updatedAt"]
     },
+    "Project": {
+      "title": "Project",
+      "description": "A project the user is working on.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["idea", "in-progress", "completed"] },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "status", "createdAt", "updatedAt"]
+    },
     "Task": {
       "title": "Task",
       "description": "A single task item.",
@@ -67,6 +81,7 @@
         "dueDate": { "type": "string", "format": "date-time" },
         "priority": { "type": "string", "enum": ["low", "medium", "high"] },
         "goalId": { "type": "string" },
+        "projectId": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
@@ -127,6 +142,10 @@
     "/users/{userId}/goals/{goalId}": {
       "schema": { "$ref": "#/entities/Goal" },
       "description": "Stores user goals."
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Stores user projects."
     },
     "/users/{userId}/tasks/{taskId}": {
       "schema": { "$ref": "#/entities/Task" },

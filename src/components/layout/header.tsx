@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -29,6 +30,7 @@ const pageTitles: { [key: string]: string } = {
   "/": "Dashboard",
   "/habits": "Habit Tracker",
   "/goals": "Goal Management",
+  "/projects": "Projets",
   "/tasks": "Task Inbox",
   "/calendar": "Calendar",
   "/shopping": "Liste d'achats",
