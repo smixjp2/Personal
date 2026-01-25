@@ -50,27 +50,30 @@ function FirebaseConfigWarning() {
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
           <p>
-            Il semble que les clés de configuration de Firebase soient manquantes. Pour des raisons de sécurité, vous êtes la seule personne à pouvoir les créer.
+            Il semble que votre projet ne soit pas entièrement configuré. Pour des raisons de sécurité, vous êtes la seule personne à pouvoir le faire.
           </p>
           <div className="rounded-md border border-dashed p-4">
             <h3 className="font-semibold mb-2">Étapes à suivre :</h3>
             <ol className="list-decimal list-inside space-y-2">
               <li>
-                Créez une copie du fichier <code className="bg-muted px-1 py-0.5 rounded">.env.local.example</code> et renommez-la en <code className="bg-muted px-1 py-0.5 rounded">.env.local</code>.
-              </li>
-              <li>
                 Rendez-vous sur la <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">console Firebase</a>, créez un projet, puis une application web.
               </li>
               <li>
-                Copiez les clés depuis les paramètres de votre projet Firebase dans votre nouveau fichier <code className="bg-muted px-1 py-0.5 rounded">.env.local</code>.
+                **Activez la connexion Google :** Allez dans la section `Authentication` > `Sign-in method`, activez **Google** et enregistrez.
               </li>
               <li>
-                Redémarrez le serveur de développement local. Cette page se mettra à jour automatiquement.
+                Créez une copie du fichier <code className="bg-muted px-1 py-0.5 rounded">.env.local.example</code>, renommez-la en <code className="bg-muted px-1 py-0.5 rounded">.env.local</code>.
+              </li>
+              <li>
+                Copiez les clés de votre application web Firebase dans votre nouveau fichier <code className="bg-muted px-1 py-0.5 rounded">.env.local</code>.
+              </li>
+              <li>
+                Redémarrez le serveur de développement. Cette page se mettra à jour automatiquement.
               </li>
             </ol>
           </div>
           <p className="text-xs text-muted-foreground">
-            Si l'application est déployée sur Vercel, n'oubliez pas d'ajouter également ces clés dans les "Environment Variables" de votre projet Vercel.
+            N'oubliez pas d'ajouter également ces clés dans les "Environment Variables" de votre projet Vercel pour le déploiement en ligne.
           </p>
         </CardContent>
       </Card>
