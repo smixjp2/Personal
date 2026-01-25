@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -98,7 +97,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=1:12345...:web:...`}
           <div className="space-y-2">
               <p className="font-semibold">Étape 5 : Activer la connexion Google</p>
               <p className="text-muted-foreground">
-                  Dans la console Firebase, allez dans `Authentication` (dans le menu de gauche), puis dans l'onglet `Sign-in method` et activez **Google** comme fournisseur.
+                  Dans la console Firebase, allez dans la section <code className="bg-muted px-1 py-0.5 rounded">Authentication</code> (dans le menu de gauche), puis dans l'onglet <code className="bg-muted px-1 py-0.5 rounded">Sign-in method</code> et activez **Google** comme fournisseur.
               </p>
           </div>
           <div className="space-y-2">
