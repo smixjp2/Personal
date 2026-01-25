@@ -59,7 +59,7 @@ function FirebaseConfigWarning() {
                 Rendez-vous sur la <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">console Firebase</a>, créez un projet, puis une application web.
               </li>
               <li>
-                **Activez la connexion Google :** Allez dans la section `Authentication` > `Sign-in method`, activez **Google** et enregistrez.
+                **Activez la connexion Google :** Allez dans la section `Authentication` &gt; `Sign-in method`, activez **Google** et enregistrez.
               </li>
               <li>
                 Créez une copie du fichier <code className="bg-muted px-1 py-0.5 rounded">.env.local.example</code>, renommez-la en <code className="bg-muted px-1 py-0.5 rounded">.env.local</code>.
@@ -124,7 +124,7 @@ export default function LoginPage() {
     } catch (error: any) {
       toast({
         variant: 'destructive',
-        title: 'Échec de l\'authentification',
+        title: 'Échec de l'authentification',
         description:
           error.message || 'Impossible de vous connecter avec Google. Veuillez réessayer.',
       });
