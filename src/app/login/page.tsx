@@ -45,7 +45,7 @@ export default function LoginPage() {
         toast({
             variant: "destructive",
             title: "Erreur de Configuration",
-            description: "L'application Firebase n'est pas configurée. Vérifiez vos clés dans .env.local.",
+            description: "L'initialisation de l'application a échoué. Les clés Firebase ne sont pas correctement chargées.",
         });
         return;
     }
