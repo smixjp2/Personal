@@ -155,12 +155,20 @@ export default function LoginPage() {
       await createUserProfile(firestore, result.user);
       router.push('/');
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Échec de l'authentification",
-        description:
-          error.message || "Impossible de vous connecter avec Google. Veuillez réessayer.",
-      });
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        toast({
+          variant: "destructive",
+          title: "Compte existant avec une autre méthode",
+          description: "Un compte avec cet e-mail existe déjà (probablement créé manuellement). Veuillez le supprimer de la console Firebase avant de vous connecter avec Google.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Échec de l'authentification",
+          description:
+            error.message || "Impossible de vous connecter avec Google. Veuillez réessayer.",
+        });
+      }
       console.error("Authentication error:", error);
     }
   };
