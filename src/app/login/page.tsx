@@ -35,14 +35,59 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function ConfigGuide() {
+  return (
+    <Card className="w-full max-w-lg">
+      <CardHeader>
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+          <Terminal className="h-8 w-8 text-primary" />
+        </div>
+        <CardTitle className="text-2xl">Action Requise : Finalisez la configuration</CardTitle>
+        <CardDescription>
+          Pour des raisons de sécurité, je ne peux pas faire cette étape pour vous.
+          Une fois la configuration terminée, cette page affichera le formulaire de connexion.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4 text-sm">
+        <ol className="list-decimal list-inside space-y-3">
+          <li>
+            Copiez le fichier <code className="bg-muted px-1 py-0.5 rounded">.env.local.example</code> et renommez la copie en <code className="bg-muted px-1 py-0.5 rounded">.env.local</code>.
+          </li>
+          <li>
+            Allez sur la <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">console Firebase</a>, dans les **paramètres de votre projet**, trouvez votre **application web** (ou créez-en une, icône `</>`).
+          </li>
+          <li>
+            Copiez les valeurs de `firebaseConfig` et collez-les dans votre fichier `.env.local`.
+          </li>
+           <li>
+            Dans la console Firebase, allez dans `Authentication`, onglet `Sign-in method`, et **activez Google** comme fournisseur.
+          </li>
+          <li>
+            Redémarrez l'application pour que les nouvelles variables d'environnement soient prises en compte.
+          </li>
+        </ol>
+      </CardContent>
+    </Card>
+  );
+}
+
+
 export default function LoginPage() {
   const app = useFirebaseApp();
   const router = useRouter();
   const { toast } = useToast();
   const allowedEmail = 'serroumohammed7@gmail.com';
   
+  if (!hasFirebaseConfig()) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <ConfigGuide />
+      </div>
+    );
+  }
+  
   const handleGoogleSignIn = async () => {
-    if (!hasFirebaseConfig() || !app) {
+    if (!app) {
         toast({
             variant: "destructive",
             title: "Erreur de Configuration",
