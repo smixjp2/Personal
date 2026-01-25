@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -86,7 +85,7 @@ export default function LoginPage() {
   const app = useFirebaseApp();
   const router = useRouter();
   const { toast } = useToast();
-  const allowedEmail = 'serrou.mohammed@outlook.com';
+  const allowedEmail = 'serroumohammed7@gmail.com';
   const firebaseConfigured = hasFirebaseConfig();
 
   if (!firebaseConfigured) {
@@ -96,7 +95,7 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     if (!app) {
         toast({
-            variant: 'destructive',
+            variant: "destructive",
             title: "Erreur de Configuration",
             description: "L'application Firebase n'est pas initialisée. Vérifiez vos clés dans .env.local.",
         });
@@ -112,7 +111,7 @@ export default function LoginPage() {
       if (result.user.email !== allowedEmail) {
         await signOut(auth);
         toast({
-          variant: 'destructive',
+          variant: "destructive",
           title: "Accès non autorisé",
           description: `Seul l'email ${allowedEmail} est autorisé à se connecter.`,
         });
@@ -123,12 +122,12 @@ export default function LoginPage() {
       router.push('/');
     } catch (error: any) {
       toast({
-        variant: 'destructive',
+        variant: "destructive",
         title: "Échec de l'authentification",
         description:
           error.message || "Impossible de vous connecter avec Google. Veuillez réessayer.",
       });
-      console.error('Authentication error:', error);
+      console.error("Authentication error:", error);
     }
   };
 
