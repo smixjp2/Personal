@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/firebase/auth/use-user';
@@ -6,7 +7,7 @@ import { useEffect } from 'react';
 import { hasFirebaseConfig } from '@/firebase/config';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isError } = useUser();
