@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -75,7 +74,15 @@ export default function LoginPage() {
           title: "Compte existant avec une autre méthode",
           description: "Un compte avec cet e-mail existe déjà (probablement créé manuellement). Veuillez le supprimer de la console Firebase avant de vous connecter avec Google.",
         });
-      } else {
+      } else if (error.code === 'auth/unauthorized-domain') {
+        toast({
+          variant: "destructive",
+          title: "Domaine non autorisé",
+          description: "Le domaine de cette application n'est pas approuvé. Veuillez l'ajouter à la liste des 'Domaines autorisés' dans les paramètres d'authentification de votre console Firebase.",
+          duration: 9000,
+        });
+      }
+      else {
         toast({
           variant: "destructive",
           title: "Échec de l'authentification",
