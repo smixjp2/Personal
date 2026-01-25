@@ -21,17 +21,18 @@ let auth: Auth | undefined;
 let firestore: Firestore | undefined;
 
 function initializeFirebase() {
+  if (!hasFirebaseConfig()) {
+    return { app: undefined, auth: undefined, firestore: undefined };
+  }
+
   if (getApps().length === 0) {
-    if (hasFirebaseConfig()) {
       app = initializeApp(firebaseConfig);
-      auth = getAuth(app);
-      firestore = getFirestore(app);
-    }
   } else {
     app = getApps()[0];
-    auth = getAuth(app);
-    firestore = getFirestore(app);
   }
+  auth = getAuth(app);
+  firestore = getFirestore(app);
+  
   return { app, auth, firestore };
 }
 
