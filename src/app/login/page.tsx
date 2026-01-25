@@ -57,7 +57,7 @@ function ConfigGuide() {
           <div className="space-y-2">
               <p className="font-semibold">Étape 2 : Trouver vos clés dans Firebase</p>
               <p className="text-muted-foreground">
-                  Ouvrez la <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">console Firebase</a>. Allez dans les **Paramètres du projet** (icône d'engrenage en haut à gauche), puis dans l'onglet **Général**. Faites défiler vers le bas jusqu'à la section **Vos applications**.
+                  Ouvrez la <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">console Firebase</a>. Allez dans les <strong className="font-semibold text-foreground">Paramètres du projet</strong> (icône d'engrenage en haut à gauche), puis dans l'onglet <strong className="font-semibold text-foreground">Général</strong>. Faites défiler vers le bas jusqu'à la section <strong className="font-semibold text-foreground">Vos applications</strong>.
               </p>
           </div>
           <div className="space-y-2">
@@ -97,7 +97,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=1:12345...:web:...`}
           <div className="space-y-2">
               <p className="font-semibold">Étape 5 : Activer la connexion Google</p>
               <p className="text-muted-foreground">
-                  Dans la console Firebase, allez dans la section <code className="bg-muted px-1 py-0.5 rounded">Authentication</code> (dans le menu de gauche), puis dans l'onglet <code className="bg-muted px-1 py-0.5 rounded">Sign-in method</code> et activez **Google** comme fournisseur.
+                  Dans la console Firebase, allez dans la section <code className="bg-muted px-1 py-0.5 rounded">Authentication</code> (dans le menu de gauche), puis dans l'onglet <code className="bg-muted px-1 py-0.5 rounded">Sign-in method</code> et activez <strong className="font-semibold text-foreground">Google</strong> comme fournisseur.
               </p>
           </div>
           <div className="space-y-2">
