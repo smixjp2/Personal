@@ -42,20 +42,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  if (isError) {
-     return (
-        <div className="container mx-auto max-w-4xl p-4">
-            <Alert variant="destructive">
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Action Requise : Configuration Firebase Manquante</AlertTitle>
-                <AlertDescription>
-                    <p>Votre application ne peut pas se connecter à Firebase car la configuration est manquante ou invalide.</p>
-                    <p className="mt-2">Pour corriger cela, vous devez ajouter la configuration de votre projet Firebase aux variables d'environnement. Consultez <strong>.env.local.example</strong> pour les variables requises.</p>
-                </AlertDescription>
-            </Alert>
-        </div>
-    )
-  }
-
+  // Since we hardcoded the config, the only other error state is loading or no user.
+  // The guide is no longer necessary. This will just show the login page if there's no user.
   return null;
 }

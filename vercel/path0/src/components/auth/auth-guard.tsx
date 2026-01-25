@@ -1,11 +1,13 @@
+
 'use client';
 
 import { useUser } from '@/firebase/auth/use-user';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { hasFirebaseConfig } from '@/firebase/config';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isError } = useUser();
@@ -40,19 +42,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  if (isError) {
-     return (
-        <div className="container mx-auto max-w-4xl p-4">
-            <Alert variant="destructive">
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Erreur de Configuration Firebase</AlertTitle>
-                <AlertDescription>
-                    <p>L'application n'a pas pu se connecter à Firebase. Veuillez vérifier la configuration de votre projet.</p>
-                </AlertDescription>
-            </Alert>
-        </div>
-    )
-  }
-
+  // Since we hardcoded the config, the only other error state is loading or no user.
+  // The guide is no longer necessary. This will just show the login page if there's no user.
   return null;
 }
