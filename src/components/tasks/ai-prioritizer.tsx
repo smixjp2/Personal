@@ -62,8 +62,8 @@ export function AiPrioritizer() {
     if (!db) {
         toast({
             variant: "destructive",
-            title: "Firebase Not Configured",
-            description: "Please configure your Firebase credentials to use this feature.",
+            title: "Erreur de configuration",
+            description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
         });
         return;
     }
@@ -90,15 +90,15 @@ export function AiPrioritizer() {
       await batch.commit();
 
       toast({
-        title: "Tasks Prioritized!",
-        description: "Your tasks have been re-ordered by AI.",
+        title: "Tâches priorisées !",
+        description: "Vos tâches ont été réorganisées par l'IA.",
       });
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "AI Error",
-        description: "Could not prioritize tasks at this time.",
+        title: "Erreur IA",
+        description: "Impossible de prioriser les tâches pour le moment.",
       });
     } finally {
       setIsPrioritizing(false);
@@ -117,7 +117,7 @@ export function AiPrioritizer() {
       <div className="flex justify-end">
         <Button onClick={handlePrioritize} disabled={isPrioritizing || isLoading}>
           <BrainCircuit className="mr-2 h-4 w-4" />
-          {isPrioritizing ? "Prioritizing..." : "Prioritize with AI"}
+          {isPrioritizing ? "Prioritisation..." : "Prioriser avec l'IA"}
         </Button>
       </div>
       {isLoading ? <p>Loading tasks...</p> : <TaskList tasks={sortedTasks} />}

@@ -17,10 +17,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
 export function ShoppingList() {
   const [items, setItems] = useState<ShoppingItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!db) {
@@ -42,25 +44,73 @@ export function ShoppingList() {
   }, []);
 
   const addItem = async (newItemData: Omit<ShoppingItem, "id" | "purchased">) => {
-    if (!db) return;
-    await addDoc(collection(db, "shoppingList"), {
-      ...newItemData,
-      purchased: false,
-    });
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
+    try {
+      await addDoc(collection(db, "shoppingList"), {
+        ...newItemData,
+        purchased: false,
+      });
+    } catch (error) {
+      console.error("Error adding item: ", error);
+      toast({
+        variant: "destructive",
+        title: "Oh non ! Quelque chose s'est mal passé.",
+        description: "Impossible d'ajouter l'article. Veuillez réessayer.",
+      });
+    }
   };
 
   const toggleItem = async (itemId: string) => {
-    if (!db) return;
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
     const itemRef = doc(db, "shoppingList", itemId);
     const itemToToggle = items.find(i => i.id === itemId);
     if (itemToToggle) {
+      try {
         await updateDoc(itemRef, { purchased: !itemToToggle.purchased });
+      } catch (error) {
+        console.error("Error toggling item: ", error);
+        toast({
+          variant: "destructive",
+          title: "Oh non ! Quelque chose s'est mal passé.",
+          description: "Impossible de mettre à jour l'article. Veuillez réessayer.",
+        });
+      }
     }
   };
 
   const deleteItem = async (itemId: string) => {
-    if (!db) return;
-    await deleteDoc(doc(db, "shoppingList", itemId));
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, "shoppingList", itemId));
+    } catch (error) {
+      console.error("Error deleting item: ", error);
+      toast({
+        variant: "destructive",
+        title: "Oh non ! Quelque chose s'est mal passé.",
+        description: "Impossible de supprimer l'article. Veuillez réessayer.",
+      });
+    }
   };
   
   const totalCost = items.reduce((sum, item) => sum + (item.price || 0), 0);

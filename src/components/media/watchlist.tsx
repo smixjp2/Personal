@@ -17,10 +17,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
 export function Watchlist() {
   const [items, setItems] = useState<WatchlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!db) {
@@ -42,25 +44,73 @@ export function Watchlist() {
   }, []);
 
   const addItem = async (newItemData: Omit<WatchlistItem, "id" | "watched">) => {
-    if (!db) return;
-    await addDoc(collection(db, "watchlist"), {
-      ...newItemData,
-      watched: false,
-    });
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
+    try {
+      await addDoc(collection(db, "watchlist"), {
+        ...newItemData,
+        watched: false,
+      });
+    } catch (error) {
+      console.error("Error adding item: ", error);
+      toast({
+        variant: "destructive",
+        title: "Oh non ! Quelque chose s'est mal passé.",
+        description: "Impossible d'ajouter l'élément. Veuillez réessayer.",
+      });
+    }
   };
 
   const toggleItem = async (itemId: string) => {
-    if (!db) return;
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
     const itemRef = doc(db, "watchlist", itemId);
     const itemToToggle = items.find(i => i.id === itemId);
     if (itemToToggle) {
+      try {
         await updateDoc(itemRef, { watched: !itemToToggle.watched });
+      } catch (error) {
+        console.error("Error toggling item: ", error);
+        toast({
+          variant: "destructive",
+          title: "Oh non ! Quelque chose s'est mal passé.",
+          description: "Impossible de mettre à jour l'élément. Veuillez réessayer.",
+        });
+      }
     }
   };
 
   const deleteItem = async (itemId: string) => {
-    if (!db) return;
-    await deleteDoc(doc(db, "watchlist", itemId));
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, "watchlist", itemId));
+    } catch (error) {
+      console.error("Error deleting item: ", error);
+      toast({
+        variant: "destructive",
+        title: "Oh non ! Quelque chose s'est mal passé.",
+        description: "Impossible de supprimer l'élément. Veuillez réessayer.",
+      });
+    }
   };
   
   const itemsWatched = items.filter(i => i.watched).length;

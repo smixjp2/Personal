@@ -25,10 +25,12 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
 export function GoalCard({ goal }: { goal: Goal }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [progress, setProgress] = useState(goal.progress);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!goal.id || !db) return;
@@ -63,7 +65,14 @@ export function GoalCard({ goal }: { goal: Goal }) {
   }, [goal.id, goal.progress, progress]);
 
   const onTasksGenerated = async (newTasks: string[]) => {
-    if (!db) return;
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
     const batch = writeBatch(db);
     newTasks.forEach((title) => {
       const newTaskRef = doc(collection(db, "tasks"));
@@ -74,15 +83,40 @@ export function GoalCard({ goal }: { goal: Goal }) {
         goalId: goal.id,
       });
     });
-    await batch.commit();
+    try {
+      await batch.commit();
+    } catch (error) {
+      console.error("Error generating tasks: ", error);
+      toast({
+        variant: "destructive",
+        title: "Oh non ! Quelque chose s'est mal passé.",
+        description: "Impossible de générer les tâches. Veuillez réessayer.",
+      });
+    }
   };
 
   const toggleTask = async (taskId: string) => {
-    if (!db) return;
+    if (!db) {
+       toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
     const taskRef = doc(db, "tasks", taskId);
     const taskToToggle = tasks.find((t) => t.id === taskId);
     if (taskToToggle) {
-      await updateDoc(taskRef, { completed: !taskToToggle.completed });
+      try {
+        await updateDoc(taskRef, { completed: !taskToToggle.completed });
+      } catch (error) {
+        console.error("Error toggling task: ", error);
+        toast({
+          variant: "destructive",
+          title: "Oh non ! Quelque chose s'est mal passé.",
+          description: "Impossible de mettre à jour la tâche. Veuillez réessayer.",
+        });
+      }
     }
   };
 

@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, addDoc, query } from "firebase/firestore";
 import { Skeleton } from "../ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 const columns: {
   id: Goal["category"];
@@ -22,6 +23,7 @@ const columns: {
 export function GoalBoard() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!db) {
@@ -43,7 +45,14 @@ export function GoalBoard() {
   }, []);
 
   const addGoal = async (newGoalData: Omit<Goal, 'id' | 'progress'>) => {
-    if (!db) return;
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
     try {
       await addDoc(collection(db, "goals"), {
         ...newGoalData,
@@ -51,6 +60,11 @@ export function GoalBoard() {
       });
     } catch (error) {
       console.error("Error adding goal: ", error);
+      toast({
+        variant: "destructive",
+        title: "Oh non ! Quelque chose s'est mal passé.",
+        description: "Impossible d'ajouter l'objectif. Veuillez réessayer.",
+      });
     }
   };
 

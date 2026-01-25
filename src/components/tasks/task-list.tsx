@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 
 const priorityStyles = {
   high: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800",
@@ -15,13 +16,30 @@ const priorityStyles = {
 };
 
 export function TaskList({ tasks }: { tasks: Task[] }) {
+  const { toast } = useToast();
   
   const toggleTask = async (task: Task) => {
-    if (!db) return;
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
     const taskRef = doc(db, "tasks", task.id);
-    await updateDoc(taskRef, {
-        completed: !task.completed
-    });
+    try {
+      await updateDoc(taskRef, {
+          completed: !task.completed
+      });
+    } catch (error) {
+      console.error("Error toggling task: ", error);
+      toast({
+        variant: "destructive",
+        title: "Oh non ! Quelque chose s'est mal passé.",
+        description: "Impossible de mettre à jour la tâche. Veuillez réessayer.",
+      });
+    }
   };
   
   if (tasks.length === 0) {

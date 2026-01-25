@@ -19,10 +19,12 @@ import { Trash2 } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query } from "firebase/firestore";
 import { Skeleton } from "../ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 export function HabitTracker() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!db) {
@@ -44,25 +46,73 @@ export function HabitTracker() {
   }, []);
 
   const addHabit = async (newHabit: Omit<Habit, "id" | "progress">) => {
-    if (!db) return;
-    await addDoc(collection(db, "habits"), {
-      ...newHabit,
-      progress: 0,
-    });
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
+    try {
+      await addDoc(collection(db, "habits"), {
+        ...newHabit,
+        progress: 0,
+      });
+    } catch (error) {
+      console.error("Error adding habit: ", error);
+      toast({
+        variant: "destructive",
+        title: "Oh non ! Quelque chose s'est mal passé.",
+        description: "Impossible d'ajouter l'habitude. Veuillez réessayer.",
+      });
+    }
   };
 
   const toggleDailyHabit = async (id: string) => {
-    if (!db) return;
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
     const habitRef = doc(db, "habits", id);
     const habitToToggle = habits.find(h => h.id === id);
     if (habitToToggle) {
-        await updateDoc(habitRef, { progress: habitToToggle.progress === 1 ? 0 : 1 });
+        try {
+            await updateDoc(habitRef, { progress: habitToToggle.progress === 1 ? 0 : 1 });
+        } catch (error) {
+            console.error("Error toggling habit: ", error);
+            toast({
+                variant: "destructive",
+                title: "Oh non ! Quelque chose s'est mal passé.",
+                description: "Impossible de mettre à jour l'habitude. Veuillez réessayer.",
+            });
+        }
     }
   };
 
   const deleteHabit = async (id: string) => {
-    if (!db) return;
-    await deleteDoc(doc(db, "habits", id));
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Erreur de configuration",
+        description: "La connexion à Firebase a échoué. Veuillez vérifier votre configuration.",
+      });
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, "habits", id));
+    } catch (error) {
+      console.error("Error deleting habit: ", error);
+      toast({
+        variant: "destructive",
+        title: "Oh non ! Quelque chose s'est mal passé.",
+        description: "Impossible de supprimer l'habitude. Veuillez réessayer.",
+      });
+    }
   };
   
   const renderHabits = (frequency: "daily" | "monthly" | "yearly") => {
