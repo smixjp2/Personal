@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -14,6 +15,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   User,
+  signOut,
 } from 'firebase/auth';
 import { useFirebaseApp } from '@/firebase';
 import { useRouter } from 'next/navigation';
@@ -25,13 +27,14 @@ export default function LoginPage() {
   const app = useFirebaseApp();
   const router = useRouter();
   const { toast } = useToast();
+  const allowedEmail = 'serrou.mohammed@outlook.com';
 
   const handleGoogleSignIn = async () => {
     if (!app || !hasFirebaseConfig()) {
         toast({
             variant: 'destructive',
-            title: 'Configuration Error',
-            description: 'Firebase is not configured correctly. Please check your environment variables.',
+            title: 'Erreur de Configuration',
+            description: 'Firebase n\'est pas configuré correctement. Veuillez vérifier vos variables d\'environnement.',
         });
         return;
     }
@@ -41,14 +44,25 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
+
+      if (result.user.email !== allowedEmail) {
+        await signOut(auth);
+        toast({
+          variant: 'destructive',
+          title: 'Accès non autorisé',
+          description: `Seul l'email ${allowedEmail} est autorisé à se connecter.`,
+        });
+        return;
+      }
+
       await createUserProfile(firestore, result.user);
       router.push('/');
     } catch (error: any) {
       toast({
         variant: 'destructive',
-        title: 'Authentication Failed',
+        title: 'Échec de l\'authentification',
         description:
-          error.message || 'Could not sign you in with Google. Please try again.',
+          error.message || 'Impossible de vous connecter avec Google. Veuillez réessayer.',
       });
       console.error('Authentication error:', error);
     }
@@ -71,13 +85,13 @@ export default function LoginPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <Bot className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl">Welcome to Life Architect</CardTitle>
-          <CardDescription>Sign in to continue to your dashboard.</CardDescription>
+          <CardTitle className="text-2xl">Accès Personnel</CardTitle>
+          <CardDescription>Connectez-vous pour accéder à votre espace.</CardDescription>
         </CardHeader>
         <CardContent>
           <Button className="w-full" onClick={handleGoogleSignIn}>
             <Chrome className="mr-2" />
-            Sign in with Google
+            Se connecter avec Google
           </Button>
         </CardContent>
       </Card>
