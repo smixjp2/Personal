@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -5,15 +6,8 @@ import {
   onSnapshot,
   collection,
   query,
-  where,
-  orderBy,
-  limit,
-  startAfter,
-  Query,
-  DocumentData,
-  CollectionReference,
-  FirestoreError,
   QueryConstraint,
+  FirestoreError,
 } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 
@@ -22,7 +16,7 @@ interface UseCollectionOptions {
 }
 
 export function useCollection<T>(
-  collectionPath: string,
+  collectionPath: string | null,
   options?: UseCollectionOptions
 ) {
   const firestore = useFirestore();
@@ -33,7 +27,7 @@ export function useCollection<T>(
   const constraints = options?.constraints || [];
 
   const queryMemo = useMemo(() => {
-    if (!firestore) return null;
+    if (!firestore || !collectionPath) return null;
     return query(collection(firestore, collectionPath), ...constraints);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firestore, collectionPath, ...constraints.map(c => c.toString())]);
@@ -41,9 +35,8 @@ export function useCollection<T>(
 
   useEffect(() => {
     if (!queryMemo) {
-      if(firestore) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
+      setData(null);
       return;
     }
 

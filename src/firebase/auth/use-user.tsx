@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { useFirebaseApp } from '@/firebase';
-import { hasFirebaseConfig } from '../config';
 
 type UserState = {
   user: User | null;
@@ -20,7 +19,7 @@ export function useUser(): UserState {
   });
 
   useEffect(() => {
-    if (!app || !hasFirebaseConfig()) {
+    if (!app) {
         setUserState({ user: null, isLoading: false, isError: true });
         return;
     }

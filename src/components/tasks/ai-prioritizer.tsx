@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -7,13 +8,22 @@ import { TaskList } from "./task-list";
 import { useToast } from "@/hooks/use-toast";
 import { prioritizeTasks } from "@/ai/ai-task-prioritization";
 import { useData } from "@/contexts/data-context";
+import { useFirestore, useUser } from "@/firebase";
+import { doc, writeBatch } from "firebase/firestore";
 
 export function AiPrioritizer() {
-  const { tasks, setTasks, goals, isInitialized } = useData();
+  const { tasks, goals, isInitialized } = useData();
   const [isPrioritizing, setIsPrioritizing] = useState(false);
   const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
+
 
   const handlePrioritize = async () => {
+    if (!user || !firestore) {
+        toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to prioritize tasks." });
+        return;
+    }
     setIsPrioritizing(true);
     try {
       const aiTasks = tasks.map(t => ({ name: t.title, deadline: t.dueDate }));
@@ -26,12 +36,16 @@ export function AiPrioritizer() {
         priorityMap.set(p.name, p.priority);
       });
 
-      setTasks(prevTasks =>
-        prevTasks.map(task => ({
-          ...task,
-          priority: priorityMap.get(task.title) || task.priority,
-        }))
-      );
+      const batch = writeBatch(firestore);
+      tasks.forEach(task => {
+        const newPriority = priorityMap.get(task.title);
+        if (newPriority && newPriority !== task.priority) {
+            const taskRef = doc(firestore, "users", user.uid, "tasks", task.id);
+            batch.update(taskRef, { priority: newPriority, updatedAt: new Date().toISOString() });
+        }
+      });
+
+      await batch.commit();
 
       toast({
         title: "Tâches priorisées !",
@@ -53,7 +67,8 @@ export function AiPrioritizer() {
     const priorityOrder = { high: 1, medium: 2, low: 3 };
     const pA = a.priority ? priorityOrder[a.priority] : 4;
     const pB = b.priority ? priorityOrder[b.priority] : 4;
-    return pA - pB;
+    if (pA !== pB) return pA - pB;
+    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
   });
 
   return (

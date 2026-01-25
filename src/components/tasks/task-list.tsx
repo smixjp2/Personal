@@ -1,3 +1,4 @@
+
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -7,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useData } from "@/contexts/data-context";
+import { useFirestore, useUser } from "@/firebase";
+import { doc, updateDoc } from "firebase/firestore";
+
 
 const priorityStyles = {
   high: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800",
@@ -16,14 +20,19 @@ const priorityStyles = {
 
 export function TaskList({ tasks }: { tasks: Task[] }) {
   const { toast } = useToast();
-  const { setTasks } = useData();
+  const { user } = useUser();
+  const firestore = useFirestore();
   
   const toggleTask = async (taskToToggle: Task) => {
-    setTasks(prev =>
-      prev.map(task =>
-        task.id === taskToToggle.id ? { ...task, completed: !task.completed } : task
-      )
-    );
+    if (!user || !firestore) return;
+    try {
+        await updateDoc(doc(firestore, "users", user.uid, "tasks", taskToToggle.id), { 
+            completed: !taskToToggle.completed,
+            updatedAt: new Date().toISOString()
+        });
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not update task." });
+    }
   };
   
   if (tasks.length === 0) {

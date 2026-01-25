@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Goal, Task } from "@/lib/types";
@@ -18,14 +19,20 @@ import { Checkbox } from "../ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
+import { useFirestore, useUser } from "@/firebase";
+import { doc, updateDoc, writeBatch } from "firebase/firestore";
 
 export function GoalCard({ goal }: { goal: Goal }) {
-  const { tasks, setTasks, setGoals } = useData();
+  const { tasks } = useData();
+  const { user } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
 
   const goalTasks = tasks.filter(t => t.goalId === goal.id);
 
   useEffect(() => {
+    if (!user || !firestore) return;
+    
     const completedTasks = goalTasks.filter((t) => t.completed).length;
     const newProgress =
       goalTasks.length > 0
@@ -33,33 +40,50 @@ export function GoalCard({ goal }: { goal: Goal }) {
         : 0;
 
     if (newProgress !== goal.progress) {
-      setGoals(prevGoals =>
-        prevGoals.map(g =>
-          g.id === goal.id ? { ...g, progress: newProgress } : g
-        )
-      );
+      const goalRef = doc(firestore, 'users', user.uid, 'goals', goal.id);
+      updateDoc(goalRef, { progress: newProgress, updatedAt: new Date().toISOString() });
     }
-  }, [goalTasks, goal.id, goal.progress, setGoals]);
+  }, [goalTasks, goal.id, goal.progress, user, firestore]);
 
 
-  const onTasksGenerated = (newTasks: string[]) => {
-    const tasksToAdd: Task[] = newTasks.map(title => ({
-      id: uuidv4(),
-      title,
-      completed: false,
-      dueDate: goal.dueDate,
-      goalId: goal.id,
-    }));
+  const onTasksGenerated = async (newTasks: string[]) => {
+    if (!user || !firestore) {
+        toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add tasks." });
+        return;
+    }
+    const batch = writeBatch(firestore);
+    newTasks.forEach(title => {
+        const newTaskId = uuidv4();
+        const taskRef = doc(firestore, "users", user.uid, "tasks", newTaskId);
+        const newTask: Task = {
+            id: newTaskId,
+            title,
+            completed: false,
+            dueDate: goal.dueDate,
+            goalId: goal.id,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        }
+        batch.set(taskRef, newTask);
+    });
 
-    setTasks(prev => [...prev, ...tasksToAdd]);
+    try {
+        await batch.commit();
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save generated tasks." });
+    }
   };
 
-  const toggleTask = (taskId: string) => {
-    setTasks(prevTasks =>
-      prevTasks.map(t =>
-        t.id === taskId ? { ...t, completed: !t.completed } : t
-      )
-    );
+  const toggleTask = async (task: Task) => {
+    if (!user || !firestore) return;
+    try {
+        await updateDoc(doc(firestore, "users", user.uid, "tasks", task.id), { 
+            completed: !task.completed,
+            updatedAt: new Date().toISOString() 
+        });
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not update task." });
+    }
   };
 
   return (
@@ -100,7 +124,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
                     <Checkbox
                       id={`task-${task.id}`}
                       checked={task.completed}
-                      onCheckedChange={() => toggleTask(task.id)}
+                      onCheckedChange={() => toggleTask(task)}
                     />
                     <label
                       htmlFor={`task-${task.id}`}

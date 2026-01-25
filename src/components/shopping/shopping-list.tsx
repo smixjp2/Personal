@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ShoppingItem } from "@/lib/types";
@@ -16,27 +17,54 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
+import { useFirestore, useUser } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 export function ShoppingList() {
-  const { shoppingList: items, setShoppingList: setItems, isInitialized } = useData();
+  const { shoppingList: items, isInitialized } = useData();
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
-  const addItem = (newItemData: Omit<ShoppingItem, "id" | "purchased">) => {
+  const addItem = async (newItemData: Omit<ShoppingItem, "id" | "purchased">) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add an item." });
+      return;
+    }
     const newItem: ShoppingItem = {
       ...newItemData,
       id: uuidv4(),
       purchased: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
-    setItems(prev => [...prev, newItem]);
+    try {
+        await setDoc(doc(firestore, "users", user.uid, "shopping-list", newItem.id), newItem);
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new item." });
+    }
   };
 
-  const toggleItem = (itemId: string) => {
-    setItems(prev =>
-      prev.map(i => (i.id === itemId ? { ...i, purchased: !i.purchased } : i))
-    );
+  const toggleItem = async (item: ShoppingItem) => {
+    if (!user || !firestore) return;
+    try {
+        await updateDoc(doc(firestore, "users", user.uid, "shopping-list", item.id), { 
+            purchased: !item.purchased,
+            updatedAt: new Date().toISOString()
+        });
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not update item status." });
+    }
   };
 
-  const deleteItem = (itemId: string) => {
-    setItems(prev => prev.filter(i => i.id !== itemId));
+  const deleteItem = async (itemId: string) => {
+    if (!user || !firestore) return;
+    try {
+        await deleteDoc(doc(firestore, "users", user.uid, "shopping-list", itemId));
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not delete item." });
+    }
   };
   
   const totalCost = items.reduce((sum, item) => sum + (item.price || 0), 0);
@@ -73,7 +101,7 @@ export function ShoppingList() {
                       <Checkbox
                         id={`item-${item.id}`}
                         checked={item.purchased}
-                        onCheckedChange={() => toggleItem(item.id)}
+                        onCheckedChange={() => toggleItem(item)}
                       />
                       <label
                         htmlFor={`item-${item.id}`}

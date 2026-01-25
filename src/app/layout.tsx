@@ -1,3 +1,4 @@
+
 'use client'
 
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -7,6 +8,7 @@ import { FirebaseClientProvider } from "@/firebase/client-provider";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import "./globals.css";
 import { usePathname } from "next/navigation";
+import { DataProvider } from "@/contexts/data-context";
 
 
 export default function RootLayout({
@@ -34,9 +36,11 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <FirebaseClientProvider>
           <AuthGuard>
-            <AppLayout>
-              {children}
-            </AppLayout>
+            <DataProvider>
+              <AppLayout>
+                {children}
+              </AppLayout>
+            </DataProvider>
           </AuthGuard>
         </FirebaseClientProvider>
       </body>

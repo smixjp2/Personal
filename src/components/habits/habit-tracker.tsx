@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Habit } from "@/lib/types";
@@ -18,29 +19,52 @@ import { Trash2 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
+import { useFirestore, useUser } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 export function HabitTracker() {
-  const { habits, setHabits, isInitialized } = useData();
+  const { habits, isInitialized } = useData();
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
-  const addHabit = (newHabitData: Omit<Habit, "id" | "progress">) => {
+  const addHabit = async (newHabitData: Omit<Habit, "id" | "progress">) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add a habit." });
+      return;
+    }
     const newHabit: Habit = {
       ...newHabitData,
       id: uuidv4(),
       progress: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
-    setHabits(prev => [...prev, newHabit]);
+    try {
+      await setDoc(doc(firestore, "users", user.uid, "habits", newHabit.id), newHabit);
+    } catch(error: any) {
+      toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new habit." });
+    }
   };
 
-  const toggleDailyHabit = (id: string) => {
-    setHabits(prevHabits =>
-      prevHabits.map(h =>
-        h.id === id ? { ...h, progress: h.progress === 1 ? 0 : 1 } : h
-      )
-    );
+  const toggleDailyHabit = async (habit: Habit) => {
+    if (!user || !firestore) return;
+    const newProgress = habit.progress === 1 ? 0 : 1;
+    try {
+        await updateDoc(doc(firestore, "users", user.uid, "habits", habit.id), { progress: newProgress, updatedAt: new Date().toISOString() });
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not update habit." });
+    }
   };
 
   const deleteHabit = async (id: string) => {
-    setHabits(prev => prev.filter(h => h.id !== id));
+    if (!user || !firestore) return;
+    try {
+      await deleteDoc(doc(firestore, "users", user.uid, "habits", id));
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not delete habit." });
+    }
   };
   
   const renderHabits = (frequency: "daily" | "monthly" | "yearly") => {
@@ -85,7 +109,7 @@ export function HabitTracker() {
                   <Checkbox
                     id={`habit-check-${habit.id}`}
                     checked={habit.progress === 1}
-                    onCheckedChange={() => toggleDailyHabit(habit.id)}
+                    onCheckedChange={() => toggleDailyHabit(habit)}
                   />
                 ) : (
                   <div className="w-32 flex items-center gap-2">

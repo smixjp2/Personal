@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Goal } from "@/lib/types";
@@ -8,6 +9,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Skeleton } from "../ui/skeleton";
 import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from 'uuid';
+import { useFirestore, useUser } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { doc, setDoc } from "firebase/firestore";
 
 const columns: {
   id: Goal["category"];
@@ -19,15 +23,28 @@ const columns: {
 ];
 
 export function GoalBoard() {
-  const { goals, setGoals, isInitialized } = useData();
+  const { goals, isInitialized } = useData();
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
-  const addGoal = (newGoalData: Omit<Goal, 'id' | 'progress'>) => {
+  const addGoal = async (newGoalData: Omit<Goal, 'id' | 'progress'>) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add a goal." });
+      return;
+    }
     const newGoal: Goal = {
       ...newGoalData,
       id: uuidv4(),
       progress: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
-    setGoals(prev => [...prev, newGoal]);
+    try {
+        await setDoc(doc(firestore, "users", user.uid, "goals", newGoal.id), newGoal);
+    } catch (error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new goal." });
+    }
   };
 
   if (!isInitialized) {

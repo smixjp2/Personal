@@ -1,7 +1,7 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
-import { firebaseConfig } from './config';
+import { firebaseConfig, hasFirebaseConfig } from './config';
 
 import {
   FirebaseProvider,
@@ -16,13 +16,19 @@ import { useCollection } from './firestore/use-collection';
 import { useDoc } from './firestore/use-doc';
 import { useUser } from './auth/use-user';
 
-let app: FirebaseApp;
-let auth: Auth;
-let firestore: Firestore;
+let app: FirebaseApp | undefined;
+let auth: Auth | undefined;
+let firestore: Firestore | undefined;
 
 function initializeFirebase() {
   if (getApps().length === 0) {
-    app = initializeApp(firebaseConfig);
+    if (hasFirebaseConfig()) {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      firestore = getFirestore(app);
+    }
+  } else {
+    app = getApps()[0];
     auth = getAuth(app);
     firestore = getFirestore(app);
   }

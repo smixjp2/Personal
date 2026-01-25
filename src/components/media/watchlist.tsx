@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { WatchlistItem } from "@/lib/types";
@@ -16,27 +17,54 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
+import { useFirestore, useUser } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 export function Watchlist() {
-  const { watchlist: items, setWatchlist: setItems, isInitialized } = useData();
+  const { watchlist: items, isInitialized } = useData();
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
-  const addItem = (newItemData: Omit<WatchlistItem, "id" | "watched">) => {
+  const addItem = async (newItemData: Omit<WatchlistItem, "id" | "watched">) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add an item." });
+      return;
+    }
     const newItem: WatchlistItem = {
       ...newItemData,
       id: uuidv4(),
       watched: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
-    setItems(prev => [...prev, newItem]);
+    try {
+        await setDoc(doc(firestore, "users", user.uid, "watchlist", newItem.id), newItem);
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new item." });
+    }
   };
 
-  const toggleItem = (itemId: string) => {
-    setItems(prev =>
-      prev.map(i => (i.id === itemId ? { ...i, watched: !i.watched } : i))
-    );
+  const toggleItem = async (item: WatchlistItem) => {
+    if (!user || !firestore) return;
+    try {
+        await updateDoc(doc(firestore, "users", user.uid, "watchlist", item.id), { 
+            watched: !item.watched,
+            updatedAt: new Date().toISOString()
+        });
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not update item status." });
+    }
   };
 
-  const deleteItem = (itemId: string) => {
-    setItems(prev => prev.filter(i => i.id !== itemId));
+  const deleteItem = async (itemId: string) => {
+    if (!user || !firestore) return;
+    try {
+        await deleteDoc(doc(firestore, "users", user.uid, "watchlist", itemId));
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not delete item." });
+    }
   };
   
   const itemsWatched = items.filter(i => i.watched).length;
@@ -72,7 +100,7 @@ export function Watchlist() {
                       <Checkbox
                         id={`item-${item.id}`}
                         checked={item.watched}
-                        onCheckedChange={() => toggleItem(item.id)}
+                        onCheckedChange={() => toggleItem(item)}
                       />
                       <div className="flex items-center gap-2">
                         {item.category === 'movie' ? <Film className="h-4 w-4 text-muted-foreground" /> : <Tv className="h-4 w-4 text-muted-foreground" />}

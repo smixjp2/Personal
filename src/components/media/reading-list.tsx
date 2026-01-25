@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Book } from "@/lib/types";
@@ -16,27 +17,55 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
+import { useFirestore, useUser } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 export function ReadingList() {
-  const { readingList: books, setReadingList: setBooks, isInitialized } = useData();
+  const { readingList: books, isInitialized } = useData();
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
-  const addBook = (newBookData: Omit<Book, "id" | "read">) => {
+
+  const addBook = async (newBookData: Omit<Book, "id" | "read">) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add a book." });
+      return;
+    }
     const newBook: Book = {
       ...newBookData,
       id: uuidv4(),
       read: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
-    setBooks(prev => [...prev, newBook]);
+    try {
+        await setDoc(doc(firestore, "users", user.uid, "reading-list", newBook.id), newBook);
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new book." });
+    }
   };
 
-  const toggleBook = (bookId: string) => {
-    setBooks(prev =>
-      prev.map(b => (b.id === bookId ? { ...b, read: !b.read } : b))
-    );
+  const toggleBook = async (book: Book) => {
+    if (!user || !firestore) return;
+    try {
+        await updateDoc(doc(firestore, "users", user.uid, "reading-list", book.id), { 
+            read: !book.read,
+            updatedAt: new Date().toISOString()
+        });
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not update book status." });
+    }
   };
 
-  const deleteBook = (bookId: string) => {
-    setBooks(prev => prev.filter(b => b.id !== bookId));
+  const deleteBook = async (bookId: string) => {
+    if (!user || !firestore) return;
+    try {
+        await deleteDoc(doc(firestore, "users", user.uid, "reading-list", bookId));
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not delete book." });
+    }
   };
   
   const booksRead = books.filter(b => b.read).length;
@@ -72,7 +101,7 @@ export function ReadingList() {
                       <Checkbox
                         id={`book-${book.id}`}
                         checked={book.read}
-                        onCheckedChange={() => toggleBook(book.id)}
+                        onCheckedChange={() => toggleBook(book)}
                       />
                       <div>
                         <label
