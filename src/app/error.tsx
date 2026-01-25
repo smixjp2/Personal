@@ -22,16 +22,16 @@ export default function Error({
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <Card className="w-full max-w-lg text-center">
             <CardHeader>
-                <CardTitle className="text-2xl">Something went wrong!</CardTitle>
+                <CardTitle className="text-2xl">Quelque chose s'est mal passé !</CardTitle>
                 <CardDescription>
-                    An unexpected error occurred. You can try to recover from this error.
+                    Une erreur inattendue est survenue. Vous pouvez essayer de recharger la page.
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
                 <Button onClick={() => reset()}>
-                    Try again
+                    Réessayer
                 </Button>
-                <p className="text-xs text-muted-foreground">Error: {error.message}</p>
+                <p className="text-xs text-muted-foreground">Erreur : {error.message}</p>
             </CardContent>
         </Card>
     </div>

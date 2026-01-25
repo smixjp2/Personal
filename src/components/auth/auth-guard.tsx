@@ -46,10 +46,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         <div className="container mx-auto max-w-4xl p-4">
             <Alert variant="destructive">
                 <Terminal className="h-4 w-4" />
-                <AlertTitle>Action Required: Firebase Configuration Missing</AlertTitle>
+                <AlertTitle>Action Requise : Configuration Firebase Manquante</AlertTitle>
                 <AlertDescription>
-                    <p>Your app cannot connect to Firebase because the configuration is missing or invalid.</p>
-                    <p className="mt-2">To fix this, you must add your Firebase project configuration to the environment variables. See <strong>.env.local.example</strong> for required variables.</p>
+                    <p>Votre application ne peut pas se connecter à Firebase car la configuration est manquante ou invalide.</p>
+                    <p className="mt-2">Pour corriger cela, vous devez ajouter la configuration de votre projet Firebase aux variables d'environnement. Consultez <strong>.env.local.example</strong> pour les variables requises.</p>
                 </AlertDescription>
             </Alert>
         </div>

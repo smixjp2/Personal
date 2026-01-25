@@ -51,7 +51,7 @@ function ConfigGuide() {
       <CardContent className="space-y-4 text-sm">
         <ol className="list-decimal list-inside space-y-3">
           <li>
-            Copiez le fichier <code className="bg-muted px-1 py-0.5 rounded">.env.local.example</code> et renommez la copie en <code className="bg-muted px-1 py-0.5 rounded">.env.local</code>.
+            Créez une copie du fichier <code className="bg-muted px-1 py-0.5 rounded">.env.local.example</code>, renommez-la en <code className="bg-muted px-1 py-0.5 rounded">.env.local</code>.
           </li>
           <li>
             Allez sur la <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">console Firebase</a>, dans les **paramètres de votre projet**, trouvez votre **application web** (ou créez-en une, icône `</>`).
