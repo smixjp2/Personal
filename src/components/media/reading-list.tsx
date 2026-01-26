@@ -63,21 +63,22 @@ export function ReadingList() {
   const setCurrentBook = async (bookToSet: Book) => {
     if (!user || !firestore) return;
 
+    const isDeselecting = bookToSet.currentlyReading;
     const batch = writeBatch(firestore);
-    
-    // Find all other books that are currently being read.
-    const otherReadingBooks = books.filter(b => b.currentlyReading && b.id !== bookToSet.id);
 
-    // Unset them.
-    otherReadingBooks.forEach(book => {
-      const bookRef = doc(firestore, "users", user.uid, "reading-list", book.id);
-      batch.update(bookRef, { currentlyReading: false });
+    // 1. Reset all books to not-reading.
+    books.forEach(book => {
+      if (book.currentlyReading) {
+        const bookRef = doc(firestore, "users", user.uid, "reading-list", book.id);
+        batch.update(bookRef, { currentlyReading: false });
+      }
     });
 
-    // Toggle the selected book.
-    const newCurrentBookRef = doc(firestore, "users", user.uid, "reading-list", bookToSet.id);
-    batch.update(newCurrentBookRef, { currentlyReading: !bookToSet.currentlyReading });
-
+    // 2. If we are not deselecting, set the new book as currently reading.
+    if (!isDeselecting) {
+        const currentBookRef = doc(firestore, "users", user.uid, "reading-list", bookToSet.id);
+        batch.update(currentBookRef, { currentlyReading: true });
+    }
 
     try {
       await batch.commit();

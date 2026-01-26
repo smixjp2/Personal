@@ -64,21 +64,23 @@ export function Watchlist() {
   const setCurrentItem = async (itemToSet: WatchlistItem) => {
     if (!user || !firestore) return;
 
+    const isDeselecting = itemToSet.currentlyWatching;
     const batch = writeBatch(firestore);
-    
-    // Find all items that are currently being watched and are not the one we're setting.
-    const otherWatchedItems = items.filter(i => i.currentlyWatching && i.id !== itemToSet.id);
 
-    // Unset them.
-    otherWatchedItems.forEach(item => {
-      const itemRef = doc(firestore, "users", user.uid, "watchlist", item.id);
-      batch.update(itemRef, { currentlyWatching: false });
+    // 1. Reset all items to not-watching.
+    items.forEach(item => {
+      if (item.currentlyWatching) {
+        const itemRef = doc(firestore, "users", user.uid, "watchlist", item.id);
+        batch.update(itemRef, { currentlyWatching: false });
+      }
     });
-
-    // Toggle the selected item.
-    const newItemRef = doc(firestore, "users", user.uid, "watchlist", itemToSet.id);
-    batch.update(newItemRef, { currentlyWatching: !itemToSet.currentlyWatching });
-
+    
+    // 2. If we are not deselecting, set the new item as currently watching.
+    if (!isDeselecting) {
+      const currentItemRef = doc(firestore, "users", user.uid, "watchlist", itemToSet.id);
+      batch.update(currentItemRef, { currentlyWatching: true });
+    }
+    
     try {
       await batch.commit();
     } catch (error: any) {
