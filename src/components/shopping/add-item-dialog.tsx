@@ -26,13 +26,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import type { ShoppingItem } from "@/lib/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const itemSchema = z.object({
-  name: z.string().min(2, "Item name must be at least 2 characters long."),
+  name: z.string().min(2, "Le nom de l'article doit comporter au moins 2 caractères."),
   price: z.preprocess(
     (val) => (String(val).trim() === "" ? undefined : val),
-    z.coerce.number().positive("Price must be a positive number.").optional()
+    z.coerce.number().positive("Le prix doit être un nombre positif.").optional()
   ),
+  category: z.enum(["groceries", "subscription", "entertainment", "utilities", "shopping", "other"]),
 });
 
 type AddItemDialogProps = {
@@ -46,6 +54,7 @@ export function AddItemDialog({ onAddItem }: AddItemDialogProps) {
     defaultValues: {
       name: "",
       price: undefined,
+      category: "shopping",
     },
   });
 
@@ -59,14 +68,14 @@ export function AddItemDialog({ onAddItem }: AddItemDialogProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus className="mr-2 h-4 w-4" /> Add Item
+          <Plus className="mr-2 h-4 w-4" /> Ajouter un article
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add a New Shopping Item</DialogTitle>
+          <DialogTitle>Ajouter un nouvel article</DialogTitle>
           <DialogDescription>
-            What do you want to buy this month?
+            Que voulez-vous acheter ce mois-ci ?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -76,9 +85,9 @@ export function AddItemDialog({ onAddItem }: AddItemDialogProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Item Name</FormLabel>
+                  <FormLabel>Nom de l'article</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. New keyboard" {...field} />
+                    <Input placeholder="ex: Nouveau clavier" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -89,7 +98,7 @@ export function AddItemDialog({ onAddItem }: AddItemDialogProps) {
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price (Optional)</FormLabel>
+                  <FormLabel>Prix (Optionnel)</FormLabel>
                   <FormControl>
                     <Input type="number" step="0.01" placeholder="149.99" {...field} value={field.value ?? ''} />
                   </FormControl>
@@ -97,8 +106,33 @@ export function AddItemDialog({ onAddItem }: AddItemDialogProps) {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Catégorie</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner une catégorie" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="shopping">Shopping</SelectItem>
+                      <SelectItem value="groceries">Courses</SelectItem>
+                      <SelectItem value="subscription">Abonnement</SelectItem>
+                      <SelectItem value="entertainment">Divertissement</SelectItem>
+                      <SelectItem value="utilities">Charges</SelectItem>
+                      <SelectItem value="other">Autre</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <DialogFooter className="pt-4">
-              <Button type="submit">Add Item</Button>
+              <Button type="submit">Ajouter l'article</Button>
             </DialogFooter>
           </form>
         </Form>

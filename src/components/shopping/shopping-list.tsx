@@ -20,6 +20,17 @@ import { v4 as uuidv4 } from "uuid";
 import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { SpendingCharts } from "./spending-charts";
+import { Badge } from "../ui/badge";
+
+const categoryTranslations = {
+    groceries: "Courses",
+    subscription: "Abonnement",
+    entertainment: "Divertissement",
+    utilities: "Charges",
+    shopping: "Shopping",
+    other: "Autre",
+};
 
 export function ShoppingList() {
   const { shoppingList: items, isInitialized } = useData();
@@ -33,8 +44,9 @@ export function ShoppingList() {
       return;
     }
     const id = uuidv4();
-    const dataToSave = {
+    const dataToSave: Omit<ShoppingItem, 'id'> & { createdAt: string, updatedAt: string } = {
       name: newItemData.name,
+      category: newItemData.category,
       purchased: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -76,14 +88,15 @@ export function ShoppingList() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Monthly Shopping List</CardTitle>
+          <CardTitle>Liste d'achats mensuelle</CardTitle>
           <CardDescription>
-            Total: ${totalCost.toFixed(2)} | Purchased: ${purchasedCost.toFixed(2)}
+            Total: {totalCost.toFixed(2)}€ | Acheté: {purchasedCost.toFixed(2)}€
           </CardDescription>
         </div>
         <AddItemDialog onAddItem={addItem} />
       </CardHeader>
       <CardContent>
+        {isInitialized && <SpendingCharts items={items} />}
         {!isInitialized && <p className="text-muted-foreground p-8 text-center">Loading...</p>}
         {isInitialized && items.length > 0 ? (
           <ul className="space-y-3">
@@ -114,11 +127,12 @@ export function ShoppingList() {
                       >
                         {item.name}
                       </label>
+                      <Badge variant="outline">{categoryTranslations[item.category] || item.category}</Badge>
                     </div>
                     <div className="flex items-center gap-4">
                       {item.price && (
                         <span className={cn("font-mono text-sm", item.purchased && "text-muted-foreground line-through")}>
-                          ${item.price.toFixed(2)}
+                          {item.price.toFixed(2)}€
                         </span>
                       )}
                       <Button
@@ -138,7 +152,7 @@ export function ShoppingList() {
           </ul>
         ) : (
           isInitialized && <p className="text-muted-foreground p-8 text-center">
-            Your shopping list is empty. Add an item to get started!
+            Votre liste d'achats est vide. Ajoutez un article pour commencer !
           </p>
         )}
       </CardContent>

@@ -95,10 +95,11 @@
         "name": { "type": "string" },
         "price": { "type": "number" },
         "purchased": { "type": "boolean" },
+        "category": { "type": "string", "enum": ["groceries", "subscription", "entertainment", "utilities", "shopping", "other"] },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["name", "purchased", "createdAt", "updatedAt"]
+      "required": ["name", "purchased", "category", "createdAt", "updatedAt"]
     },
     "WatchlistItem": {
       "title": "Watchlist Item",

@@ -44,6 +44,7 @@ export type ShoppingItem = BaseEntity & {
   name: string;
   price?: number;
   purchased: boolean;
+  category: "groceries" | "subscription" | "entertainment" | "utilities" | "shopping" | "other";
 };
 
 export type WatchlistItem = BaseEntity & {
