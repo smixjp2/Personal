@@ -127,6 +127,49 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["title", "read", "createdAt", "updatedAt"]
+    },
+    "Income": {
+      "title": "Income",
+      "description": "An income source.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string", "format": "date-time" },
+        "frequency": { "type": "string", "enum": ["one-time", "monthly", "yearly"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "amount", "date", "frequency", "createdAt", "updatedAt"]
+    },
+    "SavingGoal": {
+      "title": "Saving Goal",
+      "description": "A goal for saving money.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "targetAmount": { "type": "number" },
+        "currentAmount": { "type": "number" },
+        "deadline": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "targetAmount", "currentAmount", "createdAt", "updatedAt"]
+    },
+    "Investment": {
+      "title": "Investment",
+      "description": "A financial investment.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "initialAmount": { "type": "number" },
+        "currentValue": { "type": "number" },
+        "purchaseDate": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "type", "initialAmount", "purchaseDate", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -164,6 +207,18 @@
     "/users/{userId}/reading-list/{bookId}": {
       "schema": { "$ref": "#/entities/Book" },
       "description": "Stores user reading list items."
+    },
+    "/users/{userId}/income/{incomeId}": {
+      "schema": { "$ref": "#/entities/Income" },
+      "description": "Stores user income records."
+    },
+    "/users/{userId}/saving-goals/{goalId}": {
+      "schema": { "$ref": "#/entities/SavingGoal" },
+      "description": "Stores user saving goals."
+    },
+    "/users/{userId}/investments/{investmentId}": {
+      "schema": { "$ref": "#/entities/Investment" },
+      "description": "Stores user investments."
     }
   }
 }

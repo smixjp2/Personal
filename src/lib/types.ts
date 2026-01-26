@@ -59,3 +59,25 @@ export type Book = BaseEntity & {
   author?: string;
   read: boolean;
 };
+
+export type Income = BaseEntity & {
+  name: string;
+  amount: number;
+  date: string;
+  frequency: "one-time" | "monthly" | "yearly";
+};
+
+export type SavingGoal = BaseEntity & {
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  deadline?: string;
+};
+
+export type Investment = BaseEntity & {
+  name: string;
+  type: string;
+  initialAmount: number;
+  currentValue?: number;
+  purchaseDate: string;
+};

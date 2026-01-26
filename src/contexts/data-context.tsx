@@ -4,7 +4,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useUser } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import type { Habit, Goal, Task, ShoppingItem, WatchlistItem, Book, Project } from '@/lib/types';
+import type { Habit, Goal, Task, ShoppingItem, WatchlistItem, Book, Project, Income, SavingGoal, Investment } from '@/lib/types';
 
 interface DataContextType {
   isInitialized: boolean;
@@ -15,6 +15,9 @@ interface DataContextType {
   shoppingList: ShoppingItem[];
   watchlist: WatchlistItem[];
   readingList: Book[];
+  income: Income[];
+  savingGoals: SavingGoal[];
+  investments: Investment[];
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -43,8 +46,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const { data: readingList, isLoading: loadingReading } = useCollection<Book>(
     user ? `users/${user.uid}/reading-list` : null
   );
+  const { data: income, isLoading: loadingIncome } = useCollection<Income>(
+    user ? `users/${user.uid}/income` : null
+  );
+  const { data: savingGoals, isLoading: loadingSavingGoals } = useCollection<SavingGoal>(
+    user ? `users/${user.uid}/saving-goals` : null
+  );
+  const { data: investments, isLoading: loadingInvestments } = useCollection<Investment>(
+    user ? `users/${user.uid}/investments` : null
+  );
   
-  const isInitialized = !loadingHabits && !loadingGoals && !loadingTasks && !loadingShopping && !loadingWatchlist && !loadingReading && !loadingProjects;
+  const isInitialized = !loadingHabits && !loadingGoals && !loadingTasks && !loadingShopping && !loadingWatchlist && !loadingReading && !loadingProjects && !loadingIncome && !loadingSavingGoals && !loadingInvestments;
 
   const value: DataContextType = {
     isInitialized,
@@ -55,6 +67,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
     shoppingList: shoppingList || [],
     watchlist: watchlist || [],
     readingList: readingList || [],
+    income: income || [],
+    savingGoals: savingGoals || [],
+    investments: investments || [],
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

@@ -13,6 +13,7 @@ import {
   ShoppingCart,
   Library,
   Briefcase,
+  Landmark,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ const navItems = [
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/shopping", label: "Achats", icon: ShoppingCart },
   { href: "/media", label: "Médiathèque", icon: Library },
+  { href: "/finances", label: "Finances", icon: Landmark },
 ];
 
 export function SidebarNav() {
