@@ -12,16 +12,17 @@ import {
 import { AddItemDialog } from "./add-item-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Pencil } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
 import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
 import { SpendingCharts } from "./spending-charts";
 import { Badge } from "../ui/badge";
+import { EditItemDialog } from "./edit-item-dialog";
 
 const categoryTranslations = {
     groceries: "Courses",
@@ -57,6 +58,26 @@ export function ShoppingList() {
         await setDoc(doc(firestore, "users", user.uid, "shopping-list", id), dataToSave);
     } catch(error: any) {
         toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new item." });
+    }
+  };
+
+  const editItem = async (itemId: string, updatedData: {name: string, category: ShoppingItem['category'], price?: number}) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to edit an item." });
+      return;
+    }
+    const itemRef = doc(firestore, "users", user.uid, "shopping-list", itemId);
+    const dataToUpdate: any = {
+        ...updatedData,
+        updatedAt: new Date().toISOString()
+    };
+    if (updatedData.price === undefined) {
+        dataToUpdate.price = deleteField();
+    }
+    try {
+        await updateDoc(itemRef, dataToUpdate);
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not update item." });
     }
   };
 
@@ -144,15 +165,27 @@ export function ShoppingList() {
                           {item.price.toFixed(2)}€
                         </span>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                        onClick={() => deleteItem(item.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete item</span>
-                      </Button>
+                      <div className="flex items-center">
+                        <EditItemDialog item={item} onEditItem={(updatedData) => editItem(item.id, updatedData)}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-primary"
+                            >
+                                <Pencil className="h-4 w-4" />
+                                <span className="sr-only">Modifier l'article</span>
+                            </Button>
+                        </EditItemDialog>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          onClick={() => deleteItem(item.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Supprimer l'article</span>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </motion.li>
