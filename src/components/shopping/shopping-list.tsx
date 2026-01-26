@@ -53,15 +53,20 @@ export function ShoppingList() {
       return;
     }
     const id = uuidv4();
-    const dataToSave: Omit<ShoppingItem, 'id'> & { createdAt: string, updatedAt: string, purchased: boolean } = {
+    const dataToSave: any = {
       name: newItemData.name,
       category: newItemData.category,
       frequency: newItemData.frequency || "one-time",
       purchased: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      ...(newItemData.price && { price: newItemData.price })
     };
+    if (newItemData.price) {
+        dataToSave.price = newItemData.price;
+    }
+    if (newItemData.date) {
+        dataToSave.date = newItemData.date;
+    }
 
     try {
         await setDoc(doc(firestore, "users", user.uid, "shopping-list", id), dataToSave);
@@ -70,7 +75,7 @@ export function ShoppingList() {
     }
   };
 
-  const editItem = async (itemId: string, updatedData: {name: string, category: ShoppingItem['category'], frequency: ShoppingItem['frequency'], price?: number}) => {
+  const editItem = async (itemId: string, updatedData: Partial<Omit<ShoppingItem, 'id'>>) => {
     if (!user || !firestore) {
       toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to edit an item." });
       return;
@@ -82,6 +87,9 @@ export function ShoppingList() {
     };
     if (updatedData.price === undefined) {
         dataToUpdate.price = deleteField();
+    }
+     if (updatedData.date === undefined) {
+        dataToUpdate.date = deleteField();
     }
     try {
         await updateDoc(itemRef, dataToUpdate);
@@ -96,7 +104,7 @@ export function ShoppingList() {
     try {
         await updateDoc(doc(firestore, "users", user.uid, "shopping-list", item.id), { 
             purchased: isNowPurchased,
-            purchasedAt: isNowPurchased ? new Date().toISOString() : null,
+            purchasedAt: isNowPurchased ? new Date().toISOString() : deleteField(),
             updatedAt: new Date().toISOString()
         });
     } catch(error: any) {
@@ -160,6 +168,11 @@ export function ShoppingList() {
                         >
                           {item.name}
                         </label>
+                        {item.date && !item.purchased && (
+                          <p className="text-xs text-muted-foreground">
+                              Due: {new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+                          </p>
+                        )}
                         {item.purchased && item.purchasedAt && (
                           <p className="text-xs text-muted-foreground">
                               Acheté le {new Date(item.purchasedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}

@@ -98,6 +98,7 @@
         "purchasedAt": { "type": "string", "format": "date-time" },
         "category": { "type": "string", "enum": ["groceries", "subscription", "entertainment", "utilities", "shopping", "other"] },
         "frequency": { "type": "string", "enum": ["one-time", "daily", "monthly", "yearly"] },
+        "date": { "type": "string", "format": "date-time" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },

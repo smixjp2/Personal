@@ -41,18 +41,40 @@ const itemSchema = z.object({
   ),
   category: z.enum(["groceries", "subscription", "entertainment", "utilities", "shopping", "other"]),
   frequency: z.enum(["one-time", "daily", "monthly", "yearly"]),
+  day: z.string().max(2).optional(),
+  month: z.string().max(2).optional(),
+  year: z.string().max(4).optional(),
+}).refine((data) => {
+    const { day, month, year } = data;
+    const allEmpty = !day && !month && !year;
+    const allFilled = day && month && year;
+    if (allEmpty) return true;
+    if (allFilled) {
+        const d = parseInt(day, 10);
+        const m = parseInt(month, 10);
+        const y = parseInt(year, 10);
+        if (isNaN(d) || isNaN(m) || isNaN(y)) return false;
+        const date = new Date(y, m - 1, d);
+        return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+    }
+    return false;
+}, {
+    message: "La date doit être complète (jour, mois, année) ou vide.",
+    path: ["day"],
 });
+
 
 type FormValues = z.infer<typeof itemSchema>;
 
 type EditItemDialogProps = {
   item: ShoppingItem;
-  onEditItem: (values: FormValues) => void;
+  onEditItem: (values: Omit<FormValues, 'day'|'month'|'year'> & { date?: string }) => void;
   children: React.ReactNode;
 };
 
 export function EditItemDialog({ item, onEditItem, children }: EditItemDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const itemDate = item.date ? new Date(item.date) : null;
   const form = useForm<FormValues>({
     resolver: zodResolver(itemSchema),
     defaultValues: {
@@ -60,11 +82,18 @@ export function EditItemDialog({ item, onEditItem, children }: EditItemDialogPro
       price: item.price,
       category: item.category,
       frequency: item.frequency || "one-time",
+      day: itemDate ? itemDate.getDate().toString() : undefined,
+      month: itemDate ? (itemDate.getMonth() + 1).toString() : undefined,
+      year: itemDate ? itemDate.getFullYear().toString() : undefined,
     },
   });
 
   function onSubmit(values: FormValues) {
-    onEditItem(values);
+    const { day, month, year, ...rest } = values;
+    const date = (day && month && year) 
+        ? new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).toISOString()
+        : undefined;
+    onEditItem({...rest, date });
     setIsOpen(false);
   }
 
@@ -156,6 +185,21 @@ export function EditItemDialog({ item, onEditItem, children }: EditItemDialogPro
                 </FormItem>
               )}
             />
+             <FormItem>
+              <FormLabel>Date de la Dépense (Optionnel)</FormLabel>
+              <div className="grid grid-cols-3 gap-2">
+                <FormField control={form.control} name="day" render={({ field }) => (
+                  <FormItem><FormControl><Input placeholder="Jour" {...field} value={field.value ?? ""} /></FormControl></FormItem>
+                )} />
+                <FormField control={form.control} name="month" render={({ field }) => (
+                  <FormItem><FormControl><Input placeholder="Mois" {...field} value={field.value ?? ""} /></FormControl></FormItem>
+                )} />
+                <FormField control={form.control} name="year" render={({ field }) => (
+                  <FormItem><FormControl><Input placeholder="Année" {...field} value={field.value ?? ""} /></FormControl></FormItem>
+                )} />
+              </div>
+              <FormMessage>{form.formState.errors.day?.message}</FormMessage>
+            </FormItem>
             <DialogFooter className="pt-4">
               <Button type="submit">Sauvegarder</Button>
             </DialogFooter>

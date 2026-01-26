@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, Tooltip, XAxis, YAxis } from "recharts";
-import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, subMonths } from "date-fns";
+import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, subMonths, getDaysInMonth } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { ShoppingItem } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -36,21 +36,37 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
     const currentMonthStart = startOfMonth(now);
     const currentMonthEnd = endOfMonth(now);
 
-    const currentMonthItems = items.filter(item => {
-      if (!item.purchased || !item.purchasedAt) return false;
-      const purchaseDate = parseISO(item.purchasedAt);
-      return isWithinInterval(purchaseDate, { start: currentMonthStart, end: currentMonthEnd });
-    });
+    const byCategory: Record<string, number> = {};
 
-    const byCategory = currentMonthItems.reduce((acc, item) => {
-      if (item.price) {
-        if (!acc[item.category]) {
-          acc[item.category] = 0;
+    items.forEach(item => {
+        if (!item.price || !item.date) return;
+
+        const itemStartDate = parseISO(item.date);
+        if (itemStartDate > currentMonthEnd) return; 
+
+        switch(item.frequency) {
+            case 'one-time':
+                if (isWithinInterval(itemStartDate, { start: currentMonthStart, end: currentMonthEnd })) {
+                    byCategory[item.category] = (byCategory[item.category] || 0) + item.price!;
+                }
+                break;
+            case 'monthly':
+                byCategory[item.category] = (byCategory[item.category] || 0) + item.price!;
+                break;
+            case 'yearly':
+                if (itemStartDate.getMonth() === now.getMonth()) {
+                    byCategory[item.category] = (byCategory[item.category] || 0) + item.price!;
+                }
+                break;
+            case 'daily':
+                 byCategory[item.category] = (byCategory[item.category] || 0) + (item.price! * getDaysInMonth(now));
+                break;
+            default:
+                 if (isWithinInterval(itemStartDate, { start: currentMonthStart, end: currentMonthEnd })) {
+                    byCategory[item.category] = (byCategory[item.category] || 0) + item.price!;
+                }
         }
-        acc[item.category] += item.price;
-      }
-      return acc;
-    }, {} as Record<string, number>);
+    });
 
     return Object.entries(byCategory).map(([category, total]) => ({
       name: categoryTranslations[category as keyof typeof categoryTranslations] || category,
@@ -58,22 +74,44 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
     })).sort((a, b) => b.value - a.value);
   }, [items, now]);
 
+
   const monthlyData = useMemo(() => {
     const lastXMonths = Array.from({ length: monthsToShow }, (_, i) => subMonths(now, i)).reverse();
 
     return lastXMonths.map(month => {
       const monthStart = startOfMonth(month);
       const monthEnd = endOfMonth(month);
+      let total = 0;
 
-      const total = items.reduce((sum, item) => {
-        if (!item.purchased || !item.purchasedAt || !item.price) return sum;
-        
-        const purchaseDate = parseISO(item.purchasedAt);
-        if (isWithinInterval(purchaseDate, { start: monthStart, end: monthEnd })) {
-          return sum + item.price;
+      items.forEach(item => {
+        if (!item.price || !item.date) return;
+
+        const itemStartDate = parseISO(item.date);
+        if (itemStartDate > monthEnd) return; 
+
+        switch(item.frequency) {
+            case 'one-time':
+                if (isWithinInterval(itemStartDate, { start: monthStart, end: monthEnd })) {
+                    total += item.price!;
+                }
+                break;
+            case 'monthly':
+                total += item.price!;
+                break;
+            case 'yearly':
+                if (itemStartDate.getMonth() === month.getMonth()) {
+                    total += item.price!;
+                }
+                break;
+            case 'daily':
+                total += item.price! * getDaysInMonth(month);
+                break;
+            default: 
+                if (isWithinInterval(itemStartDate, { start: monthStart, end: monthEnd })) {
+                    total += item.price!;
+                }
         }
-        return sum;
-      }, 0);
+      });
 
       return {
         name: format(month, "MMM yy", { locale: fr }),
@@ -125,7 +163,7 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
             </ChartContainer>
           ) : (
             <div className="flex justify-center items-center h-64 text-muted-foreground">
-              Aucun achat ce mois-ci.
+              Aucune dépense planifiée ce mois-ci.
             </div>
           )}
         </CardContent>
@@ -134,7 +172,7 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
         <CardHeader className="flex flex-row items-center justify-between">
             <div>
                 <CardTitle>Tendance des dépenses</CardTitle>
-                <CardDescription>Évolution de vos achats mensuels (en MAD).</CardDescription>
+                <CardDescription>Évolution de vos dépenses mensuelles (en MAD).</CardDescription>
             </div>
             <Select value={String(monthsToShow)} onValueChange={(val) => setMonthsToShow(Number(val))}>
                 <SelectTrigger className="w-32">
