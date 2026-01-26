@@ -86,7 +86,7 @@ export function AddInvestmentDialog({ onAddInvestment }: AddInvestmentDialogProp
             <FormField control={form.control} name="purchaseDate" render={({ field }) => (
                 <FormItem className="flex flex-col pt-2">
                     <FormLabel className="mb-1.5">Date d'achat</FormLabel>
-                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                    <Popover modal={true} open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                         <PopoverTrigger asChild>
                             <FormControl>
                                 <Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>

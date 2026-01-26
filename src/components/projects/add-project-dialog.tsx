@@ -106,7 +106,7 @@ export function AddProjectDialog({ children, onAddProject }: AddProjectDialogPro
                 render={({ field }) => (
                     <FormItem className="flex flex-col">
                     <FormLabel>Échéance (Optionnel)</FormLabel>
-                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                    <Popover modal={true} open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                         <PopoverTrigger asChild>
                         <FormControl>
                             <Button

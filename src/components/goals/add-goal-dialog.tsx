@@ -139,7 +139,7 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
                     render={({ field }) => (
                         <FormItem className="flex flex-col pt-2">
                         <FormLabel className="mb-[11px]">Due Date</FormLabel>
-                        <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                        <Popover modal={true} open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                             <PopoverTrigger asChild>
                             <FormControl>
                                 <Button
