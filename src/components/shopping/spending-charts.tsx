@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo, useState } from "react";
@@ -31,9 +32,13 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
   const now = new Date();
 
   const categoryData = useMemo(() => {
+    const currentMonthStart = startOfMonth(now);
+    const currentMonthEnd = endOfMonth(now);
+
     const currentMonthItems = items.filter(item => {
-      const itemDate = parseISO(item.createdAt as string);
-      return isWithinInterval(itemDate, { start: startOfMonth(now), end: endOfMonth(now) });
+      if (!item.purchased || !item.purchasedAt) return false;
+      const purchaseDate = parseISO(item.purchasedAt);
+      return isWithinInterval(purchaseDate, { start: currentMonthStart, end: currentMonthEnd });
     });
 
     const byCategory = currentMonthItems.reduce((acc, item) => {
@@ -60,9 +65,10 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
       const monthEnd = endOfMonth(month);
 
       const total = items.reduce((sum, item) => {
-        if (!item.createdAt) return sum;
-        const itemDate = parseISO(item.createdAt as string);
-        if (item.price && isWithinInterval(itemDate, { start: monthStart, end: monthEnd })) {
+        if (!item.purchased || !item.purchasedAt || !item.price) return sum;
+        
+        const purchaseDate = parseISO(item.purchasedAt);
+        if (isWithinInterval(purchaseDate, { start: monthStart, end: monthEnd })) {
           return sum + item.price;
         }
         return sum;
@@ -92,7 +98,7 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
       <Card>
         <CardHeader>
           <CardTitle>Dépenses par catégorie (ce mois-ci)</CardTitle>
-          <CardDescription>Répartition de vos dépenses pour le mois en cours.</CardDescription>
+          <CardDescription>Répartition de vos achats pour le mois en cours.</CardDescription>
         </CardHeader>
         <CardContent>
           {categoryData.length > 0 ? (
@@ -118,7 +124,7 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
             </ChartContainer>
           ) : (
             <div className="flex justify-center items-center h-64 text-muted-foreground">
-              Aucune dépense ce mois-ci.
+              Aucun achat ce mois-ci.
             </div>
           )}
         </CardContent>
@@ -127,7 +133,7 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
         <CardHeader className="flex flex-row items-center justify-between">
             <div>
                 <CardTitle>Tendance des dépenses</CardTitle>
-                <CardDescription>Évolution de vos dépenses mensuelles.</CardDescription>
+                <CardDescription>Évolution de vos achats mensuels.</CardDescription>
             </div>
             <Select value={String(monthsToShow)} onValueChange={(val) => setMonthsToShow(Number(val))}>
                 <SelectTrigger className="w-32">

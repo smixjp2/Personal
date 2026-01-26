@@ -62,9 +62,11 @@ export function ShoppingList() {
 
   const toggleItem = async (item: ShoppingItem) => {
     if (!user || !firestore) return;
+    const isNowPurchased = !item.purchased;
     try {
         await updateDoc(doc(firestore, "users", user.uid, "shopping-list", item.id), { 
-            purchased: !item.purchased,
+            purchased: isNowPurchased,
+            purchasedAt: isNowPurchased ? new Date().toISOString() : null,
             updatedAt: new Date().toISOString()
         });
     } catch(error: any) {
@@ -118,15 +120,22 @@ export function ShoppingList() {
                         checked={item.purchased}
                         onCheckedChange={() => toggleItem(item)}
                       />
-                      <label
-                        htmlFor={`item-${item.id}`}
-                        className={cn(
-                          "font-medium cursor-pointer",
-                          item.purchased && "text-muted-foreground line-through"
+                      <div className="grid gap-0.5">
+                        <label
+                          htmlFor={`item-${item.id}`}
+                          className={cn(
+                            "font-medium cursor-pointer",
+                            item.purchased && "text-muted-foreground line-through"
+                          )}
+                        >
+                          {item.name}
+                        </label>
+                        {item.purchased && item.purchasedAt && (
+                          <p className="text-xs text-muted-foreground">
+                              Acheté le {new Date(item.purchasedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+                          </p>
                         )}
-                      >
-                        {item.name}
-                      </label>
+                      </div>
                       <Badge variant="outline">{categoryTranslations[item.category] || item.category}</Badge>
                     </div>
                     <div className="flex items-center gap-4">

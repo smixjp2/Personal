@@ -44,6 +44,7 @@ export type ShoppingItem = BaseEntity & {
   name: string;
   price?: number;
   purchased: boolean;
+  purchasedAt?: string;
   category: "groceries" | "subscription" | "entertainment" | "utilities" | "shopping" | "other";
 };
 

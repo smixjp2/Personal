@@ -95,6 +95,7 @@
         "name": { "type": "string" },
         "price": { "type": "number" },
         "purchased": { "type": "boolean" },
+        "purchasedAt": { "type": "string", "format": "date-time" },
         "category": { "type": "string", "enum": ["groceries", "subscription", "entertainment", "utilities", "shopping", "other"] },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
