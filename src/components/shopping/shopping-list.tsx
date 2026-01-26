@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Trash2, Pencil } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
 import { useFirestore, useUser } from "@/firebase";
@@ -113,7 +113,7 @@ export function ShoppingList() {
         <div>
           <CardTitle>Liste d'achats mensuelle</CardTitle>
           <CardDescription>
-            Total: {totalCost.toFixed(2)} MAD | Acheté: {purchasedCost.toFixed(2)} MAD
+            Total: {formatCurrency(totalCost)} MAD | Acheté: {formatCurrency(purchasedCost)} MAD
           </CardDescription>
         </div>
         <AddItemDialog onAddItem={addItem} />
@@ -162,7 +162,7 @@ export function ShoppingList() {
                     <div className="flex items-center gap-4">
                       {item.price && (
                         <span className={cn("font-mono text-sm", item.purchased && "text-muted-foreground line-through")}>
-                          {item.price.toFixed(2)} MAD
+                          {formatCurrency(item.price)} MAD
                         </span>
                       )}
                       <div className="flex items-center">

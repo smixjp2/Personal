@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddIncomeDialog } from "./add-income-dialog";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/utils";
 
 const frequencyTranslations = {
   "one-time": "Unique",
@@ -68,7 +69,7 @@ export function IncomeTab() {
               income.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.name}</TableCell>
-                  <TableCell>{item.amount.toFixed(2)} MAD</TableCell>
+                  <TableCell>{formatCurrency(item.amount)} MAD</TableCell>
                   <TableCell>{new Date(item.date).toLocaleDateString('fr-FR')}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{frequencyTranslations[item.frequency]}</Badge>

@@ -4,6 +4,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useData } from "@/contexts/data-context";
 import { BarChart, LineChart } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 
 export function SummaryTab() {
   const { isInitialized, income, shoppingList, savingGoals, investments } = useData();
@@ -29,7 +30,7 @@ export function SummaryTab() {
                     <CardTitle className="text-lg">Revenus (Total)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold">{totalIncome.toFixed(2)} MAD</p>
+                    <p className="text-2xl font-bold">{formatCurrency(totalIncome)} MAD</p>
                 </CardContent>
             </Card>
             <Card>
@@ -37,7 +38,7 @@ export function SummaryTab() {
                     <CardTitle className="text-lg">Dépenses (Acheté)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold">{totalExpenses.toFixed(2)} MAD</p>
+                    <p className="text-2xl font-bold">{formatCurrency(totalExpenses)} MAD</p>
                 </CardContent>
             </Card>
             <Card>
@@ -45,7 +46,7 @@ export function SummaryTab() {
                     <CardTitle className="text-lg">Épargne Totale</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold">{totalSavings.toFixed(2)} MAD</p>
+                    <p className="text-2xl font-bold">{formatCurrency(totalSavings)} MAD</p>
                 </CardContent>
             </Card>
             <Card>
@@ -53,7 +54,7 @@ export function SummaryTab() {
                     <CardTitle className="text-lg">Valeur Nette Estimée</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold">{netWorth.toFixed(2)} MAD</p>
+                    <p className="text-2xl font-bold">{formatCurrency(netWorth)} MAD</p>
                 </CardContent>
             </Card>
         </div>

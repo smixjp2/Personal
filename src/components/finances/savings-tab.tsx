@@ -10,6 +10,7 @@ import type { SavingGoal } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AddSavingGoalDialog } from "./add-saving-goal-dialog";
 import { Progress } from "@/components/ui/progress";
+import { formatCurrency } from "@/lib/utils";
 
 export function SavingsTab() {
   const { savingGoals, isInitialized } = useData();
@@ -54,7 +55,7 @@ export function SavingsTab() {
                 <div key={goal.id}>
                   <div className="flex justify-between mb-1">
                       <p className="font-medium">{goal.name}</p>
-                      <p className="text-sm text-muted-foreground">{goal.currentAmount.toFixed(2)} MAD / {goal.targetAmount.toFixed(2)} MAD</p>
+                      <p className="text-sm text-muted-foreground">{formatCurrency(goal.currentAmount)} MAD / {formatCurrency(goal.targetAmount)} MAD</p>
                   </div>
                   <Progress value={progress} />
                 </div>

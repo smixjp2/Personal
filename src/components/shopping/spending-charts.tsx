@@ -9,6 +9,7 @@ import type { ShoppingItem } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatCurrency } from "@/lib/utils";
 
 const CHART_COLORS = [
   "hsl(var(--chart-1))",
@@ -106,7 +107,7 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
               <PieChart>
                 <Tooltip
                   cursor={false}
-                  content={<ChartTooltipContent hideLabel formatter={(value) => `${Number(value).toFixed(2)} MAD`} />}
+                  content={<ChartTooltipContent hideLabel formatter={(value) => `${formatCurrency(value as number)} MAD`} />}
                 />
                 <Pie
                   data={categoryData}
@@ -133,7 +134,7 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
         <CardHeader className="flex flex-row items-center justify-between">
             <div>
                 <CardTitle>Tendance des dépenses</CardTitle>
-                <CardDescription>Évolution de vos achats mensuels.</CardDescription>
+                <CardDescription>Évolution de vos achats mensuels (en MAD).</CardDescription>
             </div>
             <Select value={String(monthsToShow)} onValueChange={(val) => setMonthsToShow(Number(val))}>
                 <SelectTrigger className="w-32">
@@ -151,8 +152,8 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
             <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
                 <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
-                <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={12} tickFormatter={(val) => `${val} MAD`} />
-                <Tooltip cursor={false} content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(2)} MAD`} />} />
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={12} tickFormatter={(value) => Number(value).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} />
+                <Tooltip cursor={false} content={<ChartTooltipContent formatter={(value) => `${formatCurrency(value as number)} MAD`} />} />
                 <Bar dataKey="total" name="Total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ChartContainer>

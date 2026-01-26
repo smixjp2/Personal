@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddInvestmentDialog } from "./add-investment-dialog";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 export function InvestmentsTab() {
   const { investments, isInitialized } = useData();
@@ -69,11 +69,11 @@ export function InvestmentsTab() {
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell>{item.type}</TableCell>
-                    <TableCell>{item.initialAmount.toFixed(2)} MAD</TableCell>
-                    <TableCell>{currentValue.toFixed(2)} MAD</TableCell>
+                    <TableCell>{formatCurrency(item.initialAmount)} MAD</TableCell>
+                    <TableCell>{formatCurrency(currentValue)} MAD</TableCell>
                     <TableCell className={cn("flex items-center", isGain ? "text-green-600" : "text-red-600")}>
                       {isGain ? <ArrowUp className="h-4 w-4 mr-1"/> : <ArrowDown className="h-4 w-4 mr-1"/>}
-                      {gainLoss.toFixed(2)} MAD
+                      {formatCurrency(gainLoss)} MAD
                     </TableCell>
                   </TableRow>
                 )
