@@ -9,19 +9,8 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { GenerateTasksInput, GenerateTasksInputSchema, GenerateTasksOutput, GenerateTasksOutputSchema } from '@/lib/types';
 
-const GenerateTasksInputSchema = z.object({
-  projectDescription: z.string().describe('The description of the project for which tasks need to be generated.'),
-  projectType: z.string().describe('The type of project (e.g., course, personal, professional).'),
-  desiredNumberOfTasks: z.number().describe('The desired number of tasks to generate.'),
-});
-export type GenerateTasksInput = z.infer<typeof GenerateTasksInputSchema>;
-
-const GenerateTasksOutputSchema = z.object({
-  tasks: z.array(z.string()).describe('An array of tasks generated for the project.'),
-});
-export type GenerateTasksOutput = z.infer<typeof GenerateTasksOutputSchema>;
 
 export async function generateTasks(input: GenerateTasksInput): Promise<GenerateTasksOutput> {
   return generateTasksFlow(input);

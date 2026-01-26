@@ -9,29 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const PrioritizeTasksInputSchema = z.object({
-  tasks: z.array(
-    z.object({
-      name: z.string().describe('The name of the task.'),
-      deadline: z.string().optional().describe('The deadline for the task (ISO format).'),
-    })
-  ).describe('A list of tasks to prioritize.'),
-  goals: z.array(z.string()).describe('A list of active goals.'),
-});
-export type PrioritizeTasksInput = z.infer<typeof PrioritizeTasksInputSchema>;
-
-const PrioritizeTasksOutputSchema = z.object({
-  prioritizedTasks: z.array(
-    z.object({
-      name: z.string().describe('The name of the task.'),
-      priority: z.enum(["low", "medium", "high"]).describe('The priority of the task (low, medium, or high).'),
-      reason: z.string().describe('The reasoning behind the assigned priority.'),
-    })
-  ).describe('A list of tasks with assigned priorities and reasons.'),
-});
-export type PrioritizeTasksOutput = z.infer<typeof PrioritizeTasksOutputSchema>;
+import { PrioritizeTasksInput, PrioritizeTasksInputSchema, PrioritizeTasksOutput, PrioritizeTasksOutputSchema } from '@/lib/types';
 
 export async function prioritizeTasks(input: PrioritizeTasksInput): Promise<PrioritizeTasksOutput> {
   return prioritizeTasksFlow(input);
