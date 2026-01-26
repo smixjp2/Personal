@@ -32,15 +32,17 @@ export function ShoppingList() {
       toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add an item." });
       return;
     }
-    const newItem: ShoppingItem = {
-      ...newItemData,
-      id: uuidv4(),
+    const id = uuidv4();
+    const dataToSave = {
+      name: newItemData.name,
       purchased: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      ...(newItemData.price && { price: newItemData.price })
     };
+
     try {
-        await setDoc(doc(firestore, "users", user.uid, "shopping-list", newItem.id), newItem);
+        await setDoc(doc(firestore, "users", user.uid, "shopping-list", id), dataToSave);
     } catch(error: any) {
         toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new item." });
     }
