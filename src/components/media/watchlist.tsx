@@ -20,6 +20,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { Badge } from "@/components/ui/badge";
 
 export function Watchlist() {
   const { watchlist: items, isInitialized } = useData();
@@ -115,7 +116,8 @@ export function Watchlist() {
                         </label>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.category === 'movie' ? 'Film' : 'Série TV'}</Badge>
                       <Button
                         variant="ghost"
                         size="icon"
