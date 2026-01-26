@@ -33,7 +33,6 @@ const pageTitles: { [key: string]: string } = {
   "/projects": "Projets",
   "/tasks": "Task Inbox",
   "/calendar": "Calendar",
-  "/shopping": "Liste d'achats",
   "/media": "Médiathèque",
   "/finances": "Finances",
 };

@@ -1,9 +1,4 @@
-import { ShoppingList } from "@/components/shopping/shopping-list";
-
+// This page is no longer used and has been merged into the Finances page.
 export default function ShoppingPage() {
-  return (
-    <div className="container mx-auto max-w-5xl">
-      <ShoppingList />
-    </div>
-  );
+  return null;
 }

@@ -34,7 +34,6 @@ const navItems = [
   { href: "/projects", label: "Projets", icon: Briefcase },
   { href: "/tasks", label: "Tasks", icon: ListTodo },
   { href: "/calendar", label: "Calendar", icon: Calendar },
-  { href: "/shopping", label: "Achats", icon: ShoppingCart },
   { href: "/media", label: "Médiathèque", icon: Library },
   { href: "/finances", label: "Finances", icon: Landmark },
 ];
