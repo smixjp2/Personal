@@ -32,6 +32,7 @@ type AddInvestmentDialogProps = {
 
 export function AddInvestmentDialog({ onAddInvestment }: AddInvestmentDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const form = useForm<z.infer<typeof investmentSchema>>({
     resolver: zodResolver(investmentSchema),
   });
@@ -85,7 +86,7 @@ export function AddInvestmentDialog({ onAddInvestment }: AddInvestmentDialogProp
             <FormField control={form.control} name="purchaseDate" render={({ field }) => (
                 <FormItem className="flex flex-col pt-2">
                     <FormLabel className="mb-1.5">Date d'achat</FormLabel>
-                    <Popover>
+                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                         <PopoverTrigger asChild>
                             <FormControl>
                                 <Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
@@ -95,7 +96,15 @@ export function AddInvestmentDialog({ onAddInvestment }: AddInvestmentDialogProp
                             </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                            <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={(date) => {
+                                    field.onChange(date);
+                                    setIsCalendarOpen(false);
+                                }}
+                                initialFocus
+                            />
                         </PopoverContent>
                     </Popover>
                     <FormMessage />
