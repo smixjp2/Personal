@@ -11,7 +11,7 @@ import { useData } from '@/contexts/data-context';
 export function CurrentlyReading() {
   const { readingList, isInitialized } = useData();
 
-  const currentBook = readingList.find(b => !b.read) || null;
+  const currentBook = readingList.find(b => b.currentlyReading) || null;
 
   const readingImage = PlaceHolderImages.find(
     (img) => img.id === 'currently-reading'
@@ -49,7 +49,7 @@ export function CurrentlyReading() {
           <div className="flex flex-col items-center justify-center text-center h-full text-muted-foreground p-8">
             <BookOpen className="h-10 w-10 mb-4"/>
             <p>Aucune lecture en cours.</p>
-            <p className="text-sm">Ajoutez un livre à votre liste de lecture.</p>
+            <p className="text-sm">Définissez un livre comme lecture en cours depuis la liste.</p>
           </div>
         )}
       </CardContent>

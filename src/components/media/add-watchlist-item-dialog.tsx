@@ -35,8 +35,10 @@ import { useState } from "react";
 import type { WatchlistItem } from "@/lib/types";
 
 const watchlistItemSchema = z.object({
-  title: z.string().min(2, "Title must be at least 2 characters."),
+  title: z.string().min(2, "Le titre doit comporter au moins 2 caractères."),
   category: z.enum(["movie", "tv-show"]),
+  season: z.coerce.number().optional(),
+  episode: z.coerce.number().optional(),
 });
 
 type AddWatchlistItemDialogProps = {
@@ -53,6 +55,8 @@ export function AddWatchlistItemDialog({ onAddItem }: AddWatchlistItemDialogProp
     },
   });
 
+  const category = form.watch("category");
+
   function onSubmit(values: z.infer<typeof watchlistItemSchema>) {
     onAddItem(values);
     form.reset();
@@ -66,7 +70,7 @@ export function AddWatchlistItemDialog({ onAddItem }: AddWatchlistItemDialogProp
           <Plus className="mr-2 h-4 w-4" /> Ajouter
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Ajouter à la liste de visionnage</DialogTitle>
           <DialogDescription>
@@ -109,6 +113,24 @@ export function AddWatchlistItemDialog({ onAddItem }: AddWatchlistItemDialogProp
                     </FormItem>
                 )}
             />
+            {category === 'tv-show' && (
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={form.control} name="season" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Saison</FormLabel>
+                    <FormControl><Input type="number" placeholder="1" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="episode" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Épisode</FormLabel>
+                    <FormControl><Input type="number" placeholder="1" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+            )}
             <DialogFooter className="pt-4">
               <Button type="submit">Ajouter à la liste</Button>
             </DialogFooter>

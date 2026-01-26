@@ -52,12 +52,16 @@ export type WatchlistItem = BaseEntity & {
   title: string;
   category: "movie" | "tv-show";
   watched: boolean;
+  currentlyWatching?: boolean;
+  season?: number;
+  episode?: number;
 };
 
 export type Book = BaseEntity & {
   title: string;
   author?: string;
   read: boolean;
+  currentlyReading?: boolean;
 };
 
 export type Income = BaseEntity & {

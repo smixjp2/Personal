@@ -11,7 +11,7 @@ import { useData } from '@/contexts/data-context';
 export function CurrentlyWatching() {
   const { watchlist, isInitialized } = useData();
 
-  const currentItem = watchlist.find(i => !i.watched) || null;
+  const currentItem = watchlist.find(i => i.currentlyWatching) || null;
 
   const watchingImage = PlaceHolderImages.find(
     (img) => img.id === 'currently-watching'
@@ -39,16 +39,22 @@ export function CurrentlyWatching() {
                     className="object-cover"
                 />
              </div>
-            <div className="flex items-center gap-2">
-                <Film className="h-5 w-5 text-primary"/>
+            <div>
                 <h3 className="font-semibold text-lg">{currentItem.title}</h3>
+                {currentItem.category === 'tv-show' && (currentItem.season || currentItem.episode) && (
+                    <p className="text-sm text-muted-foreground">
+                        {currentItem.season && `Saison ${currentItem.season}`}
+                        {currentItem.season && currentItem.episode && ' - '}
+                        {currentItem.episode && `Épisode ${currentItem.episode}`}
+                    </p>
+                )}
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center text-center h-full text-muted-foreground p-8">
             <Film className="h-10 w-10 mb-4"/>
             <p>Rien en cours de visionnage.</p>
-            <p className="text-sm">Ajoutez un film ou une série à votre liste.</p>
+            <p className="text-sm">Définissez un film ou une série comme en cours depuis la liste.</p>
           </div>
         )}
       </CardContent>
