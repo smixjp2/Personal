@@ -3,8 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Plus, Calendar as CalendarIcon } from "lucide-react";
-import { format, startOfDay } from "date-fns";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,19 +17,28 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import type { Income } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 const incomeSchema = z.object({
   name: z.string().min(2, "Le nom est requis."),
   amount: z.coerce.number().positive("Le montant doit être positif."),
-  date: z.date({ required_error: "La date est requise." }),
+  day: z.string().min(1, "Jour requis").max(2),
+  month: z.string().min(1, "Mois requis").max(2),
+  year: z.string().min(4, "Année requise").max(4),
   frequency: z.enum(["one-time", "monthly", "yearly"]),
-});
+}).refine((data) => {
+    const day = parseInt(data.day, 10);
+    const month = parseInt(data.month, 10);
+    const year = parseInt(data.year, 10);
+    if (isNaN(day) || isNaN(month) || isNaN(year)) return false;
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+  }, {
+    message: "Date invalide.",
+    path: ["day"],
+  });
 
 type AddIncomeDialogProps = {
   onAddIncome: (item: Omit<Income, "id">) => void;
@@ -38,17 +46,21 @@ type AddIncomeDialogProps = {
 
 export function AddIncomeDialog({ onAddIncome }: AddIncomeDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const form = useForm<z.infer<typeof incomeSchema>>({
     resolver: zodResolver(incomeSchema),
     defaultValues: {
       name: "",
       frequency: "one-time",
+      day: new Date().getDate().toString(),
+      month: (new Date().getMonth() + 1).toString(),
+      year: new Date().getFullYear().toString(),
     },
   });
 
   function onSubmit(values: z.infer<typeof incomeSchema>) {
-    onAddIncome({ ...values, date: values.date.toISOString() });
+    const { day, month, year, ...rest } = values;
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).toISOString();
+    onAddIncome({ ...rest, date });
     form.reset();
     setIsOpen(false);
   }
@@ -79,49 +91,44 @@ export function AddIncomeDialog({ onAddIncome }: AddIncomeDialogProps) {
                 <FormMessage />
               </FormItem>
             )} />
-            <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="date" render={({ field }) => (
-                    <FormItem className="flex flex-col pt-2">
-                        <FormLabel className="mb-[11px]">Date</FormLabel>
-                        <Popover modal={true} open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                            <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                                        {field.value ? format(field.value, "PPP") : <span>Choisir une date</span>}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                    mode="single"
-                                    selected={field.value}
-                                    onSelect={(date) => {
-                                        field.onChange(date);
-                                        setIsCalendarOpen(false);
-                                    }}
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                    </FormItem>
+
+            <FormItem>
+              <FormLabel>Date</FormLabel>
+              <div className="grid grid-cols-3 gap-2">
+                <FormField control={form.control} name="day" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Jour" {...field} /></FormControl>
+                  </FormItem>
                 )} />
-                <FormField control={form.control} name="frequency" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Fréquence</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                            <SelectContent>
-                                <SelectItem value="one-time">Unique</SelectItem>
-                                <SelectItem value="monthly">Mensuel</SelectItem>
-                                <SelectItem value="yearly">Annuel</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                    </FormItem>
+                <FormField control={form.control} name="month" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Mois" {...field} /></FormControl>
+                  </FormItem>
                 )} />
-            </div>
+                <FormField control={form.control} name="year" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Année" {...field} /></FormControl>
+                  </FormItem>
+                )} />
+              </div>
+              <FormMessage>{form.formState.errors.day?.message}</FormMessage>
+            </FormItem>
+
+            <FormField control={form.control} name="frequency" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Fréquence</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            <SelectItem value="one-time">Unique</SelectItem>
+                            <SelectItem value="monthly">Mensuel</SelectItem>
+                            <SelectItem value="yearly">Annuel</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+            )} />
+
             <DialogFooter className="pt-4">
               <Button type="submit">Enregistrer</Button>
             </DialogFooter>

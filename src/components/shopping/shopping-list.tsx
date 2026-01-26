@@ -33,6 +33,14 @@ const categoryTranslations = {
     other: "Autre",
 };
 
+const frequencyTranslations = {
+    "one-time": "Ponctuel",
+    "daily": "Quotidien",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+};
+
+
 export function ShoppingList() {
   const { shoppingList: items, isInitialized } = useData();
   const { user } = useUser();
@@ -45,9 +53,10 @@ export function ShoppingList() {
       return;
     }
     const id = uuidv4();
-    const dataToSave: Omit<ShoppingItem, 'id'> & { createdAt: string, updatedAt: string } = {
+    const dataToSave: Omit<ShoppingItem, 'id'> & { createdAt: string, updatedAt: string, purchased: boolean } = {
       name: newItemData.name,
       category: newItemData.category,
+      frequency: newItemData.frequency || "one-time",
       purchased: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -61,7 +70,7 @@ export function ShoppingList() {
     }
   };
 
-  const editItem = async (itemId: string, updatedData: {name: string, category: ShoppingItem['category'], price?: number}) => {
+  const editItem = async (itemId: string, updatedData: {name: string, category: ShoppingItem['category'], frequency: ShoppingItem['frequency'], price?: number}) => {
     if (!user || !firestore) {
       toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to edit an item." });
       return;
@@ -158,6 +167,9 @@ export function ShoppingList() {
                         )}
                       </div>
                       <Badge variant="outline">{categoryTranslations[item.category] || item.category}</Badge>
+                      {item.frequency && item.frequency !== 'one-time' && (
+                        <Badge variant="secondary">{frequencyTranslations[item.frequency as keyof typeof frequencyTranslations]}</Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-4">
                       {item.price && (

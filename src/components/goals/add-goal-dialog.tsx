@@ -3,9 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format, startOfDay } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { startOfDay } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +18,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -35,19 +32,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import type { Goal } from "@/lib/types";
 
 const goalSchema = z.object({
-  name: z.string().min(3, "Goal name must be at least 3 characters."),
-  description: z.string().min(10, "Description is too short.").max(200, "Description is too long."),
+  name: z.string().min(3, "Le nom de l'objectif doit être d'au moins 3 caractères."),
+  description: z.string().min(10, "La description est trop courte.").max(200, "La description est trop longue."),
   category: z.enum(["personal", "professional", "course"]),
-  dueDate: z.date({
-    required_error: "A due date is required.",
-  }),
-});
+  dueDay: z.string().min(1, "Le jour est requis.").max(2, "Jour invalide."),
+  dueMonth: z.string().min(1, "Le mois est requis.").max(2, "Mois invalide."),
+  dueYear: z.string().min(4, "L'année doit comporter 4 chiffres.").max(4, "L'année doit comporter 4 chiffres."),
+}).refine((data) => {
+    const day = parseInt(data.dueDay, 10);
+    const month = parseInt(data.dueMonth, 10);
+    const year = parseInt(data.dueYear, 10);
+    if (isNaN(day) || isNaN(month) || isNaN(year)) return false;
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day && date >= startOfDay(new Date());
+  }, {
+    message: "La date est invalide ou passée.",
+    path: ["dueDay"],
+  });
+
 
 type AddGoalDialogProps = {
   children: React.ReactNode;
@@ -56,7 +62,6 @@ type AddGoalDialogProps = {
 
 export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const form = useForm<z.infer<typeof goalSchema>>({
     resolver: zodResolver(goalSchema),
     defaultValues: {
@@ -67,7 +72,9 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
   });
 
   function onSubmit(values: z.infer<typeof goalSchema>) {
-    onAddGoal({ ...values, dueDate: values.dueDate.toISOString() });
+    const { dueDay, dueMonth, dueYear, ...rest } = values;
+    const dueDate = new Date(parseInt(dueYear), parseInt(dueMonth) - 1, parseInt(dueDay)).toISOString();
+    onAddGoal({ ...rest, dueDate });
     form.reset();
     setIsOpen(false);
   }
@@ -110,74 +117,52 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
-                <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                        <SelectItem value="personal">Personal</SelectItem>
-                        <SelectItem value="professional">Professional</SelectItem>
-                        <SelectItem value="course">Course</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <FormField
-                    control={form.control}
-                    name="dueDate"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-col pt-2">
-                        <FormLabel className="mb-[11px]">Due Date</FormLabel>
-                        <Popover modal={true} open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                            <PopoverTrigger asChild>
-                            <FormControl>
-                                <Button
-                                variant={"outline"}
-                                className={cn(
-                                    "w-full pl-3 text-left font-normal",
-                                    !field.value && "text-muted-foreground"
-                                )}
-                                >
-                                {field.value ? (
-                                    format(field.value, "PPP")
-                                ) : (
-                                    <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                            </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={(date) => {
-                                    field.onChange(date);
-                                    setIsCalendarOpen(false);
-                                }}
-                                disabled={(date) =>
-                                  date < startOfDay(new Date())
-                                }
-                                initialFocus
-                            />
-                            </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
-            </div>
+            
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                      <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                      <SelectItem value="personal">Personal</SelectItem>
+                      <SelectItem value="professional">Professional</SelectItem>
+                      <SelectItem value="course">Course</SelectItem>
+                      </SelectContent>
+                  </Select>
+                  <FormMessage />
+                  </FormItem>
+              )}
+            />
+            
+            <FormItem>
+              <FormLabel>Due Date</FormLabel>
+              <div className="grid grid-cols-3 gap-2">
+                <FormField control={form.control} name="dueDay" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Jour" {...field} /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="dueMonth" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Mois" {...field} /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="dueYear" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Année" {...field} /></FormControl>
+                  </FormItem>
+                )} />
+              </div>
+              <FormMessage>{form.formState.errors.dueDay?.message}</FormMessage>
+            </FormItem>
+
             <DialogFooter className="pt-4">
               <Button type="submit">Create Goal</Button>
             </DialogFooter>

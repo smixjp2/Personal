@@ -46,6 +46,7 @@ export type ShoppingItem = BaseEntity & {
   purchased: boolean;
   purchasedAt?: string;
   category: "groceries" | "subscription" | "entertainment" | "utilities" | "shopping" | "other";
+  frequency?: "one-time" | "daily" | "monthly" | "yearly";
 };
 
 export type WatchlistItem = BaseEntity & {

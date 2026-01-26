@@ -4,9 +4,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format, startOfDay } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { startOfDay } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +19,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -29,16 +26,33 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import type { Project } from "@/lib/types";
 
 const projectSchema = z.object({
-  name: z.string().min(3, "Project name must be at least 3 characters."),
-  description: z.string().min(10, "Description is too short.").max(500, "Description is too long."),
-  dueDate: z.date().optional(),
-});
+  name: z.string().min(3, "Le nom du projet doit comporter au moins 3 caractères."),
+  description: z.string().min(10, "La description est trop courte.").max(500, "La description est trop longue."),
+  dueDay: z.string().max(2).optional(),
+  dueMonth: z.string().max(2).optional(),
+  dueYear: z.string().max(4).optional(),
+}).refine((data) => {
+    const { dueDay, dueMonth, dueYear } = data;
+    if (!dueDay && !dueMonth && !dueYear) {
+      return true; // All optional, so valid if all are empty
+    }
+    if (dueDay && dueMonth && dueYear && dueDay.length > 0 && dueMonth.length > 0 && dueYear.length === 4) {
+      const day = parseInt(dueDay, 10);
+      const month = parseInt(dueMonth, 10);
+      const year = parseInt(dueYear, 10);
+      if (isNaN(day) || isNaN(month) || isNaN(year)) return false;
+      const date = new Date(year, month - 1, day);
+      return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day && date >= startOfDay(new Date());
+    }
+    return false; // Invalid partial date
+  }, {
+    message: "Date invalide, passée ou incomplète.",
+    path: ["dueDay"],
+  });
 
 type AddProjectDialogProps = {
   children: React.ReactNode;
@@ -47,7 +61,6 @@ type AddProjectDialogProps = {
 
 export function AddProjectDialog({ children, onAddProject }: AddProjectDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
@@ -57,7 +70,12 @@ export function AddProjectDialog({ children, onAddProject }: AddProjectDialogPro
   });
 
   function onSubmit(values: z.infer<typeof projectSchema>) {
-    onAddProject({ ...values, dueDate: values.dueDate?.toISOString() });
+    const { dueDay, dueMonth, dueYear, ...rest } = values;
+    const dueDate = (dueDay && dueMonth && dueYear)
+        ? new Date(parseInt(dueYear), parseInt(dueMonth) - 1, parseInt(dueDay)).toISOString()
+        : undefined;
+
+    onAddProject({ ...rest, dueDate });
     form.reset();
     setIsOpen(false);
   }
@@ -100,50 +118,27 @@ export function AddProjectDialog({ children, onAddProject }: AddProjectDialogPro
                 </FormItem>
               )}
             />
-             <FormField
-                control={form.control}
-                name="dueDate"
-                render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                    <FormLabel>Échéance (Optionnel)</FormLabel>
-                    <Popover modal={true} open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                        <PopoverTrigger asChild>
-                        <FormControl>
-                            <Button
-                            variant={"outline"}
-                            className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                            )}
-                            >
-                            {field.value ? (
-                                format(field.value, "PPP")
-                            ) : (
-                                <span>Choisir une date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                        </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={(date) => {
-                                field.onChange(date);
-                                setIsCalendarOpen(false);
-                            }}
-                            disabled={(date) =>
-                                date < startOfDay(new Date())
-                            }
-                            initialFocus
-                        />
-                        </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                    </FormItem>
-                )}
-            />
+            <FormItem>
+              <FormLabel>Échéance (Optionnel)</FormLabel>
+              <div className="grid grid-cols-3 gap-2">
+                <FormField control={form.control} name="dueDay" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Jour" {...field} value={field.value ?? ""} /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="dueMonth" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Mois" {...field} value={field.value ?? ""} /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="dueYear" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Année" {...field} value={field.value ?? ""} /></FormControl>
+                  </FormItem>
+                )} />
+              </div>
+              <FormMessage>{form.formState.errors.dueDay?.message}</FormMessage>
+            </FormItem>
             <DialogFooter className="pt-4">
               <Button type="submit">Créer le Projet</Button>
             </DialogFooter>

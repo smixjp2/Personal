@@ -41,6 +41,7 @@ const itemSchema = z.object({
     z.coerce.number().positive("Le prix doit être un nombre positif.").optional()
   ),
   category: z.enum(["groceries", "subscription", "entertainment", "utilities", "shopping", "other"]),
+  frequency: z.enum(["one-time", "daily", "monthly", "yearly"]),
 });
 
 type AddItemDialogProps = {
@@ -55,6 +56,7 @@ export function AddItemDialog({ onAddItem }: AddItemDialogProps) {
       name: "",
       price: undefined,
       category: "shopping",
+      frequency: "one-time",
     },
   });
 
@@ -125,6 +127,29 @@ export function AddItemDialog({ onAddItem }: AddItemDialogProps) {
                       <SelectItem value="entertainment">Divertissement</SelectItem>
                       <SelectItem value="utilities">Charges</SelectItem>
                       <SelectItem value="other">Autre</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="frequency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fréquence</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner une fréquence" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="one-time">Ponctuel</SelectItem>
+                      <SelectItem value="daily">Quotidien</SelectItem>
+                      <SelectItem value="monthly">Mensuel</SelectItem>
+                      <SelectItem value="yearly">Annuel</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

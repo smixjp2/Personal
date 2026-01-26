@@ -3,8 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Plus, Calendar as CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,19 +11,28 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import type { Investment } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 const investmentSchema = z.object({
   name: z.string().min(2, "Le nom est requis."),
   type: z.string().min(2, "Le type est requis."),
   initialAmount: z.coerce.number().positive("Le montant doit être positif."),
-  purchaseDate: z.date({ required_error: "La date est requise." }),
+  day: z.string().min(1, "Jour requis").max(2),
+  month: z.string().min(1, "Mois requis").max(2),
+  year: z.string().min(4, "Année requise").max(4),
   currentValue: z.coerce.number().positive("La valeur doit être positive.").optional(),
-});
+}).refine((data) => {
+    const day = parseInt(data.day, 10);
+    const month = parseInt(data.month, 10);
+    const year = parseInt(data.year, 10);
+    if (isNaN(day) || isNaN(month) || isNaN(year)) return false;
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+  }, {
+    message: "Date d'achat invalide.",
+    path: ["day"],
+  });
 
 type AddInvestmentDialogProps = {
   onAddInvestment: (item: Omit<Investment, "id">) => void;
@@ -32,13 +40,19 @@ type AddInvestmentDialogProps = {
 
 export function AddInvestmentDialog({ onAddInvestment }: AddInvestmentDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const form = useForm<z.infer<typeof investmentSchema>>({
     resolver: zodResolver(investmentSchema),
+    defaultValues: {
+      day: new Date().getDate().toString(),
+      month: (new Date().getMonth() + 1).toString(),
+      year: new Date().getFullYear().toString(),
+    }
   });
 
   function onSubmit(values: z.infer<typeof investmentSchema>) {
-    onAddInvestment({ ...values, purchaseDate: values.purchaseDate.toISOString() });
+    const { day, month, year, ...rest } = values;
+    const purchaseDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).toISOString();
+    onAddInvestment({ ...rest, purchaseDate });
     form.reset();
     setIsOpen(false);
   }
@@ -83,33 +97,27 @@ export function AddInvestmentDialog({ onAddInvestment }: AddInvestmentDialogProp
                 <FormMessage />
               </FormItem>
             )} />
-            <FormField control={form.control} name="purchaseDate" render={({ field }) => (
-                <FormItem className="flex flex-col pt-2">
-                    <FormLabel className="mb-1.5">Date d'achat</FormLabel>
-                    <Popover modal={true} open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                        <PopoverTrigger asChild>
-                            <FormControl>
-                                <Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                                    {field.value ? format(field.value, "PPP") : <span>Choisir une date</span>}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                            </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={(date) => {
-                                    field.onChange(date);
-                                    setIsCalendarOpen(false);
-                                }}
-                                initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                </FormItem>
-            )} />
+            <FormItem>
+              <FormLabel>Date d'achat</FormLabel>
+              <div className="grid grid-cols-3 gap-2">
+                <FormField control={form.control} name="day" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Jour" {...field} /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="month" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Mois" {...field} /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="year" render={({ field }) => (
+                  <FormItem>
+                    <FormControl><Input placeholder="Année" {...field} /></FormControl>
+                  </FormItem>
+                )} />
+              </div>
+              <FormMessage>{form.formState.errors.day?.message}</FormMessage>
+            </FormItem>
             <DialogFooter className="pt-4">
               <Button type="submit">Enregistrer</Button>
             </DialogFooter>
