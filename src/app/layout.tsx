@@ -9,6 +9,7 @@ import { AuthGuard } from "@/components/auth/auth-guard";
 import "./globals.css";
 import { usePathname } from "next/navigation";
 import { DataProvider } from "@/contexts/data-context";
+import { Analytics } from "@vercel/analytics/next";
 
 
 export default function RootLayout({
@@ -43,6 +44,7 @@ export default function RootLayout({
             </DataProvider>
           </AuthGuard>
         </FirebaseClientProvider>
+        <Analytics />
       </body>
     </html>
   );
