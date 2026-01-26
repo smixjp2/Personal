@@ -1,21 +1,164 @@
 
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { useData } from "@/contexts/data-context";
-import { BarChart, LineChart } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+  addMonths,
+  subMonths,
+  startOfMonth,
+  endOfMonth,
+  isWithinInterval,
+  format,
+  parseISO,
+  getDaysInMonth,
+} from "date-fns";
+import { fr } from "date-fns/locale";
+
+const cashFlowChartConfig = {
+  income: {
+    label: "Revenus",
+    color: "hsl(var(--chart-2))",
+  },
+  expenses: {
+    label: "Dépenses",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig;
+
+const netWorthChartConfig = {
+  netWorth: {
+    label: "Valeur Nette",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig;
 
 export function SummaryTab() {
   const { isInitialized, income, shoppingList, savingGoals, investments } = useData();
 
-  // Basic calculations, can be improved later
   const totalIncome = income.reduce((acc, i) => acc + i.amount, 0);
   const totalExpenses = shoppingList.filter(i => i.purchased).reduce((acc, i) => acc + (i.price || 0), 0);
   const totalSavings = savingGoals.reduce((acc, s) => acc + s.currentAmount, 0);
   const totalInvestments = investments.reduce((acc, i) => acc + (i.currentValue || i.initialAmount), 0);
-  const netWorth = totalIncome - totalExpenses + totalSavings + totalInvestments;
+  const netWorth = totalSavings + totalInvestments;
 
+   const calculateMonthlyExpenses = (month: Date): number => {
+    const monthStart = startOfMonth(month);
+    const monthEnd = endOfMonth(month);
+    let total = 0;
+
+    shoppingList.forEach((item) => {
+      if (!item.price) return;
+
+      const freq = item.frequency || "one-time";
+      const startDateString = item.createdAt;
+
+      if (!startDateString || typeof startDateString !== "string") return;
+      
+      const itemStartDate = parseISO(startDateString);
+
+      if (itemStartDate > monthEnd) return;
+
+      if (freq === "one-time") {
+        if (item.date && isWithinInterval(parseISO(item.date), { start: monthStart, end: monthEnd })) {
+          total += item.price;
+        }
+      } else if (freq === "daily") {
+        total += item.price * getDaysInMonth(month);
+      } else if (freq === "monthly") {
+        total += item.price;
+      } else if (freq === "yearly") {
+        if (itemStartDate.getMonth() === month.getMonth()) {
+          total += item.price;
+        }
+      }
+    });
+    return total;
+  };
+
+  const calculateMonthlyIncome = (month: Date): number => {
+      const monthStart = startOfMonth(month);
+      const monthEnd = endOfMonth(month);
+      let total = 0;
+
+      income.forEach(i => {
+          const incomeDate = parseISO(i.date);
+          if (i.frequency === 'one-time') {
+              if (isWithinInterval(incomeDate, { start: monthStart, end: monthEnd })) {
+                  total += i.amount;
+              }
+          } else if (i.frequency === 'monthly') {
+              if (incomeDate <= monthEnd) {
+                  total += i.amount;
+              }
+          } else if (i.frequency === 'yearly') {
+              if (incomeDate <= monthEnd && incomeDate.getMonth() === month.getMonth()) {
+                  total += i.amount;
+              }
+          }
+      });
+      return total;
+  };
+
+  const cashFlowData = useMemo(() => {
+    if (!isInitialized) return [];
+    const futureMonths = Array.from({ length: 6 }, (_, i) => addMonths(new Date(), i));
+    return futureMonths.map((month) => ({
+      name: format(month, "MMM yy", { locale: fr }),
+      income: calculateMonthlyIncome(month),
+      expenses: calculateMonthlyExpenses(month),
+    }));
+  }, [isInitialized, income, shoppingList]);
+
+  const netWorthData = useMemo(() => {
+    if (!isInitialized) return [];
+    
+    const data = [];
+    let runningWorth = netWorth;
+    const futureMonths = Array.from({ length: 6 }, (_, i) => addMonths(new Date(), i));
+
+    for (let i = 0; i < futureMonths.length; i++) {
+        const month = futureMonths[i];
+        const monthName = format(month, "MMM yy", { locale: fr });
+        
+        if (i > 0) {
+            const prevMonth = futureMonths[i-1];
+            const incomeThisMonth = calculateMonthlyIncome(prevMonth);
+            const expensesThisMonth = calculateMonthlyExpenses(prevMonth);
+            runningWorth += (incomeThisMonth - expensesThisMonth);
+        }
+        
+        data.push({ name: monthName, netWorth: i === 0 ? netWorth : runningWorth });
+    }
+
+    return data;
+    
+  }, [isInitialized, netWorth, income, shoppingList]);
 
   return (
     <Card>
@@ -62,20 +205,39 @@ export function SummaryTab() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>Flux de trésorerie</CardTitle>
+                    <CardTitle>Flux de trésorerie futurs</CardTitle>
+                    <CardDescription>Projection des revenus et dépenses pour les 6 prochains mois.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex items-center justify-center h-64 text-muted-foreground">
-                    <BarChart className="w-16 h-16"/>
-                    <p className="ml-4">Graphique des flux de trésorerie à venir.</p>
+                <CardContent className="h-80">
+                  <ChartContainer config={cashFlowChartConfig} className="h-full w-full">
+                    <BarChart data={cashFlowData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid vertical={false} />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${formatCurrency(value)}`} />
+                      <Tooltip content={<ChartTooltipContent formatter={(value) => `${formatCurrency(value as number)} MAD`} />} />
+                      <Legend />
+                      <Bar dataKey="income" name="Revenus" fill="var(--color-income)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="expenses" name="Dépenses" fill="var(--color-expenses)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ChartContainer>
                 </CardContent>
             </Card>
             <Card>
                 <CardHeader>
                     <CardTitle>Évolution de la valeur nette</CardTitle>
+                    <CardDescription>Projection de la croissance de votre valeur nette sur 6 mois.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex items-center justify-center h-64 text-muted-foreground">
-                    <LineChart className="w-16 h-16"/>
-                     <p className="ml-4">Graphique de la valeur nette à venir.</p>
+                 <CardContent className="h-80">
+                  <ChartContainer config={netWorthChartConfig} className="h-full w-full">
+                    <LineChart data={netWorthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid vertical={false} />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis domain={['dataMin - 1000', 'dataMax + 1000']} fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${formatCurrency(value)}`} />
+                      <Tooltip content={<ChartTooltipContent formatter={(value) => `${formatCurrency(value as number)} MAD`} />} />
+                      <Legend />
+                      <Line type="monotone" dataKey="netWorth" name="Valeur Nette" stroke="var(--color-netWorth)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                    </LineChart>
+                  </ChartContainer>
                 </CardContent>
             </Card>
         </div>
