@@ -11,7 +11,7 @@ import {
 import { AddBookDialog } from "./add-book-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil, BookMark } from "lucide-react";
+import { Trash2, Pencil, Bookmark } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useData } from "@/contexts/data-context";
@@ -161,7 +161,7 @@ export function ReadingList() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => setCurrentBook(book)}>
-                          <BookMark className={cn("h-4 w-4", book.currentlyReading && "text-primary fill-primary")} />
+                          <Bookmark className={cn("h-4 w-4", book.currentlyReading && "text-primary fill-primary")} />
                           <span className="sr-only">Définir comme lecture en cours</span>
                       </Button>
                       <EditBookDialog book={book} onEditBook={(updatedData) => editBook(book.id, updatedData)}>
