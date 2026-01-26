@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMemo, useState } from "react";
@@ -39,32 +38,29 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
     const byCategory: Record<string, number> = {};
 
     items.forEach(item => {
-        if (!item.price || !item.date) return;
+        if (!item.price) return;
 
-        const itemStartDate = parseISO(item.date);
+        const freq = item.frequency || 'one-time';
+        const startDateString = item.date || item.createdAt;
+        
+        if (!startDateString || typeof startDateString !== 'string') return;
+        
+        const itemStartDate = parseISO(startDateString);
+        
         if (itemStartDate > currentMonthEnd) return; 
 
-        switch(item.frequency) {
-            case 'one-time':
-                if (isWithinInterval(itemStartDate, { start: currentMonthStart, end: currentMonthEnd })) {
-                    byCategory[item.category] = (byCategory[item.category] || 0) + item.price!;
-                }
-                break;
-            case 'monthly':
-                byCategory[item.category] = (byCategory[item.category] || 0) + item.price!;
-                break;
-            case 'yearly':
-                if (itemStartDate.getMonth() === now.getMonth()) {
-                    byCategory[item.category] = (byCategory[item.category] || 0) + item.price!;
-                }
-                break;
-            case 'daily':
-                 byCategory[item.category] = (byCategory[item.category] || 0) + (item.price! * getDaysInMonth(now));
-                break;
-            default:
-                 if (isWithinInterval(itemStartDate, { start: currentMonthStart, end: currentMonthEnd })) {
-                    byCategory[item.category] = (byCategory[item.category] || 0) + item.price!;
-                }
+        if (freq === 'one-time') {
+            if (item.date && isWithinInterval(parseISO(item.date), { start: currentMonthStart, end: currentMonthEnd })) {
+                byCategory[item.category] = (byCategory[item.category] || 0) + item.price;
+            }
+        } else if (freq === 'daily') {
+            byCategory[item.category] = (byCategory[item.category] || 0) + (item.price * getDaysInMonth(now));
+        } else if (freq === 'monthly') {
+            byCategory[item.category] = (byCategory[item.category] || 0) + item.price;
+        } else if (freq === 'yearly') {
+            if (itemStartDate.getMonth() === now.getMonth()) {
+                byCategory[item.category] = (byCategory[item.category] || 0) + item.price;
+            }
         }
     });
 
@@ -84,32 +80,29 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
       let total = 0;
 
       items.forEach(item => {
-        if (!item.price || !item.date) return;
+        if (!item.price) return;
 
-        const itemStartDate = parseISO(item.date);
+        const freq = item.frequency || 'one-time';
+        const startDateString = item.date || item.createdAt;
+
+        if (!startDateString || typeof startDateString !== 'string') return;
+        
+        const itemStartDate = parseISO(startDateString);
+
         if (itemStartDate > monthEnd) return; 
 
-        switch(item.frequency) {
-            case 'one-time':
-                if (isWithinInterval(itemStartDate, { start: monthStart, end: monthEnd })) {
-                    total += item.price!;
-                }
-                break;
-            case 'monthly':
-                total += item.price!;
-                break;
-            case 'yearly':
-                if (itemStartDate.getMonth() === month.getMonth()) {
-                    total += item.price!;
-                }
-                break;
-            case 'daily':
-                total += item.price! * getDaysInMonth(month);
-                break;
-            default: 
-                if (isWithinInterval(itemStartDate, { start: monthStart, end: monthEnd })) {
-                    total += item.price!;
-                }
+        if (freq === 'one-time') {
+            if (item.date && isWithinInterval(parseISO(item.date), { start: monthStart, end: monthEnd })) {
+                total += item.price;
+            }
+        } else if (freq === 'daily') {
+            total += item.price * getDaysInMonth(month);
+        } else if (freq === 'monthly') {
+            total += item.price;
+        } else if (freq === 'yearly') {
+            if (itemStartDate.getMonth() === month.getMonth()) {
+                total += item.price;
+            }
         }
       });
 
