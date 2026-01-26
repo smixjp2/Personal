@@ -33,15 +33,18 @@ export function ProjectBoard() {
       toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add a project." });
       return;
     }
-    const newProject: Project = {
-      ...newProjectData,
-      id: uuidv4(),
-      status: 'idea',
+    const id = uuidv4();
+    const dataToSave = {
+      id,
+      name: newProjectData.name,
+      description: newProjectData.description,
+      status: 'idea' as Project['status'],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      ...(newProjectData.dueDate && { dueDate: newProjectData.dueDate }),
     };
     try {
-        await setDoc(doc(firestore, "users", user.uid, "projects", newProject.id), newProject);
+        await setDoc(doc(firestore, "users", user.uid, "projects", id), dataToSave);
     } catch (error: any) {
         toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new project." });
     }
