@@ -87,3 +87,5 @@ export type Investment = BaseEntity & {
   currentValue?: number;
   purchaseDate: string;
 };
+
+export type { IconName };

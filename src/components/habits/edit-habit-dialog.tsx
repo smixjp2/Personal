@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import type { Habit } from "@/lib/types";
+import type { Habit, IconName } from "@/lib/types";
 import { iconMap, iconNames } from "./habit-icons";
 
 const habitSchema = z.object({
@@ -42,39 +41,38 @@ const habitSchema = z.object({
   icon: z.enum(iconNames),
 });
 
-type AddHabitDialogProps = {
-  onAddHabit: (habit: Omit<Habit, "id" | "progress" | "goal">) => void;
+type FormValues = z.infer<typeof habitSchema>;
+
+type EditHabitDialogProps = {
+  habit: Habit;
+  onEditHabit: (values: FormValues) => void;
+  children: React.ReactNode;
 };
 
-export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
+export function EditHabitDialog({ habit, onEditHabit, children }: EditHabitDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const form = useForm<z.infer<typeof habitSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(habitSchema),
     defaultValues: {
-      name: "",
-      frequency: "daily",
-      icon: "Wind",
+      name: habit.name,
+      frequency: habit.frequency,
+      icon: habit.icon,
     },
   });
 
-  function onSubmit(values: z.infer<typeof habitSchema>) {
-    onAddHabit({ ...values, goal: 1 });
-    form.reset();
+  function onSubmit(values: FormValues) {
+    onEditHabit(values);
     setIsOpen(false);
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Add Habit
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add a New Habit</DialogTitle>
+          <DialogTitle>Edit Habit</DialogTitle>
           <DialogDescription>
-            What new habit do you want to build?
+            Make changes to your habit.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -131,9 +129,9 @@ export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
                             return (
                                 <FormItem key={iconName}>
                                     <FormControl>
-                                        <RadioGroupItem value={iconName} id={`add-${iconName}`} className="sr-only" />
+                                        <RadioGroupItem value={iconName} id={`edit-${iconName}`} className="sr-only" />
                                     </FormControl>
-                                    <FormLabel htmlFor={`add-${iconName}`}>
+                                    <FormLabel htmlFor={`edit-${iconName}`}>
                                         <div className={`cursor-pointer rounded-lg border-2 p-2 flex justify-center items-center ${field.value === iconName ? 'border-primary' : ''}`}>
                                             <Icon className="h-6 w-6" />
                                         </div>
@@ -148,7 +146,7 @@ export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
               )}
             />
             <DialogFooter>
-              <Button type="submit">Add Habit</Button>
+              <Button type="submit">Save Changes</Button>
             </DialogFooter>
           </form>
         </Form>

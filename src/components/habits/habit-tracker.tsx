@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { Habit } from "@/lib/types";
+import type { Habit, IconName } from "@/lib/types";
 import { AddHabitDialog } from "./add-habit-dialog";
 import {
   Card,
@@ -15,13 +15,14 @@ import { Progress } from "@/components/ui/progress";
 import { AnimatePresence, motion } from "framer-motion";
 import { iconMap } from "./habit-icons";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Pencil } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
 import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { EditHabitDialog } from "./edit-habit-dialog";
 
 export function HabitTracker() {
   const { habits, isInitialized } = useData();
@@ -45,6 +46,18 @@ export function HabitTracker() {
       await setDoc(doc(firestore, "users", user.uid, "habits", newHabit.id), newHabit);
     } catch(error: any) {
       toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new habit." });
+    }
+  };
+
+  const editHabit = async (habitId: string, updatedData: { name: string; frequency: "daily" | "monthly" | "yearly"; icon: IconName; }) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Authentication Error" });
+      return;
+    }
+    try {
+      await updateDoc(doc(firestore, "users", user.uid, "habits", habitId), { ...updatedData, updatedAt: new Date().toISOString() });
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not update habit." });
     }
   };
 
@@ -117,15 +130,23 @@ export function HabitTracker() {
                     <span className="text-xs font-mono text-muted-foreground">{habit.progress}%</span>
                   </div>
                 )}
-                 <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive" 
-                    onClick={() => deleteHabit(habit.id)}
-                >
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Delete habit</span>
-                </Button>
+                <div className="flex items-center gap-1">
+                  <EditHabitDialog habit={habit} onEditHabit={(values) => editHabit(habit.id, values)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">Edit habit</span>
+                      </Button>
+                  </EditHabitDialog>
+                  <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive" 
+                      onClick={() => deleteHabit(habit.id)}
+                  >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Delete habit</span>
+                  </Button>
+                 </div>
               </div>
             </div>
           </motion.li>

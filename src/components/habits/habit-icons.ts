@@ -1,12 +1,6 @@
 import {
-    BookOpen,
-    Dumbbell,
-    Heart,
-    Leaf,
-    PenTool,
-    Repeat,
-    TrendingUp,
-    Wind,
+    BookOpen, Dumbbell, Heart, Leaf, PenTool, Repeat, TrendingUp, Wind,
+    Smile, Bed, Wallet, Droplets, Sun, Moon, Apple, Users, Code, Brain, Brush, Flower
 } from "lucide-react";
 
 export const iconMap = {
@@ -14,10 +8,22 @@ export const iconMap = {
     Dumbbell,
     BookOpen,
     Leaf,
+    Apple,
+    Droplets,
+    Bed,
+    Sun,
+    Moon,
+    Heart,
+    Smile,
+    Wallet,
+    TrendingUp,
+    Brain,
+    Code,
+    Brush,
+    Flower,
+    Users,
     Repeat,
     PenTool,
-    TrendingUp,
-    Heart,
 };
 
 export type IconName = keyof typeof iconMap;
