@@ -106,7 +106,7 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
               <PieChart>
                 <Tooltip
                   cursor={false}
-                  content={<ChartTooltipContent hideLabel formatter={(value) => `${Number(value).toFixed(2)}€`} />}
+                  content={<ChartTooltipContent hideLabel formatter={(value) => `${Number(value).toFixed(2)} MAD`} />}
                 />
                 <Pie
                   data={categoryData}
@@ -151,8 +151,8 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
             <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
                 <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
-                <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={12} tickFormatter={(val) => `${val}€`} />
-                <Tooltip cursor={false} content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(2)}€`} />} />
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={12} tickFormatter={(val) => `${val} MAD`} />
+                <Tooltip cursor={false} content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(2)} MAD`} />} />
                 <Bar dataKey="total" name="Total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ChartContainer>

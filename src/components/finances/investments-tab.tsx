@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useData } from "@/contexts/data-context";
@@ -68,11 +69,11 @@ export function InvestmentsTab() {
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell>{item.type}</TableCell>
-                    <TableCell>{item.initialAmount.toFixed(2)}€</TableCell>
-                    <TableCell>{currentValue.toFixed(2)}€</TableCell>
+                    <TableCell>{item.initialAmount.toFixed(2)} MAD</TableCell>
+                    <TableCell>{currentValue.toFixed(2)} MAD</TableCell>
                     <TableCell className={cn("flex items-center", isGain ? "text-green-600" : "text-red-600")}>
                       {isGain ? <ArrowUp className="h-4 w-4 mr-1"/> : <ArrowDown className="h-4 w-4 mr-1"/>}
-                      {gainLoss.toFixed(2)}€
+                      {gainLoss.toFixed(2)} MAD
                     </TableCell>
                   </TableRow>
                 )

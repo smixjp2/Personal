@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -28,7 +29,7 @@ export function SummaryTab() {
                     <CardTitle className="text-lg">Revenus (Total)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold">{totalIncome.toFixed(2)}€</p>
+                    <p className="text-2xl font-bold">{totalIncome.toFixed(2)} MAD</p>
                 </CardContent>
             </Card>
             <Card>
@@ -36,7 +37,7 @@ export function SummaryTab() {
                     <CardTitle className="text-lg">Dépenses (Acheté)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold">{totalExpenses.toFixed(2)}€</p>
+                    <p className="text-2xl font-bold">{totalExpenses.toFixed(2)} MAD</p>
                 </CardContent>
             </Card>
             <Card>
@@ -44,7 +45,7 @@ export function SummaryTab() {
                     <CardTitle className="text-lg">Épargne Totale</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold">{totalSavings.toFixed(2)}€</p>
+                    <p className="text-2xl font-bold">{totalSavings.toFixed(2)} MAD</p>
                 </CardContent>
             </Card>
             <Card>
@@ -52,7 +53,7 @@ export function SummaryTab() {
                     <CardTitle className="text-lg">Valeur Nette Estimée</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold">{netWorth.toFixed(2)}€</p>
+                    <p className="text-2xl font-bold">{netWorth.toFixed(2)} MAD</p>
                 </CardContent>
             </Card>
         </div>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useData } from "@/contexts/data-context";
@@ -67,7 +68,7 @@ export function IncomeTab() {
               income.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.name}</TableCell>
-                  <TableCell>{item.amount.toFixed(2)}€</TableCell>
+                  <TableCell>{item.amount.toFixed(2)} MAD</TableCell>
                   <TableCell>{new Date(item.date).toLocaleDateString('fr-FR')}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{frequencyTranslations[item.frequency]}</Badge>

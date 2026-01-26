@@ -113,7 +113,7 @@ export function ShoppingList() {
         <div>
           <CardTitle>Liste d'achats mensuelle</CardTitle>
           <CardDescription>
-            Total: {totalCost.toFixed(2)}€ | Acheté: {purchasedCost.toFixed(2)}€
+            Total: {totalCost.toFixed(2)} MAD | Acheté: {purchasedCost.toFixed(2)} MAD
           </CardDescription>
         </div>
         <AddItemDialog onAddItem={addItem} />
@@ -162,7 +162,7 @@ export function ShoppingList() {
                     <div className="flex items-center gap-4">
                       {item.price && (
                         <span className={cn("font-mono text-sm", item.purchased && "text-muted-foreground line-through")}>
-                          {item.price.toFixed(2)}€
+                          {item.price.toFixed(2)} MAD
                         </span>
                       )}
                       <div className="flex items-center">

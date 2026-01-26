@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useData } from "@/contexts/data-context";
@@ -53,7 +54,7 @@ export function SavingsTab() {
                 <div key={goal.id}>
                   <div className="flex justify-between mb-1">
                       <p className="font-medium">{goal.name}</p>
-                      <p className="text-sm text-muted-foreground">{goal.currentAmount.toFixed(2)}€ / {goal.targetAmount.toFixed(2)}€</p>
+                      <p className="text-sm text-muted-foreground">{goal.currentAmount.toFixed(2)} MAD / {goal.targetAmount.toFixed(2)} MAD</p>
                   </div>
                   <Progress value={progress} />
                 </div>
