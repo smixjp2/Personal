@@ -65,16 +65,19 @@ export function ReadingList() {
 
     const batch = writeBatch(firestore);
     
-    // Unset any other currently reading book
-    const currentBook = books.find(b => b.currentlyReading);
-    if (currentBook && currentBook.id !== bookToSet.id) {
-      const currentBookRef = doc(firestore, "users", user.uid, "reading-list", currentBook.id);
-      batch.update(currentBookRef, { currentlyReading: false });
-    }
+    // Find all other books that are currently being read.
+    const otherReadingBooks = books.filter(b => b.currentlyReading && b.id !== bookToSet.id);
 
-    // Set the new book
+    // Unset them.
+    otherReadingBooks.forEach(book => {
+      const bookRef = doc(firestore, "users", user.uid, "reading-list", book.id);
+      batch.update(bookRef, { currentlyReading: false });
+    });
+
+    // Toggle the selected book.
     const newCurrentBookRef = doc(firestore, "users", user.uid, "reading-list", bookToSet.id);
     batch.update(newCurrentBookRef, { currentlyReading: !bookToSet.currentlyReading });
+
 
     try {
       await batch.commit();

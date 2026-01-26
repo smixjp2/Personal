@@ -66,12 +66,16 @@ export function Watchlist() {
 
     const batch = writeBatch(firestore);
     
-    const currentItem = items.find(i => i.currentlyWatching);
-    if (currentItem && currentItem.id !== itemToSet.id) {
-      const currentItemRef = doc(firestore, "users", user.uid, "watchlist", currentItem.id);
-      batch.update(currentItemRef, { currentlyWatching: false });
-    }
+    // Find all items that are currently being watched and are not the one we're setting.
+    const otherWatchedItems = items.filter(i => i.currentlyWatching && i.id !== itemToSet.id);
 
+    // Unset them.
+    otherWatchedItems.forEach(item => {
+      const itemRef = doc(firestore, "users", user.uid, "watchlist", item.id);
+      batch.update(itemRef, { currentlyWatching: false });
+    });
+
+    // Toggle the selected item.
     const newItemRef = doc(firestore, "users", user.uid, "watchlist", itemToSet.id);
     batch.update(newItemRef, { currentlyWatching: !itemToSet.currentlyWatching });
 
