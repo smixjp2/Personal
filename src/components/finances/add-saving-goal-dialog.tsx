@@ -16,10 +16,14 @@ import type { SavingGoal } from "@/lib/types";
 const savingGoalSchema = z.object({
   name: z.string().min(2, "Le nom est requis."),
   targetAmount: z.coerce.number().positive("Le montant doit être positif."),
+  currentAmount: z.preprocess(
+    (val) => (String(val).trim() === "" ? undefined : val),
+    z.coerce.number().nonnegative("Le montant doit être positif ou nul.").optional()
+  ),
 });
 
 type AddSavingGoalDialogProps = {
-  onAddSavingGoal: (item: Omit<SavingGoal, "id" | "currentAmount">) => void;
+  onAddSavingGoal: (item: Omit<SavingGoal, "id">) => void;
 };
 
 export function AddSavingGoalDialog({ onAddSavingGoal }: AddSavingGoalDialogProps) {
@@ -57,6 +61,13 @@ export function AddSavingGoalDialog({ onAddSavingGoal }: AddSavingGoalDialogProp
               <FormItem>
                 <FormLabel>Montant Cible</FormLabel>
                 <FormControl><Input type="number" step="0.01" placeholder="5000.00" {...field} /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+            <FormField control={form.control} name="currentAmount" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Montant Initial (Optionnel)</FormLabel>
+                <FormControl><Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value ?? ''} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
