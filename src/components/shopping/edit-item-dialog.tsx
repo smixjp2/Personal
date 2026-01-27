@@ -39,7 +39,7 @@ const itemSchema = z.object({
     (val) => (String(val).trim() === "" ? undefined : val),
     z.coerce.number().positive("Le prix doit être un nombre positif.").optional()
   ),
-  category: z.enum(["groceries", "subscription", "entertainment", "utilities", "shopping", "other"]),
+  category: z.enum(["groceries", "subscription", "entertainment", "utilities", "shopping", "transport", "health", "education", "restaurant", "personal_care", "gifts", "other"]),
   frequency: z.enum(["one-time", "daily", "monthly", "yearly"]),
   day: z.string().max(2).optional(),
   month: z.string().max(2).optional(),
@@ -155,6 +155,12 @@ export function EditItemDialog({ item, onEditItem, children }: EditItemDialogPro
                       <SelectItem value="subscription">Abonnement</SelectItem>
                       <SelectItem value="entertainment">Divertissement</SelectItem>
                       <SelectItem value="utilities">Charges</SelectItem>
+                      <SelectItem value="transport">Transport</SelectItem>
+                      <SelectItem value="health">Santé</SelectItem>
+                      <SelectItem value="education">Éducation</SelectItem>
+                      <SelectItem value="restaurant">Restaurant</SelectItem>
+                      <SelectItem value="personal_care">Soins personnels</SelectItem>
+                      <SelectItem value="gifts">Cadeaux</SelectItem>
                       <SelectItem value="other">Autre</SelectItem>
                     </SelectContent>
                   </Select>

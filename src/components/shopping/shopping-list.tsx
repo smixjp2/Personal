@@ -32,6 +32,12 @@ const categoryTranslations = {
     entertainment: "Divertissement",
     utilities: "Charges",
     shopping: "Shopping",
+    transport: "Transport",
+    health: "Santé",
+    education: "Éducation",
+    restaurant: "Restaurant",
+    personal_care: "Soins personnels",
+    gifts: "Cadeaux",
     other: "Autre",
 };
 
@@ -211,7 +217,7 @@ export function ShoppingList({ selectedMonth }: { selectedMonth: Date }) {
                           </p>
                         )}
                       </div>
-                      <Badge variant="outline">{categoryTranslations[item.category] || item.category}</Badge>
+                      <Badge variant="outline">{(categoryTranslations as any)[item.category] || item.category}</Badge>
                       {item.frequency && item.frequency !== 'one-time' && (
                         <Badge variant="secondary">{frequencyTranslations[item.frequency as keyof typeof frequencyTranslations]}</Badge>
                       )}

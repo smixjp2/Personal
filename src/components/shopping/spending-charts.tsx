@@ -17,6 +17,9 @@ const CHART_COLORS = [
   "hsl(var(--chart-3))",
   "hsl(var(--chart-4))",
   "hsl(var(--chart-5))",
+  "hsl(220, 70%, 50%)",
+  "hsl(340, 80%, 50%)",
+  "hsl(50, 90%, 50%)",
 ];
 
 const categoryTranslations = {
@@ -25,6 +28,12 @@ const categoryTranslations = {
     entertainment: "Divertissement",
     utilities: "Charges",
     shopping: "Shopping",
+    transport: "Transport",
+    health: "Santé",
+    education: "Éducation",
+    restaurant: "Restaurant",
+    personal_care: "Soins personnels",
+    gifts: "Cadeaux",
     other: "Autre",
 };
 
@@ -69,7 +78,7 @@ export function SpendingCharts({ items, selectedMonth }: { items: ShoppingItem[]
     });
 
     return Object.entries(byCategory).map(([category, total]) => ({
-      name: categoryTranslations[category as keyof typeof categoryTranslations] || category,
+      name: (categoryTranslations as any)[category] || category,
       value: total,
     })).sort((a, b) => b.value - a.value);
   }, [items, selectedMonth]);
