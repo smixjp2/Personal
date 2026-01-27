@@ -4,8 +4,6 @@
  * @fileOverview This file defines a Genkit flow for AI-powered task prioritization.
  *
  * - prioritizeTasks - A function that takes a list of tasks and goals, and returns a prioritized list of tasks.
- * - PrioritizeTasksInput - The input type for the prioritizeTasks function.
- * - PrioritizeTasksOutput - The return type for the prioritizeTasks function.
  */
 
 import {ai} from '@/ai/genkit';

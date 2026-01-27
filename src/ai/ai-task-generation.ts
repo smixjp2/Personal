@@ -1,11 +1,8 @@
-// src/ai/ai-task-generation.ts
 'use server';
 /**
  * @fileOverview A flow to generate tasks for project completion using generative AI.
  *
  * - generateTasks - A function that generates tasks for project completion.
- * - GenerateTasksInput - The input type for the generateTasks function.
- * - GenerateTasksOutput - The return type for the generateTasks function.
  */
 
 import {ai} from '@/ai/genkit';

@@ -3,8 +3,6 @@
  * @fileOverview A flow to generate a weekly review using generative AI.
  *
  * - generateWeeklyReview - A function that generates a user's weekly review.
- * - WeeklyReviewInput - The input type for the generateWeeklyReview function.
- * - WeeklyReviewOutput - The return type for the generateWeeklyReview function.
  */
 
 import {ai} from '@/ai/genkit';
