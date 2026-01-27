@@ -14,6 +14,7 @@ import {
   Library,
   Briefcase,
   Landmark,
+  Lightbulb,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -33,6 +34,7 @@ const navItems = [
   { href: "/goals", label: "Goals", icon: Target },
   { href: "/projects", label: "Projets", icon: Briefcase },
   { href: "/tasks", label: "Tasks", icon: ListTodo },
+  { href: "/notes", label: "Idées", icon: Lightbulb },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/media", label: "Médiathèque", icon: Library },
   { href: "/finances", label: "Finances", icon: Landmark },

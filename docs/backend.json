@@ -172,6 +172,17 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "type", "initialAmount", "purchaseDate", "createdAt", "updatedAt"]
+    },
+    "Note": {
+      "title": "Note",
+      "description": "A raw idea or note captured by the user.",
+      "type": "object",
+      "properties": {
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["content", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -221,6 +232,10 @@
     "/users/{userId}/investments/{investmentId}": {
       "schema": { "$ref": "#/entities/Investment" },
       "description": "Stores user investments."
+    },
+    "/users/{userId}/notes/{noteId}": {
+      "schema": { "$ref": "#/entities/Note" },
+      "description": "Stores user's raw notes and ideas."
     }
   }
 }

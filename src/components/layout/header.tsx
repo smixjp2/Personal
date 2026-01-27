@@ -35,6 +35,7 @@ const pageTitles: { [key: string]: string } = {
   "/calendar": "Calendar",
   "/media": "Médiathèque",
   "/finances": "Finances",
+  "/notes": "Boîte à idées",
 };
 
 export function Header() {

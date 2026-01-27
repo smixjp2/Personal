@@ -90,6 +90,10 @@ export type Investment = BaseEntity & {
   purchaseDate: string;
 };
 
+export type Note = BaseEntity & {
+  content: string;
+};
+
 export type { IconName };
 
 
