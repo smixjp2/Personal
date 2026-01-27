@@ -10,7 +10,10 @@ import {
   endOfMonth,
   isWithinInterval,
   parseISO,
+  addMonths,
+  format,
 } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { formatCurrency } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -22,11 +25,12 @@ interface UpcomingExpense {
 export function UpcomingExpensesCard({ selectedMonth }: { selectedMonth: Date }) {
   const { shoppingList, isInitialized } = useData();
 
-  const upcomingExpenses = useMemo((): UpcomingExpense[] => {
-    if (!isInitialized) return [];
+  const { upcomingExpenses, nextMonthName } = useMemo(() => {
+    if (!isInitialized) return { upcomingExpenses: [], nextMonthName: '' };
 
-    const monthStart = startOfMonth(selectedMonth);
-    const monthEnd = endOfMonth(selectedMonth);
+    const nextMonth = addMonths(selectedMonth, 1);
+    const monthStart = startOfMonth(nextMonth);
+    const monthEnd = endOfMonth(nextMonth);
     const expenses: UpcomingExpense[] = [];
 
     shoppingList.forEach(item => {
@@ -44,9 +48,9 @@ export function UpcomingExpensesCard({ selectedMonth }: { selectedMonth: Date })
       } else { // Recurring items
         if (itemDate <= monthEnd) { // Check if the recurrence has started
           if (frequency === 'monthly') {
-            dueDateInMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), itemDate.getDate());
-          } else if (frequency === 'yearly' && itemDate.getMonth() === selectedMonth.getMonth()) {
-            dueDateInMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), itemDate.getDate());
+            dueDateInMonth = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), itemDate.getDate());
+          } else if (frequency === 'yearly' && itemDate.getMonth() === nextMonth.getMonth()) {
+            dueDateInMonth = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), itemDate.getDate());
           }
         }
       }
@@ -56,7 +60,10 @@ export function UpcomingExpensesCard({ selectedMonth }: { selectedMonth: Date })
       }
     });
 
-    return expenses.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
+    return {
+      upcomingExpenses: expenses.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()),
+      nextMonthName: format(nextMonth, 'MMMM', { locale: fr }),
+    };
   }, [shoppingList, selectedMonth, isInitialized]);
 
   return (
@@ -64,9 +71,9 @@ export function UpcomingExpensesCard({ selectedMonth }: { selectedMonth: Date })
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <BellRing className="h-5 w-5" />
-          Dépenses à Venir
+          Dépenses du Mois Suivant
         </CardTitle>
-        <CardDescription>Dépenses non-réglées pour ce mois.</CardDescription>
+        <CardDescription>Dépenses prévues pour {nextMonthName}.</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
         <ScrollArea className="h-full max-h-72 pr-4">
@@ -86,7 +93,7 @@ export function UpcomingExpensesCard({ selectedMonth }: { selectedMonth: Date })
             </ul>
             ) : (
             <div className="flex items-center justify-center h-full text-center text-muted-foreground">
-                <p>{isInitialized ? "Aucune dépense à venir pour ce mois." : "Chargement..."}</p>
+                <p>{isInitialized ? `Aucune dépense à venir pour ${nextMonthName}.` : "Chargement..."}</p>
             </div>
             )}
         </ScrollArea>
