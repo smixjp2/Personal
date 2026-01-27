@@ -37,6 +37,7 @@ import {
   getDaysInMonth,
 } from "date-fns";
 import { fr } from "date-fns/locale";
+import { UpcomingExpensesCard } from "./upcoming-expenses-card";
 
 const cashFlowChartConfig = {
   income: {
@@ -196,13 +197,13 @@ export function SummaryTab({ selectedMonth }: { selectedMonth: Date }) {
             </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-1">
                 <CardHeader>
                     <CardTitle>Flux de trésorerie futurs</CardTitle>
                     <CardDescription>Projection des revenus et dépenses pour les 6 prochains mois.</CardDescription>
                 </CardHeader>
-                <CardContent className="h-80">
+                <CardContent className="h-72">
                   <ChartContainer config={cashFlowChartConfig} className="h-full w-full">
                     <BarChart data={cashFlowData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <CartesianGrid vertical={false} />
@@ -216,12 +217,12 @@ export function SummaryTab({ selectedMonth }: { selectedMonth: Date }) {
                   </ChartContainer>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="lg:col-span-1">
                 <CardHeader>
                     <CardTitle>Évolution de la valeur nette</CardTitle>
                     <CardDescription>Projection de la croissance de votre valeur nette sur 6 mois.</CardDescription>
                 </CardHeader>
-                 <CardContent className="h-80">
+                 <CardContent className="h-72">
                   <ChartContainer config={netWorthChartConfig} className="h-full w-full">
                     <LineChart data={netWorthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <CartesianGrid vertical={false} />
@@ -234,6 +235,7 @@ export function SummaryTab({ selectedMonth }: { selectedMonth: Date }) {
                   </ChartContainer>
                 </CardContent>
             </Card>
+            <UpcomingExpensesCard selectedMonth={selectedMonth} />
         </div>
       </CardContent>
     </Card>
