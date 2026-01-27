@@ -15,6 +15,7 @@ import type { Investment } from "@/lib/types";
 const investmentSchema = z.object({
   name: z.string().min(2, "Le nom est requis."),
   type: z.string().min(2, "Le type est requis."),
+  ticker: z.string().optional(),
   initialAmount: z.coerce.number().positive("Le montant doit être positif."),
   currentValue: z.preprocess(
     (val) => (String(val).trim() === "" ? undefined : val),
@@ -52,6 +53,7 @@ export function EditInvestmentDialog({ investment, onEditInvestment, children }:
     defaultValues: {
       name: investment.name,
       type: investment.type,
+      ticker: investment.ticker || "",
       initialAmount: investment.initialAmount,
       currentValue: investment.currentValue,
       day: investmentDate.getDate().toString(),
@@ -88,6 +90,13 @@ export function EditInvestmentDialog({ investment, onEditInvestment, children }:
               <FormItem>
                 <FormLabel>Type</FormLabel>
                 <FormControl><Input placeholder="ex: Actions, Crypto, Immobilier" {...field} /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+            <FormField control={form.control} name="ticker" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Ticker (si action)</FormLabel>
+                <FormControl><Input placeholder="ex: IAM, ATW" {...field} value={field.value ?? ''} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />

@@ -84,6 +84,7 @@ export type SavingGoal = BaseEntity & {
 export type Investment = BaseEntity & {
   name: string;
   type: string;
+  ticker?: string;
   initialAmount: number;
   currentValue?: number;
   purchaseDate: string;
@@ -170,3 +171,25 @@ export const WeeklyReviewOutputSchema = z.object({
   suggestions: z.array(z.string()).describe('A bulleted list of actionable suggestions for the upcoming week based on goals, projects, and upcoming tasks.'),
 });
 export type WeeklyReviewOutput = z.infer<typeof WeeklyReviewOutputSchema>;
+
+
+// AI Flow for Investment Update
+export const InvestmentSchemaForAI = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+  ticker: z.string().optional(),
+  initialAmount: z.number(),
+  currentValue: z.number().optional(),
+  purchaseDate: z.string(),
+});
+
+export const UpdateInvestmentPricesInputSchema = z.object({
+    investments: z.array(InvestmentSchemaForAI).describe('A list of the user\'s current investments.')
+});
+export type UpdateInvestmentPricesInput = z.infer<typeof UpdateInvestmentPricesInputSchema>;
+
+export const UpdateInvestmentPricesOutputSchema = z.object({
+    investments: z.array(InvestmentSchemaForAI).describe('The full list of investments with `currentValue` updated for stocks based on the latest market data.')
+});
+export type UpdateInvestmentPricesOutput = z.infer<typeof UpdateInvestmentPricesOutputSchema>;

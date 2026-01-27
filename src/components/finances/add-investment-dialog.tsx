@@ -17,6 +17,7 @@ import type { Investment } from "@/lib/types";
 const investmentSchema = z.object({
   name: z.string().min(2, "Le nom est requis."),
   type: z.string().min(2, "Le type est requis."),
+  ticker: z.string().optional(),
   initialAmount: z.coerce.number().positive("Le montant doit être positif."),
   day: z.string().min(1, "Jour requis").max(2),
   month: z.string().min(1, "Mois requis").max(2),
@@ -83,6 +84,13 @@ export function AddInvestmentDialog({ onAddInvestment }: AddInvestmentDialogProp
               <FormItem>
                 <FormLabel>Type</FormLabel>
                 <FormControl><Input placeholder="ex: Actions, Crypto, Immobilier" {...field} /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+            <FormField control={form.control} name="ticker" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Ticker (si action)</FormLabel>
+                <FormControl><Input placeholder="ex: IAM, ATW" {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />

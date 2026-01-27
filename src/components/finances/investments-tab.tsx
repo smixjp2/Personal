@@ -5,21 +5,24 @@ import { useData } from "@/contexts/data-context";
 import { useUser, useFirestore } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
-import { doc, setDoc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
+import { doc, setDoc, updateDoc, deleteDoc, deleteField, writeBatch } from "firebase/firestore";
 import type { Investment } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddInvestmentDialog } from "./add-investment-dialog";
-import { ArrowDown, ArrowUp, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Pencil, Trash2, RefreshCw } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { EditInvestmentDialog } from "./edit-investment-dialog";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { updateInvestmentPrices } from "@/ai/flows/update-investments-flow";
 
 export function InvestmentsTab() {
   const { investments, isInitialized } = useData();
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const addInvestment = async (newInvestmentData: Omit<Investment, "id">) => {
     if (!user || !firestore) {
@@ -70,6 +73,48 @@ export function InvestmentsTab() {
     }
   };
 
+  const handleAiUpdate = async () => {
+    if (!user || !firestore || !investments.length) return;
+
+    setIsUpdating(true);
+    try {
+      const result = await updateInvestmentPrices({ investments });
+
+      if (result && result.investments) {
+        const batch = writeBatch(firestore);
+        let updatesCount = 0;
+
+        result.investments.forEach(updatedInvestment => {
+          const originalInvestment = investments.find(i => i.id === updatedInvestment.id);
+          const hasChanged = originalInvestment?.currentValue !== updatedInvestment.currentValue;
+
+          if (originalInvestment && hasChanged && updatedInvestment.currentValue !== undefined) {
+            const investmentRef = doc(firestore, "users", user.uid, "investments", updatedInvestment.id);
+            batch.update(investmentRef, {
+              currentValue: updatedInvestment.currentValue,
+              updatedAt: new Date().toISOString(),
+            });
+            updatesCount++;
+          }
+        });
+
+        if (updatesCount > 0) {
+            await batch.commit();
+            toast({ title: `${updatesCount} action(s) mise(s) à jour !`, description: "Les valeurs de votre portefeuille ont été actualisées." });
+        } else {
+            toast({ title: "Portefeuille déjà à jour", description: "Aucune modification de valeur n'était nécessaire." });
+        }
+      } else {
+        throw new Error("L'IA n'a pas retourné de résultat valide.");
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast({ variant: "destructive", title: "Erreur IA", description: error.message || "Impossible de mettre à jour les cours pour le moment." });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
 
   return (
     <Card>
@@ -80,13 +125,20 @@ export function InvestmentsTab() {
             Gardez un œil sur la performance de votre portefeuille.
           </CardDescription>
         </div>
-        <AddInvestmentDialog onAddInvestment={addInvestment} />
+        <div className="flex items-center gap-2">
+            <Button onClick={handleAiUpdate} disabled={isUpdating || !isInitialized}>
+                {isUpdating ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                Mettre à jour les cours
+            </Button>
+            <AddInvestmentDialog onAddInvestment={addInvestment} />
+        </div>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Nom</TableHead>
+              <TableHead>Ticker</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Montant Initial</TableHead>
               <TableHead>Valeur Actuelle</TableHead>
@@ -103,6 +155,7 @@ export function InvestmentsTab() {
                 return (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.name}</TableCell>
+                    <TableCell className="font-mono text-xs">{item.ticker || '-'}</TableCell>
                     <TableCell>{item.type}</TableCell>
                     <TableCell>{formatCurrency(item.initialAmount)} MAD</TableCell>
                     <TableCell>{formatCurrency(currentValue)} MAD</TableCell>
@@ -125,7 +178,7 @@ export function InvestmentsTab() {
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   {isInitialized ? "Aucun investissement enregistré." : "Chargement..."}
                 </TableCell>
               </TableRow>
