@@ -34,12 +34,13 @@ const updatePricesPrompt = ai.definePrompt({
     output: { schema: UpdateInvestmentPricesOutputSchema },
     tools: [stockPriceTool],
     prompt: `You are a financial assistant. You will be given a list of investments.
-Your task is to update the current market value for every investment of type 'Action' (which represents a stock).
-To do this, you MUST use the 'getStockPrice' tool with the investment's 'ticker' symbol.
+Your task is to update the current market value for every investment that represents a stock. A stock is typically of type 'Action' or 'Actions'.
 
-- For each investment where 'type' is 'Action' and a 'ticker' is provided, call the tool to get the price and update its 'currentValue'.
+To do this, you MUST use the 'getStockPrice' tool with the investment's 'ticker' symbol for each stock.
+
+- For each investment that is a stock and has a 'ticker', call the tool to get the price and update its 'currentValue'.
 - If an investment is not a stock or has no ticker, return it unchanged.
-- Ensure your final output is a complete list of all investments, modified or not, conforming to the output schema.
+- Ensure your final output is a complete list of all investments, modified or not, conforming to the output schema. Do not change the order of investments.
 
 Here is the list of investments:
 {{jsonStringify investments}}
