@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { ShoppingItem } from "@/lib/types";
@@ -23,6 +22,8 @@ import { doc, setDoc, updateDoc, deleteDoc, deleteField } from "firebase/firesto
 import { SpendingCharts } from "./spending-charts";
 import { Badge } from "../ui/badge";
 import { EditItemDialog } from "./edit-item-dialog";
+import { useMemo } from "react";
+import { startOfMonth, endOfMonth, isWithinInterval, parseISO } from "date-fns";
 
 const categoryTranslations = {
     groceries: "Courses",
@@ -41,11 +42,42 @@ const frequencyTranslations = {
 };
 
 
-export function ShoppingList() {
+export function ShoppingList({ selectedMonth }: { selectedMonth: Date }) {
   const { shoppingList: items, isInitialized } = useData();
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+
+  const monthlyItems = useMemo(() => {
+    if (!isInitialized) return [];
+
+    const monthStart = startOfMonth(selectedMonth);
+    const monthEnd = endOfMonth(selectedMonth);
+
+    return items.filter(item => {
+      const freq = item.frequency || 'one-time';
+      const itemStartDate = item.createdAt ? parseISO(item.createdAt as string) : new Date(0);
+
+      if (freq === 'one-time') {
+        const itemDate = item.date ? parseISO(item.date) : itemStartDate;
+        return isWithinInterval(itemDate, { start: monthStart, end: monthEnd });
+      }
+
+      if (itemStartDate > monthEnd) {
+        return false;
+      }
+      
+      if (freq === 'daily' || freq === 'monthly') {
+        return true;
+      }
+
+      if (freq === 'yearly') {
+        return itemStartDate.getMonth() === selectedMonth.getMonth();
+      }
+      
+      return false;
+    });
+  }, [items, selectedMonth, isInitialized]);
 
   const addItem = async (newItemData: Omit<ShoppingItem, "id" | "purchased">) => {
     if (!user || !firestore) {
@@ -121,8 +153,8 @@ export function ShoppingList() {
     }
   };
   
-  const totalCost = items.reduce((sum, item) => sum + (item.price || 0), 0);
-  const purchasedCost = items.reduce((sum, item) => sum + (item.purchased ? (item.price || 0) : 0), 0);
+  const totalCost = monthlyItems.reduce((sum, item) => sum + (item.price || 0), 0);
+  const purchasedCost = monthlyItems.reduce((sum, item) => sum + (item.purchased ? (item.price || 0) : 0), 0);
 
   return (
     <Card>
@@ -136,12 +168,12 @@ export function ShoppingList() {
         <AddItemDialog onAddItem={addItem} />
       </CardHeader>
       <CardContent>
-        {isInitialized && <SpendingCharts items={items} />}
+        {isInitialized && <SpendingCharts items={items} selectedMonth={selectedMonth} />}
         {!isInitialized && <p className="text-muted-foreground p-8 text-center">Loading...</p>}
-        {isInitialized && items.length > 0 ? (
+        {isInitialized && monthlyItems.length > 0 ? (
           <ul className="space-y-3">
             <AnimatePresence>
-              {items.map((item, index) => (
+              {monthlyItems.map((item, index) => (
                 <motion.li
                   key={item.id}
                   layout
@@ -219,7 +251,7 @@ export function ShoppingList() {
           </ul>
         ) : (
           isInitialized && <p className="text-muted-foreground p-8 text-center">
-            Votre liste d'achats est vide. Ajoutez un article pour commencer !
+            Aucun article pour ce mois.
           </p>
         )}
       </CardContent>

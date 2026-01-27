@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useData } from "@/contexts/data-context";
@@ -12,6 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { AddIncomeDialog } from "./add-income-dialog";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
+import { useMemo } from "react";
+import { startOfMonth, endOfMonth, isWithinInterval, parseISO } from "date-fns";
 
 const frequencyTranslations = {
   "one-time": "Unique",
@@ -19,11 +20,39 @@ const frequencyTranslations = {
   "yearly": "Annuel"
 }
 
-export function IncomeTab() {
+export function IncomeTab({ selectedMonth }: { selectedMonth: Date }) {
   const { income, isInitialized } = useData();
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+
+  const monthlyIncome = useMemo(() => {
+    if (!isInitialized) return [];
+
+    const monthStart = startOfMonth(selectedMonth);
+    const monthEnd = endOfMonth(selectedMonth);
+
+    return income.filter(i => {
+      const incomeDate = parseISO(i.date);
+      if (i.frequency === 'one-time') {
+        return isWithinInterval(incomeDate, { start: monthStart, end: monthEnd });
+      }
+      
+      if (incomeDate > monthEnd) {
+        return false;
+      }
+
+      if (i.frequency === 'monthly') {
+        return true;
+      }
+
+      if (i.frequency === 'yearly') {
+        return incomeDate.getMonth() === selectedMonth.getMonth();
+      }
+
+      return false;
+    });
+  }, [income, selectedMonth, isInitialized]);
 
   const addIncome = async (newIncomeData: Omit<Income, "id">) => {
     if (!user || !firestore) {
@@ -49,7 +78,7 @@ export function IncomeTab() {
         <div>
           <CardTitle>Suivi des Revenus</CardTitle>
           <CardDescription>
-            Gardez une trace de toutes vos sources de revenus.
+            Gardez une trace de toutes vos sources de revenus pour le mois sélectionné.
           </CardDescription>
         </div>
         <AddIncomeDialog onAddIncome={addIncome} />
@@ -65,8 +94,8 @@ export function IncomeTab() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isInitialized && income.length > 0 ? (
-              income.map((item) => (
+            {isInitialized && monthlyIncome.length > 0 ? (
+              monthlyIncome.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.name}</TableCell>
                   <TableCell>{formatCurrency(item.amount)} MAD</TableCell>
@@ -79,7 +108,7 @@ export function IncomeTab() {
             ) : (
               <TableRow>
                 <TableCell colSpan={4} className="h-24 text-center">
-                  {isInitialized ? "Aucun revenu enregistré." : "Chargement..."}
+                  {isInitialized ? "Aucun revenu enregistré pour ce mois." : "Chargement..."}
                 </TableCell>
               </TableRow>
             )}

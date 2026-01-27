@@ -27,13 +27,12 @@ const categoryTranslations = {
     other: "Autre",
 };
 
-export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
+export function SpendingCharts({ items, selectedMonth }: { items: ShoppingItem[], selectedMonth: Date }) {
   const [monthsToShow, setMonthsToShow] = useState(6);
-  const now = new Date();
 
   const categoryData = useMemo(() => {
-    const currentMonthStart = startOfMonth(now);
-    const currentMonthEnd = endOfMonth(now);
+    const currentMonthStart = startOfMonth(selectedMonth);
+    const currentMonthEnd = endOfMonth(selectedMonth);
 
     const byCategory: Record<string, number> = {};
 
@@ -41,24 +40,21 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
         if (!item.price) return;
 
         const freq = item.frequency || 'one-time';
-        const startDateString = item.date || item.createdAt;
-        
-        if (!startDateString || typeof startDateString !== 'string') return;
-        
-        const itemStartDate = parseISO(startDateString);
+        const itemStartDate = item.createdAt ? parseISO(item.createdAt as string) : new Date(0);
         
         if (itemStartDate > currentMonthEnd) return; 
 
         if (freq === 'one-time') {
-            if (item.date && isWithinInterval(parseISO(item.date), { start: currentMonthStart, end: currentMonthEnd })) {
+            const dateToTest = item.date ? parseISO(item.date) : itemStartDate;
+            if (isWithinInterval(dateToTest, { start: currentMonthStart, end: currentMonthEnd })) {
                 byCategory[item.category] = (byCategory[item.category] || 0) + item.price;
             }
         } else if (freq === 'daily') {
-            byCategory[item.category] = (byCategory[item.category] || 0) + (item.price * getDaysInMonth(now));
+            byCategory[item.category] = (byCategory[item.category] || 0) + (item.price * getDaysInMonth(selectedMonth));
         } else if (freq === 'monthly') {
             byCategory[item.category] = (byCategory[item.category] || 0) + item.price;
         } else if (freq === 'yearly') {
-            if (itemStartDate.getMonth() === now.getMonth()) {
+            if (itemStartDate.getMonth() === selectedMonth.getMonth()) {
                 byCategory[item.category] = (byCategory[item.category] || 0) + item.price;
             }
         }
@@ -68,11 +64,11 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
       name: categoryTranslations[category as keyof typeof categoryTranslations] || category,
       value: total,
     })).sort((a, b) => b.value - a.value);
-  }, [items, now]);
+  }, [items, selectedMonth]);
 
 
   const monthlyData = useMemo(() => {
-    const lastXMonths = Array.from({ length: monthsToShow }, (_, i) => subMonths(now, i)).reverse();
+    const lastXMonths = Array.from({ length: monthsToShow }, (_, i) => subMonths(selectedMonth, i)).reverse();
 
     return lastXMonths.map(month => {
       const monthStart = startOfMonth(month);
@@ -83,16 +79,13 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
         if (!item.price) return;
 
         const freq = item.frequency || 'one-time';
-        const startDateString = item.date || item.createdAt;
-
-        if (!startDateString || typeof startDateString !== 'string') return;
-        
-        const itemStartDate = parseISO(startDateString);
+        const itemStartDate = item.createdAt ? parseISO(item.createdAt as string) : new Date(0);
 
         if (itemStartDate > monthEnd) return; 
 
         if (freq === 'one-time') {
-            if (item.date && isWithinInterval(parseISO(item.date), { start: monthStart, end: monthEnd })) {
+            const dateToTest = item.date ? parseISO(item.date) : itemStartDate;
+            if (isWithinInterval(dateToTest, { start: monthStart, end: monthEnd })) {
                 total += item.price;
             }
         } else if (freq === 'daily') {
@@ -111,7 +104,7 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
         total: total,
       };
     });
-  }, [items, now, monthsToShow]);
+  }, [items, selectedMonth, monthsToShow]);
 
   const chartConfigCategory = useMemo(() => {
     const config: ChartConfig = {};
@@ -129,8 +122,8 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <Card>
         <CardHeader>
-          <CardTitle>Dépenses par catégorie (ce mois-ci)</CardTitle>
-          <CardDescription>Répartition de vos achats pour le mois en cours.</CardDescription>
+          <CardTitle>Dépenses par catégorie</CardTitle>
+          <CardDescription>Répartition de vos achats pour le mois sélectionné.</CardDescription>
         </CardHeader>
         <CardContent>
           {categoryData.length > 0 ? (
@@ -156,7 +149,7 @@ export function SpendingCharts({ items }: { items: ShoppingItem[] }) {
             </ChartContainer>
           ) : (
             <div className="flex justify-center items-center h-64 text-muted-foreground">
-              Aucune dépense planifiée ce mois-ci.
+              Aucune dépense pour ce mois.
             </div>
           )}
         </CardContent>
