@@ -3,8 +3,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Plus } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger
@@ -18,13 +16,13 @@ const investmentSchema = z.object({
   name: z.string().min(2, "Le nom est requis."),
   type: z.string().min(2, "Le type est requis."),
   initialAmount: z.coerce.number().positive("Le montant doit être positif."),
-  day: z.string().min(1, "Jour requis").max(2),
-  month: z.string().min(1, "Mois requis").max(2),
-  year: z.string().min(4, "Année requise").max(4),
   currentValue: z.preprocess(
     (val) => (String(val).trim() === "" ? undefined : val),
     z.coerce.number().positive("La valeur doit être positive.").optional()
   ),
+  day: z.string().min(1, "Jour requis").max(2),
+  month: z.string().min(1, "Mois requis").max(2),
+  year: z.string().min(4, "Année requise").max(4),
 }).refine((data) => {
     const day = parseInt(data.day, 10);
     const month = parseInt(data.month, 10);
@@ -37,38 +35,45 @@ const investmentSchema = z.object({
     path: ["day"],
   });
 
-type AddInvestmentDialogProps = {
-  onAddInvestment: (item: Omit<Investment, "id">) => void;
+type FormValues = Omit<z.infer<typeof investmentSchema>, 'day'|'month'|'year'> & { purchaseDate: string };
+
+type EditInvestmentDialogProps = {
+  investment: Investment;
+  onEditInvestment: (values: FormValues) => void;
+  children: React.ReactNode;
 };
 
-export function AddInvestmentDialog({ onAddInvestment }: AddInvestmentDialogProps) {
+export function EditInvestmentDialog({ investment, onEditInvestment, children }: EditInvestmentDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const investmentDate = new Date(investment.purchaseDate);
+
   const form = useForm<z.infer<typeof investmentSchema>>({
     resolver: zodResolver(investmentSchema),
     defaultValues: {
-      day: new Date().getDate().toString(),
-      month: (new Date().getMonth() + 1).toString(),
-      year: new Date().getFullYear().toString(),
-    }
+      name: investment.name,
+      type: investment.type,
+      initialAmount: investment.initialAmount,
+      currentValue: investment.currentValue,
+      day: investmentDate.getDate().toString(),
+      month: (investmentDate.getMonth() + 1).toString(),
+      year: investmentDate.getFullYear().toString(),
+    },
   });
 
   function onSubmit(values: z.infer<typeof investmentSchema>) {
     const { day, month, year, ...rest } = values;
     const purchaseDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).toISOString();
-    onAddInvestment({ ...rest, purchaseDate });
-    form.reset();
+    onEditInvestment({ ...rest, purchaseDate });
     setIsOpen(false);
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button><Plus className="mr-2 h-4 w-4" /> Ajouter</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Ajouter un Investissement</DialogTitle>
-          <DialogDescription>Enregistrez un nouvel actif dans votre portefeuille.</DialogDescription>
+          <DialogTitle>Modifier l'Investissement</DialogTitle>
+          <DialogDescription>Mettez à jour les informations de cet actif.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -95,7 +100,7 @@ export function AddInvestmentDialog({ onAddInvestment }: AddInvestmentDialogProp
             )} />
              <FormField control={form.control} name="currentValue" render={({ field }) => (
               <FormItem>
-                <FormLabel>Valeur Actuelle (Optionnel)</FormLabel>
+                <FormLabel>Valeur Actuelle</FormLabel>
                 <FormControl><Input type="number" step="0.01" placeholder="1200.00" {...field} value={field.value ?? ''} /></FormControl>
                 <FormMessage />
               </FormItem>
@@ -104,25 +109,19 @@ export function AddInvestmentDialog({ onAddInvestment }: AddInvestmentDialogProp
               <FormLabel>Date d'achat</FormLabel>
               <div className="grid grid-cols-3 gap-2">
                 <FormField control={form.control} name="day" render={({ field }) => (
-                  <FormItem>
-                    <FormControl><Input placeholder="Jour" {...field} /></FormControl>
-                  </FormItem>
+                  <FormItem><FormControl><Input placeholder="Jour" {...field} /></FormControl></FormItem>
                 )} />
                 <FormField control={form.control} name="month" render={({ field }) => (
-                  <FormItem>
-                    <FormControl><Input placeholder="Mois" {...field} /></FormControl>
-                  </FormItem>
+                  <FormItem><FormControl><Input placeholder="Mois" {...field} /></FormControl></FormItem>
                 )} />
                 <FormField control={form.control} name="year" render={({ field }) => (
-                  <FormItem>
-                    <FormControl><Input placeholder="Année" {...field} /></FormControl>
-                  </FormItem>
+                  <FormItem><FormControl><Input placeholder="Année" {...field} /></FormControl></FormItem>
                 )} />
               </div>
               <FormMessage>{form.formState.errors.day?.message}</FormMessage>
             </FormItem>
             <DialogFooter className="pt-4">
-              <Button type="submit">Enregistrer</Button>
+              <Button type="submit">Sauvegarder</Button>
             </DialogFooter>
           </form>
         </Form>

@@ -5,13 +5,15 @@ import { useData } from "@/contexts/data-context";
 import { useUser, useFirestore } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
 import type { Investment } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddInvestmentDialog } from "./add-investment-dialog";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, Pencil, Trash2 } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
+import { EditInvestmentDialog } from "./edit-investment-dialog";
+import { Button } from "@/components/ui/button";
 
 export function InvestmentsTab() {
   const { investments, isInitialized } = useData();
@@ -37,6 +39,38 @@ export function InvestmentsTab() {
     }
   };
 
+  const editInvestment = async (investmentId: string, updatedData: Omit<Investment, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Erreur d'authentification" });
+      return;
+    }
+    const dataToUpdate: any = {
+        ...updatedData,
+        updatedAt: new Date().toISOString(),
+    };
+    if (updatedData.currentValue === undefined) {
+        dataToUpdate.currentValue = deleteField();
+    }
+    try {
+      await updateDoc(doc(firestore, "users", user.uid, "investments", investmentId), dataToUpdate);
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Erreur Firebase", description: error.message });
+    }
+  };
+
+  const deleteInvestment = async (investmentId: string) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Erreur d'authentification" });
+      return;
+    }
+    try {
+      await deleteDoc(doc(firestore, "users", user.uid, "investments", investmentId));
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Erreur Firebase", description: error.message });
+    }
+  };
+
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -57,6 +91,7 @@ export function InvestmentsTab() {
               <TableHead>Montant Initial</TableHead>
               <TableHead>Valeur Actuelle</TableHead>
               <TableHead>Plus/Moins-value</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -75,12 +110,22 @@ export function InvestmentsTab() {
                       {isGain ? <ArrowUp className="h-4 w-4 mr-1"/> : <ArrowDown className="h-4 w-4 mr-1"/>}
                       {formatCurrency(gainLoss)} MAD
                     </TableCell>
+                    <TableCell className="text-right">
+                      <EditInvestmentDialog investment={item} onEditInvestment={(updatedData) => editInvestment(item.id, updatedData)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </EditInvestmentDialog>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500" onClick={() => deleteInvestment(item.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 )
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   {isInitialized ? "Aucun investissement enregistré." : "Chargement..."}
                 </TableCell>
               </TableRow>
