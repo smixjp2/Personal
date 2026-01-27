@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo } from "react";
@@ -66,21 +67,24 @@ export function SummaryTab({ selectedMonth }: { selectedMonth: Date }) {
     shoppingList.forEach((item) => {
       if (!item.price) return;
       const freq = item.frequency || "one-time";
-      const itemStartDate = item.createdAt ? parseISO(item.createdAt as string) : new Date(0);
-      if (itemStartDate > monthEnd) return;
+      const effectiveDate = item.date ? parseISO(item.date) : (item.createdAt ? parseISO(item.createdAt as string) : new Date(0));
 
-      if (freq === "one-time") {
-        const itemDate = item.date ? parseISO(item.date) : itemStartDate;
-        if (isWithinInterval(itemDate, { start: monthStart, end: monthEnd })) {
-          total += item.price;
+      if (freq === 'one-time') {
+        if (isWithinInterval(effectiveDate, { start: monthStart, end: monthEnd })) {
+            total += item.price;
         }
-      } else if (freq === "daily") {
-        total += item.price * getDaysInMonth(month);
-      } else if (freq === "monthly") {
-        total += item.price;
-      } else if (freq === "yearly") {
-        if (itemStartDate.getMonth() === month.getMonth()) {
-          total += item.price;
+      } else {
+        // Recurring item
+        if (effectiveDate <= monthEnd) { // Must have started
+            if (freq === 'daily') {
+                total += item.price * getDaysInMonth(month);
+            } else if (freq === 'monthly') {
+                total += item.price;
+            } else if (freq === 'yearly') {
+                if (effectiveDate.getMonth() === month.getMonth()) {
+                    total += item.price;
+                }
+            }
         }
       }
     });

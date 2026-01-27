@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ShoppingItem } from "@/lib/types";
@@ -56,14 +57,13 @@ export function ShoppingList({ selectedMonth }: { selectedMonth: Date }) {
 
     return items.filter(item => {
       const freq = item.frequency || 'one-time';
-      const itemStartDate = item.createdAt ? parseISO(item.createdAt as string) : new Date(0);
+      const effectiveDate = item.date ? parseISO(item.date) : (item.createdAt ? parseISO(item.createdAt as string) : new Date(0));
 
       if (freq === 'one-time') {
-        const itemDate = item.date ? parseISO(item.date) : itemStartDate;
-        return isWithinInterval(itemDate, { start: monthStart, end: monthEnd });
+        return isWithinInterval(effectiveDate, { start: monthStart, end: monthEnd });
       }
 
-      if (itemStartDate > monthEnd) {
+      if (effectiveDate > monthEnd) {
         return false;
       }
       
@@ -72,7 +72,7 @@ export function ShoppingList({ selectedMonth }: { selectedMonth: Date }) {
       }
 
       if (freq === 'yearly') {
-        return itemStartDate.getMonth() === selectedMonth.getMonth();
+        return effectiveDate.getMonth() === selectedMonth.getMonth();
       }
       
       return false;

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo, useState } from "react";
@@ -31,32 +32,39 @@ export function SpendingCharts({ items, selectedMonth }: { items: ShoppingItem[]
   const [monthsToShow, setMonthsToShow] = useState(6);
 
   const categoryData = useMemo(() => {
-    const currentMonthStart = startOfMonth(selectedMonth);
-    const currentMonthEnd = endOfMonth(selectedMonth);
-
-    const byCategory: Record<string, number> = {};
+    const monthStart = startOfMonth(selectedMonth);
+    const monthEnd = endOfMonth(selectedMonth);
+    const byCategory: { [key: string]: number } = {};
 
     items.forEach(item => {
         if (!item.price) return;
 
         const freq = item.frequency || 'one-time';
-        const itemStartDate = item.createdAt ? parseISO(item.createdAt as string) : new Date(0);
-        
-        if (itemStartDate > currentMonthEnd) return; 
+        const effectiveDate = item.date ? parseISO(item.date) : (item.createdAt ? parseISO(item.createdAt as string) : new Date(0));
+        let shouldBeCounted = false;
+        let amount = item.price;
 
         if (freq === 'one-time') {
-            const dateToTest = item.date ? parseISO(item.date) : itemStartDate;
-            if (isWithinInterval(dateToTest, { start: currentMonthStart, end: currentMonthEnd })) {
-                byCategory[item.category] = (byCategory[item.category] || 0) + item.price;
+            if (isWithinInterval(effectiveDate, { start: monthStart, end: monthEnd })) {
+                shouldBeCounted = true;
             }
-        } else if (freq === 'daily') {
-            byCategory[item.category] = (byCategory[item.category] || 0) + (item.price * getDaysInMonth(selectedMonth));
-        } else if (freq === 'monthly') {
-            byCategory[item.category] = (byCategory[item.category] || 0) + item.price;
-        } else if (freq === 'yearly') {
-            if (itemStartDate.getMonth() === selectedMonth.getMonth()) {
-                byCategory[item.category] = (byCategory[item.category] || 0) + item.price;
+        } else {
+            if (effectiveDate <= monthEnd) {
+                if (freq === 'daily') {
+                    shouldBeCounted = true;
+                    amount = item.price * getDaysInMonth(selectedMonth);
+                } else if (freq === 'monthly') {
+                    shouldBeCounted = true;
+                } else if (freq === 'yearly') {
+                    if (effectiveDate.getMonth() === selectedMonth.getMonth()) {
+                        shouldBeCounted = true;
+                    }
+                }
             }
+        }
+        
+        if (shouldBeCounted) {
+            byCategory[item.category] = (byCategory[item.category] || 0) + amount;
         }
     });
 
@@ -79,22 +87,23 @@ export function SpendingCharts({ items, selectedMonth }: { items: ShoppingItem[]
         if (!item.price) return;
 
         const freq = item.frequency || 'one-time';
-        const itemStartDate = item.createdAt ? parseISO(item.createdAt as string) : new Date(0);
-
-        if (itemStartDate > monthEnd) return; 
+        const effectiveDate = item.date ? parseISO(item.date) : (item.createdAt ? parseISO(item.createdAt as string) : new Date(0));
 
         if (freq === 'one-time') {
-            const dateToTest = item.date ? parseISO(item.date) : itemStartDate;
-            if (isWithinInterval(dateToTest, { start: monthStart, end: monthEnd })) {
+            if (isWithinInterval(effectiveDate, { start: monthStart, end: monthEnd })) {
                 total += item.price;
             }
-        } else if (freq === 'daily') {
-            total += item.price * getDaysInMonth(month);
-        } else if (freq === 'monthly') {
-            total += item.price;
-        } else if (freq === 'yearly') {
-            if (itemStartDate.getMonth() === month.getMonth()) {
-                total += item.price;
+        } else {
+            if (effectiveDate <= monthEnd) {
+                if (freq === 'daily') {
+                    total += item.price * getDaysInMonth(month);
+                } else if (freq === 'monthly') {
+                    total += item.price;
+                } else if (freq === 'yearly') {
+                    if (effectiveDate.getMonth() === month.getMonth()) {
+                        total += item.price;
+                    }
+                }
             }
         }
       });
