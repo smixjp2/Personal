@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMemo } from "react";
@@ -21,7 +20,6 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  ResponsiveContainer,
 } from "recharts";
 import {
   ChartConfig,
@@ -30,7 +28,6 @@ import {
 } from "@/components/ui/chart";
 import {
   addMonths,
-  subMonths,
   startOfMonth,
   endOfMonth,
   isWithinInterval,
@@ -58,34 +55,23 @@ const netWorthChartConfig = {
   },
 } satisfies ChartConfig;
 
-export function SummaryTab() {
+export function SummaryTab({ selectedMonth }: { selectedMonth: Date }) {
   const { isInitialized, income, shoppingList, savingGoals, investments } = useData();
 
-  const totalIncome = income.reduce((acc, i) => acc + i.amount, 0);
-  const totalExpenses = shoppingList.filter(i => i.purchased).reduce((acc, i) => acc + (i.price || 0), 0);
-  const totalSavings = savingGoals.reduce((acc, s) => acc + s.currentAmount, 0);
-  const totalInvestments = investments.reduce((acc, i) => acc + (i.currentValue || i.initialAmount), 0);
-  const netWorth = totalSavings + totalInvestments;
-
-   const calculateMonthlyExpenses = (month: Date): number => {
+  const calculateMonthlyExpenses = (month: Date): number => {
     const monthStart = startOfMonth(month);
     const monthEnd = endOfMonth(month);
     let total = 0;
 
     shoppingList.forEach((item) => {
       if (!item.price) return;
-
       const freq = item.frequency || "one-time";
-      const startDateString = item.createdAt;
-
-      if (!startDateString || typeof startDateString !== "string") return;
-      
-      const itemStartDate = parseISO(startDateString);
-
+      const itemStartDate = item.createdAt ? parseISO(item.createdAt as string) : new Date(0);
       if (itemStartDate > monthEnd) return;
 
       if (freq === "one-time") {
-        if (item.date && isWithinInterval(parseISO(item.date), { start: monthStart, end: monthEnd })) {
+        const itemDate = item.date ? parseISO(item.date) : itemStartDate;
+        if (isWithinInterval(itemDate, { start: monthStart, end: monthEnd })) {
           total += item.price;
         }
       } else if (freq === "daily") {
@@ -125,22 +111,28 @@ export function SummaryTab() {
       return total;
   };
 
+  const monthlyIncome = useMemo(() => calculateMonthlyIncome(selectedMonth), [income, selectedMonth, isInitialized]);
+  const monthlyExpenses = useMemo(() => calculateMonthlyExpenses(selectedMonth), [shoppingList, selectedMonth, isInitialized]);
+  const totalSavings = savingGoals.reduce((acc, s) => acc + s.currentAmount, 0);
+  const totalInvestments = investments.reduce((acc, i) => acc + (i.currentValue || i.initialAmount), 0);
+  const netWorth = totalSavings + totalInvestments;
+
   const cashFlowData = useMemo(() => {
     if (!isInitialized) return [];
-    const futureMonths = Array.from({ length: 6 }, (_, i) => addMonths(new Date(), i));
+    const futureMonths = Array.from({ length: 6 }, (_, i) => addMonths(selectedMonth, i));
     return futureMonths.map((month) => ({
       name: format(month, "MMM yy", { locale: fr }),
       income: calculateMonthlyIncome(month),
       expenses: calculateMonthlyExpenses(month),
     }));
-  }, [isInitialized, income, shoppingList]);
+  }, [isInitialized, income, shoppingList, selectedMonth]);
 
   const netWorthData = useMemo(() => {
     if (!isInitialized) return [];
     
     const data = [];
     let runningWorth = netWorth;
-    const futureMonths = Array.from({ length: 6 }, (_, i) => addMonths(new Date(), i));
+    const futureMonths = Array.from({ length: 6 }, (_, i) => addMonths(selectedMonth, i));
 
     for (let i = 0; i < futureMonths.length; i++) {
         const month = futureMonths[i];
@@ -155,33 +147,31 @@ export function SummaryTab() {
         
         data.push({ name: monthName, netWorth: i === 0 ? netWorth : runningWorth });
     }
-
     return data;
-    
-  }, [isInitialized, netWorth, income, shoppingList]);
+  }, [isInitialized, netWorth, income, shoppingList, selectedMonth]);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Résumé Financier</CardTitle>
-        <CardDescription>Un aperçu de votre santé financière.</CardDescription>
+        <CardDescription>Un aperçu de votre santé financière pour {format(selectedMonth, 'MMMM yyyy', { locale: fr })}.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-lg">Revenus (Total)</CardTitle>
+                    <CardTitle className="text-lg">Revenus (Mois)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold">{formatCurrency(totalIncome)} MAD</p>
+                    <p className="text-2xl font-bold">{formatCurrency(monthlyIncome)} MAD</p>
                 </CardContent>
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-lg">Dépenses (Acheté)</CardTitle>
+                    <CardTitle className="text-lg">Dépenses (Mois)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold">{formatCurrency(totalExpenses)} MAD</p>
+                    <p className="text-2xl font-bold">{formatCurrency(monthlyExpenses)} MAD</p>
                 </CardContent>
             </Card>
             <Card>

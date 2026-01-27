@@ -45,7 +45,7 @@ export function FinanceDashboard() {
           <TabsTrigger value="investments">Investissements</TabsTrigger>
         </TabsList>
         <TabsContent value="summary">
-          <SummaryTab />
+          <SummaryTab selectedMonth={selectedMonth} />
         </TabsContent>
         <TabsContent value="expenses">
           <ShoppingList selectedMonth={selectedMonth} />

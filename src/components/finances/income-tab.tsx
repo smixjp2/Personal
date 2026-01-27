@@ -4,15 +4,18 @@ import { useData } from "@/contexts/data-context";
 import { useUser, useFirestore } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import type { Income } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddIncomeDialog } from "./add-income-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useMemo } from "react";
 import { startOfMonth, endOfMonth, isWithinInterval, parseISO } from "date-fns";
+import { EditIncomeDialog } from "./edit-income-dialog";
 
 const frequencyTranslations = {
   "one-time": "Unique",
@@ -54,7 +57,7 @@ export function IncomeTab({ selectedMonth }: { selectedMonth: Date }) {
     });
   }, [income, selectedMonth, isInitialized]);
 
-  const addIncome = async (newIncomeData: Omit<Income, "id">) => {
+  const addIncome = async (newIncomeData: Omit<Income, "id" | "createdAt" | "updatedAt">) => {
     if (!user || !firestore) {
       toast({ variant: "destructive", title: "Erreur d'authentification" });
       return;
@@ -69,6 +72,30 @@ export function IncomeTab({ selectedMonth }: { selectedMonth: Date }) {
       await setDoc(doc(firestore, "users", user.uid, "income", newIncome.id), newIncome);
     } catch (error: any) {
       toast({ variant: "destructive", title: "Erreur Firebase", description: error.message });
+    }
+  };
+
+  const editIncome = async (incomeId: string, updatedData: Omit<Income, "id" | "createdAt" | "updatedAt">) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Erreur d'authentification" });
+      return;
+    }
+    try {
+        await updateDoc(doc(firestore, "users", user.uid, "income", incomeId), { ...updatedData, updatedAt: new Date().toISOString()});
+    } catch (error: any) {
+        toast({ variant: "destructive", title: "Erreur Firebase", description: error.message });
+    }
+  };
+
+  const deleteIncome = async (incomeId: string) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Erreur d'authentification" });
+      return;
+    }
+    try {
+        await deleteDoc(doc(firestore, "users", user.uid, "income", incomeId));
+    } catch (error: any) {
+        toast({ variant: "destructive", title: "Erreur Firebase", description: error.message });
     }
   };
 
@@ -91,6 +118,7 @@ export function IncomeTab({ selectedMonth }: { selectedMonth: Date }) {
               <TableHead>Montant</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Fréquence</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -103,11 +131,21 @@ export function IncomeTab({ selectedMonth }: { selectedMonth: Date }) {
                   <TableCell>
                     <Badge variant="outline">{frequencyTranslations[item.frequency]}</Badge>
                   </TableCell>
+                  <TableCell className="text-right">
+                    <EditIncomeDialog income={item} onEditIncome={(updatedData) => editIncome(item.id, updatedData)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </EditIncomeDialog>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500" onClick={() => deleteIncome(item.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center">
                   {isInitialized ? "Aucun revenu enregistré pour ce mois." : "Chargement..."}
                 </TableCell>
               </TableRow>
