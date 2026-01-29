@@ -28,7 +28,7 @@ export type Goal = BaseEntity & {
 export type Project = BaseEntity & {
   name: string;
   description: string;
-  status: "idea" | "in-progress" | "completed";
+  status: "idea" | "in-progress";
   dueDate?: string;
   objectives?: string[];
   ideas?: string[];

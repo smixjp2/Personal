@@ -65,7 +65,7 @@
       "properties": {
         "name": { "type": "string" },
         "description": { "type": "string" },
-        "status": { "type": "string", "enum": ["idea", "in-progress", "completed"] },
+        "status": { "type": "string", "enum": ["idea", "in-progress"] },
         "dueDate": { "type": "string", "format": "date-time" },
         "objectives": {
           "type": "array",

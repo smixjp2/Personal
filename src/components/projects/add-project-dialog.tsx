@@ -87,7 +87,7 @@ export function AddProjectDialog({ children, onAddProject }: AddProjectDialogPro
         <DialogHeader>
           <DialogTitle>Créer un nouveau projet</DialogTitle>
           <DialogDescription>
-            Décrivez votre projet. Il sera ajouté à la colonne "Idées Brutes".
+            Décrivez votre projet. Il sera ajouté à la colonne "Idées de Contenu".
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -99,7 +99,7 @@ export function AddProjectDialog({ children, onAddProject }: AddProjectDialogPro
                 <FormItem>
                   <FormLabel>Nom du Projet</FormLabel>
                   <FormControl>
-                    <Input placeholder="ex: Lancer un podcast" {...field} />
+                    <Input placeholder="ex: Vidéo sur l'analyse technique" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -112,7 +112,7 @@ export function AddProjectDialog({ children, onAddProject }: AddProjectDialogPro
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Décrivez le projet, ses objectifs et le résultat attendu." {...field} />
+                    <Textarea placeholder="Décrivez le sujet de la vidéo, les points clés à aborder et le public cible." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

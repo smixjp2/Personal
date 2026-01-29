@@ -63,7 +63,6 @@ export function ProjectCard({ project }: { project: Project }) {
                 <SelectContent>
                     <SelectItem value="idea">Idée</SelectItem>
                     <SelectItem value="in-progress">En cours</SelectItem>
-                    <SelectItem value="completed">Terminé</SelectItem>
                 </SelectContent>
                 </Select>
             </CardTitle>

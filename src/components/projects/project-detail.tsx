@@ -187,7 +187,6 @@ export function ProjectDetail({ project }: { project: Project }) {
                     <SelectContent>
                         <SelectItem value="idea">Idée</SelectItem>
                         <SelectItem value="in-progress">En cours</SelectItem>
-                        <SelectItem value="completed">Terminé</SelectItem>
                     </SelectContent>
                 </Select>
                 <EditProjectDialog project={project} onEditProject={editProject}>

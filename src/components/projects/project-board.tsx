@@ -17,9 +17,8 @@ const columns: {
   id: Project["status"];
   title: string;
 }[] = [
-  { id: "idea", title: "Idées Brutes" },
-  { id: "in-progress", title: "En Cours" },
-  { id: "completed", title: "Terminé" },
+  { id: "idea", title: "Idées de Contenu" },
+  { id: "in-progress", title: "Production en Cours" },
 ];
 
 export function ProjectBoard() {
@@ -57,7 +56,7 @@ export function ProjectBoard() {
                 <h1 className="text-3xl font-bold font-headline">Projets</h1>
                 <Skeleton className="h-10 w-32" />
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {columns.map(column => (
                     <div key={column.id} className="rounded-xl bg-card/50 p-4">
                         <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
@@ -85,7 +84,7 @@ export function ProjectBoard() {
         </AddProjectDialog>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <AnimatePresence>
           {columns.map((column) => (
             <div key={column.id} className="rounded-xl bg-card/50 p-4">
