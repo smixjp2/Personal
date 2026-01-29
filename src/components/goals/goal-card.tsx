@@ -21,6 +21,7 @@ import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
 import { useFirestore, useUser } from "@/firebase";
 import { doc, updateDoc, writeBatch } from "firebase/firestore";
+import { Badge } from "../ui/badge";
 
 export function GoalCard({ goal }: { goal: Goal }) {
   const { tasks } = useData();
@@ -95,9 +96,14 @@ export function GoalCard({ goal }: { goal: Goal }) {
         <CardDescription>{goal.description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow space-y-4">
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Calendar className="mr-2 h-4 w-4" />
-          <span>Due by {new Date(goal.dueDate).toLocaleDateString()}</span>
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center">
+            <Calendar className="mr-2 h-4 w-4" />
+            <span>Due by {new Date(goal.dueDate).toLocaleDateString()}</span>
+          </div>
+          {goal.subCategory && (
+            <Badge variant="outline" className="font-normal">{goal.subCategory}</Badge>
+          )}
         </div>
         <div className="space-y-2">
           <div className="flex justify-between items-center">

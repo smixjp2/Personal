@@ -39,6 +39,7 @@ const goalSchema = z.object({
   name: z.string().min(3, "Le nom de l'objectif doit être d'au moins 3 caractères."),
   description: z.string().min(10, "La description est trop courte.").max(200, "La description est trop longue."),
   category: z.enum(["personal", "professional", "course"]),
+  subCategory: z.string().optional(),
   dueDay: z.string().min(1, "Le jour est requis.").max(2, "Jour invalide."),
   dueMonth: z.string().min(1, "Le mois est requis.").max(2, "Mois invalide."),
   dueYear: z.string().min(4, "L'année doit comporter 4 chiffres.").max(4, "L'année doit comporter 4 chiffres."),
@@ -138,6 +139,20 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
                   </Select>
                   <FormMessage />
                   </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="subCategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sous-catégorie (Optionnel)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="ex: Voyage, Argent, Famille..." {...field} value={field.value ?? ''} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
             

@@ -20,6 +20,7 @@ export type Goal = BaseEntity & {
   name: string;
   description: string;
   category: "personal" | "professional" | "course";
+  subCategory?: string;
   dueDate: string;
   progress: number;
 };

@@ -17,8 +17,8 @@ const columns: {
   id: Goal["category"];
   title: string;
 }[] = [
-  { id: "professional", title: "Professional" },
   { id: "personal", title: "Personal" },
+  { id: "professional", title: "Professional" },
   { id: "course", title: "Courses" },
 ];
 
@@ -46,6 +46,55 @@ export function GoalBoard() {
         toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new goal." });
     }
   };
+
+  const renderColumnContent = (columnId: Goal['category']) => {
+    const columnGoals = goals.filter((g) => g.category === columnId);
+
+    if (columnId !== 'personal' || columnGoals.every(g => !g.subCategory)) {
+        return (
+            <div className="space-y-4">
+                {columnGoals.map((goal) => (
+                    <motion.div key={goal.id} layout>
+                        <GoalCard goal={goal} />
+                    </motion.div>
+                ))}
+            </div>
+        );
+    }
+
+    const groupedGoals = columnGoals.reduce((acc, goal) => {
+        const subCategory = goal.subCategory || 'Général';
+        if (!acc[subCategory]) {
+            acc[subCategory] = [];
+        }
+        acc[subCategory].push(goal);
+        return acc;
+    }, {} as Record<string, Goal[]>);
+
+    const subCategories = Object.keys(groupedGoals).sort((a,b) => {
+        if (a === 'Général') return 1;
+        if (b === 'Général') return -1;
+        return a.localeCompare(b);
+    });
+
+    return (
+        <div className="space-y-6">
+            {subCategories.map(subCategory => (
+                <div key={subCategory}>
+                    <h3 className="mb-3 text-md font-medium text-muted-foreground">{subCategory}</h3>
+                    <div className="space-y-4">
+                        {groupedGoals[subCategory].map(goal => (
+                            <motion.div key={goal.id} layout>
+                                <GoalCard goal={goal} />
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+  };
+
 
   if (!isInitialized) {
     return (
@@ -90,15 +139,7 @@ export function GoalBoard() {
               <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
                 {column.title}
               </h2>
-              <div className="space-y-4">
-                {goals
-                  .filter((g) => g.category === column.id)
-                  .map((goal) => (
-                    <motion.div key={goal.id} layout>
-                        <GoalCard goal={goal} />
-                    </motion.div>
-                  ))}
-              </div>
+              {renderColumnContent(column.id)}
             </div>
           ))}
         </AnimatePresence>
