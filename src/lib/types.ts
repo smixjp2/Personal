@@ -30,6 +30,9 @@ export type Project = BaseEntity & {
   description: string;
   status: "idea" | "in-progress" | "completed";
   dueDate?: string;
+  objectives?: string[];
+  ideas?: string[];
+  links?: { title: string; url: string }[];
 };
 
 

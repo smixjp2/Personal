@@ -67,6 +67,28 @@
         "description": { "type": "string" },
         "status": { "type": "string", "enum": ["idea", "in-progress", "completed"] },
         "dueDate": { "type": "string", "format": "date-time" },
+        "objectives": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "A list of key objectives for the project."
+        },
+        "ideas": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "A list of ideas to test or explore for the project."
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "url": { "type": "string", "format": "uri" }
+            },
+            "required": ["title", "url"]
+          },
+          "description": "A list of useful links related to the project."
+        },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
