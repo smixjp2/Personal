@@ -18,7 +18,7 @@ import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
 import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { doc, setDoc, updateDoc, deleteDoc, writeBatch } from "firebase/firestore";
+import { doc, setDoc, updateDoc, deleteDoc, writeBatch, deleteField } from "firebase/firestore";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
@@ -54,8 +54,24 @@ export function Watchlist() {
 
   const editItem = async (itemId: string, updatedData: Partial<Omit<WatchlistItem, 'id'>>) => {
     if (!user || !firestore) return;
+
+    const dataToUpdate: any = { ...updatedData, updatedAt: new Date().toISOString() };
+
+    if (updatedData.category === 'movie') {
+        dataToUpdate.season = deleteField();
+        dataToUpdate.episode = deleteField();
+    } else { // It's a tv-show
+        // If a field was submitted as undefined (e.g. empty input), ensure it's deleted from Firestore
+        if (updatedData.hasOwnProperty('season') && updatedData.season === undefined) {
+            dataToUpdate.season = deleteField();
+        }
+        if (updatedData.hasOwnProperty('episode') && updatedData.episode === undefined) {
+            dataToUpdate.episode = deleteField();
+        }
+    }
+
     try {
-        await updateDoc(doc(firestore, "users", user.uid, "watchlist", itemId), { ...updatedData, updatedAt: new Date().toISOString() });
+        await updateDoc(doc(firestore, "users", user.uid, "watchlist", itemId), dataToUpdate);
     } catch (error: any) {
         toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not update item." });
     }

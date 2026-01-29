@@ -22,8 +22,14 @@ import type { WatchlistItem } from "@/lib/types";
 const watchlistItemSchema = z.object({
   title: z.string().min(2, "Le titre doit comporter au moins 2 caractères."),
   category: z.enum(["movie", "tv-show"]),
-  season: z.coerce.number().optional(),
-  episode: z.coerce.number().optional(),
+  season: z.preprocess(
+    (val) => (String(val).trim() === "" ? undefined : val),
+    z.coerce.number().optional()
+  ),
+  episode: z.preprocess(
+    (val) => (String(val).trim() === "" ? undefined : val),
+    z.coerce.number().optional()
+  ),
 });
 
 type FormValues = z.infer<typeof watchlistItemSchema>;
