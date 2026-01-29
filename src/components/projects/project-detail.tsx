@@ -31,7 +31,15 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "../ui/badge";
 
+const statusTranslations: Record<Project['status'], string> = {
+    idea: "Idée",
+    scripting: "Script",
+    recording: "Tournage",
+    editing: "Montage",
+    published: "Publié"
+}
 
 export function ProjectDetail({ project }: { project: Project }) {
   const { tasks } = useData();
@@ -155,7 +163,7 @@ export function ProjectDetail({ project }: { project: Project }) {
     }
   };
 
-  const editProject = async (updatedData: { name: string; description: string; dueDate?: string }) => {
+  const editProject = async (updatedData: { name: string; description: string; channel?: "The Morroccan Analyst" | "The Morroccan CFO" | "Course", dueDate?: string }) => {
     if (!user || !firestore) return;
     const projectRef = doc(firestore, "users", user.uid, "projects", project.id);
     const dataToUpdate: any = {
@@ -178,15 +186,19 @@ export function ProjectDetail({ project }: { project: Project }) {
     <Card className="flex h-full flex-col overflow-hidden">
       <CardHeader>
         <div className="flex justify-between items-start gap-4">
-            <CardTitle className="text-3xl font-headline flex-1">{project.name}</CardTitle>
+            <div className="flex-1">
+                <CardTitle className="text-3xl font-headline ">{project.name}</CardTitle>
+                {project.channel && <Badge variant="secondary" className="mt-2">{project.channel}</Badge>}
+            </div>
             <div className="flex items-center gap-2">
                 <Select onValueChange={updateStatus} value={project.status}>
                     <SelectTrigger className="w-[150px]">
                         <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="idea">Idée</SelectItem>
-                        <SelectItem value="in-progress">En cours</SelectItem>
+                         {Object.entries(statusTranslations).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>{label}</SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
                 <EditProjectDialog project={project} onEditProject={editProject}>
@@ -213,7 +225,7 @@ export function ProjectDetail({ project }: { project: Project }) {
                 {project.dueDate && (
                     <div className="flex items-center text-md text-muted-foreground">
                         <Calendar className="mr-2 h-4 w-4" />
-                        <span>Échéance: {new Date(project.dueDate).toLocaleDateString()}</span>
+                        <span>Date de publication: {new Date(project.dueDate).toLocaleDateString()}</span>
                     </div>
                 )}
                 <div className="space-y-2">
@@ -226,7 +238,7 @@ export function ProjectDetail({ project }: { project: Project }) {
               </div>
               <Separator />
               <div className="space-y-4">
-                  <h3 className="text-xl font-semibold">Tâches du projet</h3>
+                  <h3 className="text-xl font-semibold">Checklist de production</h3>
                   <div className="flex w-full items-center space-x-2">
                       <Input 
                           type="text" 
@@ -275,7 +287,7 @@ export function ProjectDetail({ project }: { project: Project }) {
           </TabsContent>
           
           <TabsContent value="objectives" className="mt-6 space-y-4">
-              <h3 className="text-xl font-semibold">Objectifs du Projet</h3>
+              <h3 className="text-xl font-semibold">Objectifs Clés</h3>
               <div className="flex items-center space-x-2">
                   <Input placeholder="Ajouter un objectif..." value={newObjective} onChange={(e) => setNewObjective(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateArrayField('objectives', newObjective, 'add')} />
                   <Button onClick={() => handleUpdateArrayField('objectives', newObjective, 'add')} disabled={!newObjective.trim()}>Ajouter</Button>
@@ -297,9 +309,9 @@ export function ProjectDetail({ project }: { project: Project }) {
           </TabsContent>
 
           <TabsContent value="ideas" className="mt-6 space-y-4">
-              <h3 className="text-xl font-semibold">Idées à Explorer</h3>
+              <h3 className="text-xl font-semibold">Idées & Brainstorming</h3>
               <div className="flex items-center space-x-2">
-                  <Input placeholder="Noter une nouvelle idée..." value={newIdea} onChange={(e) => setNewIdea(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateArrayField('ideas', newIdea, 'add')} />
+                  <Input placeholder="Noter une nouvelle idée (ex: angle, b-roll)..." value={newIdea} onChange={(e) => setNewIdea(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateArrayField('ideas', newIdea, 'add')} />
                   <Button onClick={() => handleUpdateArrayField('ideas', newIdea, 'add')} disabled={!newIdea.trim()}>Ajouter</Button>
               </div>
               <ul className="space-y-2 pt-2">
@@ -319,12 +331,12 @@ export function ProjectDetail({ project }: { project: Project }) {
           </TabsContent>
 
           <TabsContent value="links" className="mt-6 space-y-4">
-              <h3 className="text-xl font-semibold">Liens Utiles</h3>
+              <h3 className="text-xl font-semibold">Liens & Ressources</h3>
               <div className="space-y-2 rounded-lg border p-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label htmlFor="link-title" className="text-sm font-medium">Titre</label>
-                      <Input id="link-title" placeholder="Ex: Documentation" value={newLink.title} onChange={(e) => setNewLink({ ...newLink, title: e.target.value })} />
+                      <Input id="link-title" placeholder="Ex: Article de recherche" value={newLink.title} onChange={(e) => setNewLink({ ...newLink, title: e.target.value })} />
                     </div>
                     <div className="space-y-1">
                       <label htmlFor="link-url" className="text-sm font-medium">URL</label>
@@ -347,7 +359,7 @@ export function ProjectDetail({ project }: { project: Project }) {
                       </li>
                     ))
                   ) : (
-                    <p className="text-center text-muted-foreground pt-4">Aucun lien enregistré pour ce projet.</p>
+                    <p className="text-center text-muted-foreground pt-4">Aucune ressource enregistrée pour ce projet.</p>
                   )}
               </ul>
           </TabsContent>

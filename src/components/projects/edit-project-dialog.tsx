@@ -26,10 +26,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import type { Project } from "@/lib/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const projectSchema = z.object({
   name: z.string().min(3, "Le nom du projet doit comporter au moins 3 caractères."),
   description: z.string().min(10, "La description est trop courte.").max(500, "La description est trop longue."),
+  channel: z.enum(["The Morroccan Analyst", "The Morroccan CFO", "Course"], { required_error: "Veuillez sélectionner une chaîne." }),
   dueDay: z.string().max(2).optional(),
   dueMonth: z.string().max(2).optional(),
   dueYear: z.string().max(4).optional(),
@@ -69,6 +71,7 @@ export function EditProjectDialog({ children, project, onEditProject }: EditProj
     defaultValues: {
       name: project.name,
       description: project.description,
+      channel: project.channel,
       dueDay: projectDate ? projectDate.getDate().toString() : undefined,
       dueMonth: projectDate ? (projectDate.getMonth() + 1).toString() : undefined,
       dueYear: projectDate ? projectDate.getFullYear().toString() : undefined,
@@ -107,6 +110,28 @@ export function EditProjectDialog({ children, project, onEditProject }: EditProj
                   <FormControl>
                     <Input placeholder="ex: Lancer un podcast" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="channel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Chaîne / Plateforme</FormLabel>
+                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner une plateforme" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="The Morroccan Analyst">The Morroccan Analyst</SelectItem>
+                      <SelectItem value="The Morroccan CFO">The Morroccan CFO</SelectItem>
+                      <SelectItem value="Course">Formation</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

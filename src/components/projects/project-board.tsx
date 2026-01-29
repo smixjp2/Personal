@@ -14,11 +14,12 @@ import { useToast } from "@/hooks/use-toast";
 import { doc, setDoc } from "firebase/firestore";
 
 const columns: {
-  id: Project["status"];
+  id: Project["channel"];
   title: string;
 }[] = [
-  { id: "idea", title: "Idées de Contenu" },
-  { id: "in-progress", title: "Production en Cours" },
+  { id: "The Morroccan Analyst", title: "The Morroccan Analyst" },
+  { id: "The Morroccan CFO", title: "The Morroccan CFO" },
+  { id: "Course", title: "Formations" },
 ];
 
 export function ProjectBoard() {
@@ -33,11 +34,12 @@ export function ProjectBoard() {
       return;
     }
     const id = uuidv4();
-    const dataToSave = {
+    const dataToSave: Project = {
       id,
       name: newProjectData.name,
       description: newProjectData.description,
-      status: 'idea' as Project['status'],
+      channel: newProjectData.channel,
+      status: 'idea',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       ...(newProjectData.dueDate && { dueDate: newProjectData.dueDate }),
@@ -53,18 +55,18 @@ export function ProjectBoard() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold font-headline">Projets</h1>
-                <Skeleton className="h-10 w-32" />
+                <h1 className="text-3xl font-bold font-headline">Tableau de Production</h1>
+                <Skeleton className="h-10 w-40" />
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {columns.map(column => (
                     <div key={column.id} className="rounded-xl bg-card/50 p-4">
                         <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
                             {column.title}
                         </h2>
                         <div className="space-y-4">
-                            <Skeleton className="h-48 w-full" />
-                            <Skeleton className="h-48 w-full" />
+                            <Skeleton className="h-40 w-full" />
+                            <Skeleton className="h-40 w-full" />
                         </div>
                     </div>
                 ))}
@@ -76,15 +78,15 @@ export function ProjectBoard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-headline">Projets</h1>
+        <h1 className="text-3xl font-bold font-headline">Tableau de Production</h1>
         <AddProjectDialog onAddProject={addProject}>
             <button className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-colors hover:bg-primary/90">
-                <Plus className="h-4 w-4" /> Ajouter un Projet
+                <Plus className="h-4 w-4" /> Ajouter un Contenu
             </button>
         </AddProjectDialog>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <AnimatePresence>
           {columns.map((column) => (
             <div key={column.id} className="rounded-xl bg-card/50 p-4">
@@ -93,7 +95,7 @@ export function ProjectBoard() {
               </h2>
               <div className="space-y-4">
                 {projects
-                  .filter((p) => p.status === column.id)
+                  .filter((p) => p.channel === column.id)
                   .map((project) => (
                     <motion.div key={project.id} layout>
                         <ProjectCard project={project} />

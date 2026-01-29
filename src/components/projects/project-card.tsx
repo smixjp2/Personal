@@ -24,6 +24,14 @@ import { useFirestore, useUser } from "@/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import Link from "next/link";
 
+const statusTranslations: Record<Project['status'], string> = {
+    idea: "Idée",
+    scripting: "Script",
+    recording: "Tournage",
+    editing: "Montage",
+    published: "Publié"
+}
+
 export function ProjectCard({ project }: { project: Project }) {
   const { tasks } = useData();
   const { user } = useUser();
@@ -61,8 +69,9 @@ export function ProjectCard({ project }: { project: Project }) {
                     <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="idea">Idée</SelectItem>
-                    <SelectItem value="in-progress">En cours</SelectItem>
+                    {Object.entries(statusTranslations).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
                 </SelectContent>
                 </Select>
             </CardTitle>
@@ -77,7 +86,7 @@ export function ProjectCard({ project }: { project: Project }) {
             )}
             <div className="space-y-2">
             <div className="flex justify-between items-center">
-                <p className="text-sm font-medium">Progression</p>
+                <p className="text-sm font-medium">Progression des tâches</p>
                 <p className="text-sm font-bold text-primary">{progress}%</p>
             </div>
             <Progress value={progress} />

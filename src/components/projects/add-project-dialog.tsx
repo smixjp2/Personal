@@ -28,10 +28,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import type { Project } from "@/lib/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const projectSchema = z.object({
-  name: z.string().min(3, "Le nom du projet doit comporter au moins 3 caractères."),
+  name: z.string().min(3, "Le nom doit comporter au moins 3 caractères."),
   description: z.string().min(10, "La description est trop courte.").max(500, "La description est trop longue."),
+  channel: z.enum(["The Morroccan Analyst", "The Morroccan CFO", "Course"], { required_error: "Veuillez sélectionner une chaîne." }),
   dueDay: z.string().max(2).optional(),
   dueMonth: z.string().max(2).optional(),
   dueYear: z.string().max(4).optional(),
@@ -85,9 +87,9 @@ export function AddProjectDialog({ children, onAddProject }: AddProjectDialogPro
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Créer un nouveau projet</DialogTitle>
+          <DialogTitle>Ajouter un nouveau contenu</DialogTitle>
           <DialogDescription>
-            Décrivez votre projet. Il sera ajouté à la colonne "Idées de Contenu".
+            Une nouvelle vidéo ou une idée de formation à développer.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -97,10 +99,32 @@ export function AddProjectDialog({ children, onAddProject }: AddProjectDialogPro
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nom du Projet</FormLabel>
+                  <FormLabel>Titre de la vidéo / formation</FormLabel>
                   <FormControl>
-                    <Input placeholder="ex: Vidéo sur l'analyse technique" {...field} />
+                    <Input placeholder="ex: Analyse de l'action ATW" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="channel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Chaîne / Plateforme</FormLabel>
+                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner une plateforme" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="The Morroccan Analyst">The Morroccan Analyst</SelectItem>
+                      <SelectItem value="The Morroccan CFO">The Morroccan CFO</SelectItem>
+                      <SelectItem value="Course">Formation</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -112,14 +136,14 @@ export function AddProjectDialog({ children, onAddProject }: AddProjectDialogPro
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Décrivez le sujet de la vidéo, les points clés à aborder et le public cible." {...field} />
+                    <Textarea placeholder="Sujet, points clés, public cible..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormItem>
-              <FormLabel>Échéance (Optionnel)</FormLabel>
+              <FormLabel>Date de publication (Optionnel)</FormLabel>
               <div className="grid grid-cols-3 gap-2">
                 <FormField control={form.control} name="dueDay" render={({ field }) => (
                   <FormItem>
@@ -140,7 +164,7 @@ export function AddProjectDialog({ children, onAddProject }: AddProjectDialogPro
               <FormMessage>{form.formState.errors.dueDay?.message}</FormMessage>
             </FormItem>
             <DialogFooter className="pt-4">
-              <Button type="submit">Créer le Projet</Button>
+              <Button type="submit">Ajouter l'idée</Button>
             </DialogFooter>
           </form>
         </Form>
