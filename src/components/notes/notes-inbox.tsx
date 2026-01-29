@@ -7,12 +7,14 @@ import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 import type { Note } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Lightbulb, Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 export function NotesInbox() {
   const { notes, isInitialized } = useData();
@@ -81,44 +83,49 @@ export function NotesInbox() {
         </CardContent>
       </Card>
 
-      <div className="space-y-4">
-        <AnimatePresence>
-          {isInitialized && notes.length > 0 ? (
-            notes.sort((a,b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime()).map((note) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {!isInitialized ? (
+          <>
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full sm:block hidden" />
+            <Skeleton className="h-40 w-full lg:block hidden" />
+          </>
+        ) : notes.length > 0 ? (
+          <AnimatePresence>
+            {notes.sort((a,b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime()).map((note) => (
               <motion.div
                 key={note.id}
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
+                className="h-full"
               >
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4 flex items-start justify-between gap-4">
-                    <p className="py-2 text-foreground/90 flex-1">{note.content}</p>
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => handleDeleteNote(note.id)}>
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Supprimer</span>
-                    </Button>
+                <Card className="hover:shadow-lg transition-shadow flex flex-col h-full">
+                   <CardContent className="p-4 flex-1">
+                      <p className="text-foreground/90 break-words whitespace-pre-wrap">{note.content}</p>
                   </CardContent>
+                  <CardFooter className="p-3 pt-2 flex justify-between items-center border-t mt-auto">
+                      <p className="text-xs text-muted-foreground">
+                          {format(new Date(note.createdAt as string), 'd MMM yyyy', {locale: fr})}
+                      </p>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteNote(note.id)}>
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Supprimer</span>
+                      </Button>
+                  </CardFooter>
                 </Card>
               </motion.div>
-            ))
-          ) : (
-            isInitialized && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center text-center text-muted-foreground py-16">
-                  <Lightbulb className="h-12 w-12 mb-4" />
-                  <p className="text-lg font-medium">Votre boîte à idées est vide.</p>
-                  <p>Utilisez le champ ci-dessus pour capturer votre première idée !</p>
-              </motion.div>
-            )
-          )}
-        </AnimatePresence>
-         {!isInitialized && (
-            <div className="space-y-4">
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-            </div>
-         )}
+            ))}
+          </AnimatePresence>
+        ) : (
+          <div className="col-span-full flex flex-col items-center justify-center text-center text-muted-foreground py-16">
+            <Lightbulb className="h-12 w-12 mb-4" />
+            <p className="text-lg font-medium">Votre boîte à idées est vide.</p>
+            <p>Utilisez le champ ci-dessus pour capturer votre première idée !</p>
+          </div>
+        )}
       </div>
     </div>
   );
