@@ -118,6 +118,7 @@ export function SummaryTab({ selectedMonth }: { selectedMonth: Date }) {
 
   const monthlyIncome = useMemo(() => calculateMonthlyIncome(selectedMonth), [income, selectedMonth, isInitialized]);
   const monthlyExpenses = useMemo(() => calculateMonthlyExpenses(selectedMonth), [shoppingList, selectedMonth, isInitialized]);
+  const monthlyBalance = monthlyIncome - monthlyExpenses;
   const totalSavings = savingGoals.reduce((acc, s) => acc + s.currentAmount, 0);
   const totalInvestments = investments.reduce((acc, i) => acc + (i.currentValue || i.initialAmount), 0);
   const netWorth = totalSavings + totalInvestments;
@@ -162,39 +163,53 @@ export function SummaryTab({ selectedMonth }: { selectedMonth: Date }) {
         <CardDescription>Un aperçu de votre santé financière pour {format(selectedMonth, 'MMMM yyyy', { locale: fr })}.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-lg">Revenus (Mois)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-2xl font-bold">{formatCurrency(monthlyIncome)} MAD</p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-lg">Dépenses (Mois)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-2xl font-bold">{formatCurrency(monthlyExpenses)} MAD</p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-lg">Épargne Totale</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-2xl font-bold">{formatCurrency(totalSavings)} MAD</p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-lg">Valeur Nette Estimée</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-2xl font-bold">{formatCurrency(netWorth)} MAD</p>
-                </CardContent>
-            </Card>
+        <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Revenus (Mois)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-2xl font-bold">{formatCurrency(monthlyIncome)} MAD</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Dépenses (Mois)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-2xl font-bold">{formatCurrency(monthlyExpenses)} MAD</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Solde Mensuel</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-2xl font-bold">
+                            {formatCurrency(monthlyBalance)} MAD
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Épargne Totale</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-2xl font-bold">{formatCurrency(totalSavings)} MAD</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Valeur Nette Estimée</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-2xl font-bold">{formatCurrency(netWorth)} MAD</p>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
