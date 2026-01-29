@@ -2,12 +2,12 @@
 
 import { useData } from '@/contexts/data-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ListTodo, Target, TrendingDown, TrendingUp, Sun } from 'lucide-react';
-import { format, isToday, parseISO } from 'date-fns';
+import { ListTodo, Target, Wallet, Sun } from 'lucide-react';
+import { format, isToday, parseISO, startOfMonth, endOfMonth, isWithinInterval, getDaysInMonth } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
+import { useMemo } from 'react';
 
 export function DailyBriefing() {
   const { isInitialized, tasks, goals, shoppingList, income } = useData();
@@ -16,8 +16,61 @@ export function DailyBriefing() {
 
   const todaysTasks = tasks.filter(t => !t.completed && t.dueDate && isToday(parseISO(t.dueDate)));
   const activeGoals = goals.filter(g => g.progress < 100);
-  const todaysExpenses = shoppingList.filter(item => item.date && isToday(parseISO(item.date)) && !item.purchased && item.price);
-  const todaysIncome = income.filter(i => i.date && isToday(parseISO(i.date)));
+
+  const monthlyBalance = useMemo(() => {
+    if (!isInitialized) return 0;
+    
+    const currentMonth = new Date();
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(currentMonth);
+
+    // Calculate income for the current month
+    let totalIncome = 0;
+    income.forEach(i => {
+        const incomeDate = parseISO(i.date);
+        if (i.frequency === 'one-time') {
+            if (isWithinInterval(incomeDate, { start: monthStart, end: monthEnd })) {
+                totalIncome += i.amount;
+            }
+        } else if (i.frequency === 'monthly') {
+            if (incomeDate <= monthEnd) {
+                totalIncome += i.amount;
+            }
+        } else if (i.frequency === 'yearly') {
+            if (incomeDate <= monthEnd && incomeDate.getMonth() === currentMonth.getMonth()) {
+                totalIncome += i.amount;
+            }
+        }
+    });
+
+    // Calculate expenses for the current month
+    let totalExpenses = 0;
+    shoppingList.forEach((item) => {
+      if (!item.price) return;
+      const freq = item.frequency || "one-time";
+      const effectiveDate = item.date ? parseISO(item.date) : (item.createdAt ? parseISO(item.createdAt as string) : new Date(0));
+
+      if (freq === 'one-time') {
+        if (isWithinInterval(effectiveDate, { start: monthStart, end: monthEnd })) {
+            totalExpenses += item.price;
+        }
+      } else {
+        if (effectiveDate <= monthEnd) { 
+            if (freq === 'daily') {
+                totalExpenses += item.price * getDaysInMonth(currentMonth);
+            } else if (freq === 'monthly') {
+                totalExpenses += item.price;
+            } else if (freq === 'yearly') {
+                if (effectiveDate.getMonth() === currentMonth.getMonth()) {
+                    totalExpenses += item.price;
+                }
+            }
+        }
+      }
+    });
+
+    return totalIncome - totalExpenses;
+  }, [isInitialized, income, shoppingList]);
 
   if (!isInitialized) {
     return (
@@ -33,8 +86,6 @@ export function DailyBriefing() {
     );
   }
   
-  const hasContent = todaysTasks.length > 0 || activeGoals.length > 0 || todaysExpenses.length > 0 || todaysIncome.length > 0;
-
   return (
     <Card>
       <CardHeader>
@@ -47,10 +98,7 @@ export function DailyBriefing() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {!hasContent ? (
-          <p className="text-center text-muted-foreground py-8">Rien de spécial au programme pour aujourd'hui. Profitez-en !</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
             
             <div className="space-y-3">
               <h3 className="font-semibold flex items-center gap-2 text-lg"><ListTodo className="h-5 w-5 text-primary" /> Tâches du Jour</h3>
@@ -75,33 +123,12 @@ export function DailyBriefing() {
               )}
             </div>
             
-            <div className="space-y-3 md:col-span-2">
-                <Separator />
-            </div>
-
             <div className="space-y-3">
-               <h3 className="font-semibold flex items-center gap-2 text-lg"><TrendingUp className="h-5 w-5 text-green-500" /> Revenus du Jour</h3>
-               {todaysIncome.length > 0 ? (
-                 <ul className="list-disc list-inside space-y-1.5 text-sm text-muted-foreground pl-2">
-                    {todaysIncome.map(inc => <li key={inc.id}>{inc.name}: <span className="font-medium text-foreground">{formatCurrency(inc.amount)} MAD</span></li>)}
-                 </ul>
-               ) : (
-                 <p className="text-sm text-muted-foreground pl-2">Aucun revenu prévu aujourd'hui.</p>
-               )}
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="font-semibold flex items-center gap-2 text-lg"><TrendingDown className="h-5 w-5 text-red-500" /> Charges du Jour</h3>
-              {todaysExpenses.length > 0 ? (
-                 <ul className="list-disc list-inside space-y-1.5 text-sm text-muted-foreground pl-2">
-                    {todaysExpenses.map(exp => <li key={exp.id}>{exp.name}: <span className="font-medium text-foreground">{formatCurrency(exp.price)} MAD</span></li>)}
-                 </ul>
-               ) : (
-                 <p className="text-sm text-muted-foreground pl-2">Aucune charge prévue aujourd'hui.</p>
-               )}
+               <h3 className="font-semibold flex items-center gap-2 text-lg"><Wallet className="h-5 w-5 text-green-500" /> Solde du Mois</h3>
+                <p className="text-2xl font-bold">{formatCurrency(monthlyBalance)} MAD</p>
+               <p className="text-sm text-muted-foreground">Revenus moins dépenses pour le mois en cours.</p>
             </div>
           </div>
-        )}
       </CardContent>
     </Card>
   );
