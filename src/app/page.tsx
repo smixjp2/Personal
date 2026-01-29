@@ -3,11 +3,13 @@ import { StatsCards } from "@/components/dashboard/stats-cards";
 import { ProgressChart } from "@/components/dashboard/progress-chart";
 import { UpcomingTasks } from "@/components/dashboard/upcoming-tasks";
 import { WeeklyReview } from "@/components/dashboard/weekly-review";
+import { DailyBriefing } from "@/components/dashboard/daily-briefing";
 
 export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <WelcomeBanner />
+      <DailyBriefing />
       <StatsCards />
       <WeeklyReview />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
