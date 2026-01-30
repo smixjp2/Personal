@@ -35,6 +35,12 @@ const statusTranslations: Record<Project['status'], string> = {
     published: "Publié"
 }
 
+const channelLinks = {
+  "The Morroccan Analyst": "https://www.youtube.com/channel/UCK6m2fe2txUxNFxpn65rURg",
+  "The Morroccan CFO": "https://www.youtube.com/@TheMoroccanCFO",
+};
+
+
 export function ProjectDetail({ project }: { project: Project }) {
   const { user } = useUser();
   const firestore = useFirestore();
@@ -43,6 +49,8 @@ export function ProjectDetail({ project }: { project: Project }) {
   const [newObjective, setNewObjective] = useState("");
   const [newIdea, setNewIdea] = useState("");
   const [newLink, setNewLink] = useState({ title: "", url: "" });
+
+  const channelLink = channelLinks[project.channel as keyof typeof channelLinks];
 
   const handleUpdateArrayField = async (field: 'objectives' | 'ideas' | 'links', value: any, action: 'add' | 'remove') => {
       if (!user || !firestore) {
@@ -105,7 +113,15 @@ export function ProjectDetail({ project }: { project: Project }) {
         <div className="flex justify-between items-start gap-4">
             <div className="flex-1">
                 <CardTitle className="text-3xl font-headline ">{project.name}</CardTitle>
-                <Badge variant="secondary" className="mt-2">{project.channel}</Badge>
+                <div className="flex items-center gap-2 mt-2">
+                    <Badge variant="secondary">{project.channel}</Badge>
+                    {channelLink && (
+                        <a href={channelLink} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-muted-foreground hover:text-primary">
+                           <LinkIcon className="h-3 w-3 mr-1" />
+                           Voir la chaîne
+                        </a>
+                    )}
+                </div>
             </div>
             <div className="flex items-center gap-2">
                 <Select onValueChange={updateStatus} value={project.status}>
