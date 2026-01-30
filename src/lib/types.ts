@@ -61,6 +61,18 @@ export type Note = BaseEntity & {
   content: string;
 };
 
+export type Project = BaseEntity & {
+  name: string;
+  description: string;
+  channel: "The Morroccan Analyst" | "The Morroccan CFO" | "Course";
+  status: "idea" | "scripting" | "recording" | "editing" | "published";
+  dueDate?: string;
+  objectives?: string[];
+  ideas?: string[];
+  links?: { title: string; url: string }[];
+};
+
+
 export type { IconName };
 
 

@@ -9,6 +9,7 @@ import {
   Library,
   Landmark,
   Lightbulb,
+  Briefcase,
 } from "lucide-react";
 
 import {
@@ -23,6 +24,7 @@ import {
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/notes", label: "Idées", icon: Lightbulb },
+  { href: "/projects", label: "Projets", icon: Briefcase },
   { href: "/media", label: "Médiathèque", icon: Library },
   { href: "/finances", label: "Finances", icon: Landmark },
 ];
@@ -44,7 +46,7 @@ export function SidebarNav() {
             <SidebarMenuItem key={item.label}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.href}
+                isActive={pathname.startsWith(item.href) && (item.href !== '/' || pathname === '/')}
                 tooltip={item.label}
               >
                 <Link href={item.href}>

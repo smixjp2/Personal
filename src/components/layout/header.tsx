@@ -47,13 +47,20 @@ export function Header() {
     router.push('/login');
   };
 
+  const getTitle = () => {
+    if (pathname.startsWith('/projects/')) {
+        return "Détail du Projet";
+    }
+    return pageTitles[pathname] || "Life Architect";
+  }
+
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6 lg:px-8">
       <div className="md:hidden">
         <SidebarTrigger />
       </div>
       <h1 className="text-xl font-semibold tracking-tight">
-        {pageTitles[pathname] || "Life Architect"}
+        {getTitle()}
       </h1>
 
       <div className="ml-auto flex items-center gap-4">

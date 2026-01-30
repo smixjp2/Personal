@@ -36,7 +36,7 @@
         "price": { "type": "number" },
         "purchased": { "type": "boolean" },
         "purchasedAt": { "type": "string", "format": "date-time" },
-        "category": { "type": "string", "enum": ["groceries", "subscription", "entertainment", "utilities", "shopping", "other"] },
+        "category": { "type": "string", "enum": ["groceries", "subscription", "entertainment", "utilities", "shopping", "transport", "health", "education", "restaurant", "personal_care", "gifts", "other"] },
         "frequency": { "type": "string", "enum": ["one-time", "daily", "monthly", "yearly"] },
         "date": { "type": "string", "format": "date-time" },
         "createdAt": { "type": "string", "format": "date-time" },
@@ -123,6 +123,24 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["content", "createdAt", "updatedAt"]
+    },
+     "Project": {
+      "title": "Project",
+      "description": "A project, course, or digital product to be created.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "channel": { "type": "string", "enum": ["The Morroccan Analyst", "The Morroccan CFO", "Course"] },
+        "status": { "type": "string", "enum": ["idea", "scripting", "recording", "editing", "published"] },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "objectives": { "type": "array", "items": { "type": "string" } },
+        "ideas": { "type": "array", "items": { "type": "string" } },
+        "links": { "type": "array", "items": { "type": "object", "properties": { "title": { "type": "string" }, "url": { "type": "string" } } } }
+      },
+      "required": ["name", "description", "channel", "status", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -160,6 +178,10 @@
     "/users/{userId}/notes/{noteId}": {
       "schema": { "$ref": "#/entities/Note" },
       "description": "Stores user's raw notes and ideas."
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Stores user's content creation projects (videos, courses)."
     }
   }
 }
