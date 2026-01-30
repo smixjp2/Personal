@@ -27,74 +27,6 @@
       },
       "required": ["displayName", "email", "createdAt"]
     },
-    "Habit": {
-      "title": "Habit",
-      "description": "A habit the user wants to track.",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "frequency": { "type": "string", "enum": ["daily", "monthly", "yearly"] },
-        "progress": { "type": "number" },
-        "goal": { "type": "number" },
-        "icon": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["name", "frequency", "icon", "createdAt", "updatedAt"]
-    },
-    "Goal": {
-      "title": "Goal",
-      "description": "A goal the user wants to achieve.",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "category": { "type": "string", "enum": ["personal", "professional"] },
-        "subCategory": { "type": "string", "description": "An optional sub-category for more detailed organization, e.g., 'Voyage', 'Argent', 'Famille'." },
-        "dueDate": { "type": "string", "format": "date-time" },
-        "progress": { "type": "number" },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["name", "description", "category", "dueDate", "createdAt", "updatedAt"]
-    },
-    "Project": {
-      "title": "Project",
-      "description": "A project the user is working on, typically a piece of content like a video or a course.",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "channel": { "type": "string", "enum": ["The Morroccan Analyst", "The Morroccan CFO", "Course"] },
-        "status": { "type": "string", "enum": ["idea", "scripting", "recording", "editing", "published"] },
-        "dueDate": { "type": "string", "format": "date-time" },
-        "objectives": {
-          "type": "array",
-          "items": { "type": "string" },
-          "description": "A list of key objectives or learning points for the content."
-        },
-        "ideas": {
-          "type": "array",
-          "items": { "type": "string" },
-          "description": "A list of ideas to test or explore for the content (e.g., b-roll, angles)."
-        },
-        "links": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "title": { "type": "string" },
-              "url": { "type": "string", "format": "uri" }
-            },
-            "required": ["title", "url"]
-          },
-          "description": "A list of useful links related to the project (e.g., research, inspiration)."
-        },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["name", "description", "channel", "status", "createdAt", "updatedAt"]
-    },
     "ShoppingItem": {
       "title": "Shopping Item",
       "description": "An item in the shopping list.",
@@ -200,18 +132,6 @@
     "/users/{userId}": {
       "schema": { "$ref": "#/entities/UserProfile" },
       "description": "Stores user profile information."
-    },
-    "/users/{userId}/habits/{habitId}": {
-      "schema": { "$ref": "#/entities/Habit" },
-      "description": "Stores user habits."
-    },
-    "/users/{userId}/goals/{goalId}": {
-      "schema": { "$ref": "#/entities/Goal" },
-      "description": "Stores user goals."
-    },
-    "/users/{userId}/projects/{projectId}": {
-      "schema": { "$ref": "#/entities/Project" },
-      "description": "Stores user projects."
     },
     "/users/{userId}/shopping-list/{itemId}": {
       "schema": { "$ref": "#/entities/ShoppingItem" },

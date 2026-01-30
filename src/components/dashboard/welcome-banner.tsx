@@ -13,10 +13,10 @@ export function WelcomeBanner() {
   const today = new Date();
   const greeting =
     today.getHours() < 12
-      ? "Good Morning"
+      ? "Bonjour"
       : today.getHours() < 18
-      ? "Good Afternoon"
-      : "Good Evening";
+      ? "Bon après-midi"
+      : "Bonsoir";
   
   const displayName = user?.displayName?.split(' ')[0] || "Architect";
 
@@ -32,12 +32,12 @@ export function WelcomeBanner() {
           priority
         />
       )}
-      <div className="relative bg-gradient-to-r from-black/70 to-black/30 p-8 md:p-12">
-        <h2 className="text-3xl font-bold text-white font-headline">
+      <div className="relative bg-gradient-to-r from-primary/70 via-primary/50 to-transparent p-8 md:p-12">
+        <h2 className="text-4xl font-bold text-white font-headline">
           {greeting}, {displayName}!
         </h2>
         <p className="mt-2 max-w-lg text-lg text-white/90">
-          {"Ready to architect your day? Let's make things happen."}
+          {"Prêt à architecturer votre journée ? C'est parti."}
         </p>
       </div>
     </div>

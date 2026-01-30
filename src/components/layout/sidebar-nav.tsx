@@ -4,12 +4,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  CheckSquare,
   LayoutDashboard,
-  Target,
   Bot,
   Library,
-  Briefcase,
   Landmark,
   Lightbulb,
 } from "lucide-react";
@@ -25,9 +22,6 @@ import {
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/habits", label: "Habits", icon: CheckSquare },
-  { href: "/goals", label: "Goals", icon: Target },
-  { href: "/projects", label: "Projets", icon: Briefcase },
   { href: "/notes", label: "Idées", icon: Lightbulb },
   { href: "/media", label: "Médiathèque", icon: Library },
   { href: "/finances", label: "Finances", icon: Landmark },

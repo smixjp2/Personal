@@ -4,13 +4,10 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useUser } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import type { Habit, Goal, ShoppingItem, WatchlistItem, Book, Project, Income, SavingGoal, Investment, Note } from '@/lib/types';
+import type { ShoppingItem, WatchlistItem, Book, Income, SavingGoal, Investment, Note } from '@/lib/types';
 
 interface DataContextType {
   isInitialized: boolean;
-  habits: Habit[];
-  goals: Goal[];
-  projects: Project[];
   shoppingList: ShoppingItem[];
   watchlist: WatchlistItem[];
   readingList: Book[];
@@ -25,15 +22,6 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export function DataProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
 
-  const { data: habits, isLoading: loadingHabits } = useCollection<Habit>(
-    user ? `users/${user.uid}/habits` : null
-  );
-  const { data: goals, isLoading: loadingGoals } = useCollection<Goal>(
-    user ? `users/${user.uid}/goals` : null
-  );
-  const { data: projects, isLoading: loadingProjects } = useCollection<Project>(
-    user ? `users/${user.uid}/projects` : null
-  );
   const { data: shoppingList, isLoading: loadingShopping } = useCollection<ShoppingItem>(
     user ? `users/${user.uid}/shopping-list` : null
   );
@@ -56,13 +44,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     user ? `users/${user.uid}/notes` : null
   );
   
-  const isInitialized = !loadingHabits && !loadingGoals && !loadingShopping && !loadingWatchlist && !loadingReading && !loadingProjects && !loadingIncome && !loadingSavingGoals && !loadingInvestments && !loadingNotes;
+  const isInitialized = !loadingShopping && !loadingWatchlist && !loadingReading && !loadingIncome && !loadingSavingGoals && !loadingInvestments && !loadingNotes;
 
   const value: DataContextType = {
     isInitialized,
-    habits: habits || [],
-    goals: goals || [],
-    projects: projects || [],
     shoppingList: shoppingList || [],
     watchlist: watchlist || [],
     readingList: readingList || [],

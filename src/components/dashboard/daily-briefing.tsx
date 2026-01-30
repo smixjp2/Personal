@@ -2,19 +2,17 @@
 
 import { useData } from '@/contexts/data-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Target, Wallet, Sun } from 'lucide-react';
-import { format, isToday, parseISO, startOfMonth, endOfMonth, isWithinInterval, getDaysInMonth } from 'date-fns';
+import { Wallet, Sun } from 'lucide-react';
+import { format, startOfMonth, endOfMonth, isWithinInterval, getDaysInMonth, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/utils';
 import { useMemo } from 'react';
 
 export function DailyBriefing() {
-  const { isInitialized, goals, shoppingList, income } = useData();
+  const { isInitialized, shoppingList, income } = useData();
 
   const today = new Date();
-
-  const activeGoals = goals.filter(g => g.progress < 100);
 
   const monthlyBalance = useMemo(() => {
     if (!isInitialized) return 0;
@@ -79,7 +77,7 @@ export function DailyBriefing() {
                 <Skeleton className="h-4 w-1/2" />
             </CardHeader>
             <CardContent>
-                <Skeleton className="h-40 w-full" />
+                <Skeleton className="h-24 w-full" />
             </CardContent>
         </Card>
     );
@@ -97,25 +95,11 @@ export function DailyBriefing() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-            <div className="space-y-3">
-              <h3 className="font-semibold flex items-center gap-2 text-lg"><Target className="h-5 w-5 text-primary" /> Objectifs Actifs</h3>
-               {activeGoals.length > 0 ? (
-                <ul className="list-disc list-inside space-y-1.5 text-sm text-muted-foreground pl-2">
-                  {activeGoals.slice(0, 3).map(goal => <li key={goal.id}>{goal.name} ({goal.progress}%)</li>)}
-                   {activeGoals.length > 3 && <li className="font-medium">et {activeGoals.length - 3} autre(s)...</li>}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted-foreground pl-2">Aucun objectif en cours.</p>
-              )}
-            </div>
-            
-            <div className="space-y-3">
-               <h3 className="font-semibold flex items-center gap-2 text-lg"><Wallet className="h-5 w-5 text-green-500" /> Solde du Mois</h3>
-                <p className="text-2xl font-bold">{formatCurrency(monthlyBalance)} MAD</p>
-               <p className="text-sm text-muted-foreground">Revenus moins dépenses pour le mois en cours.</p>
-            </div>
-          </div>
+        <div className="space-y-3">
+           <h3 className="font-semibold flex items-center gap-2 text-lg"><Wallet className="h-5 w-5 text-green-500" /> Solde du Mois</h3>
+            <p className="text-3xl font-bold">{formatCurrency(monthlyBalance)} MAD</p>
+           <p className="text-sm text-muted-foreground">Revenus moins dépenses pour le mois en cours.</p>
+        </div>
       </CardContent>
     </Card>
   );
