@@ -94,22 +94,6 @@
       },
       "required": ["name", "status", "createdAt", "updatedAt"]
     },
-    "Task": {
-      "title": "Task",
-      "description": "A single task item.",
-      "type": "object",
-      "properties": {
-        "title": { "type": "string" },
-        "completed": { "type": "boolean" },
-        "dueDate": { "type": "string", "format": "date-time" },
-        "priority": { "type": "string", "enum": ["low", "medium", "high"] },
-        "goalId": { "type": "string" },
-        "projectId": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["title", "completed", "dueDate", "createdAt", "updatedAt"]
-    },
     "ShoppingItem": {
       "title": "Shopping Item",
       "description": "An item in the shopping list.",
@@ -227,10 +211,6 @@
     "/users/{userId}/projects/{projectId}": {
       "schema": { "$ref": "#/entities/Project" },
       "description": "Stores user projects."
-    },
-    "/users/{userId}/tasks/{taskId}": {
-      "schema": { "$ref": "#/entities/Task" },
-      "description": "Stores user tasks."
     },
     "/users/{userId}/shopping-list/{itemId}": {
       "schema": { "$ref": "#/entities/ShoppingItem" },

@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -31,8 +30,6 @@ const pageTitles: { [key: string]: string } = {
   "/habits": "Habit Tracker",
   "/goals": "Goal Management",
   "/projects": "Projets",
-  "/tasks": "Task Inbox",
-  "/calendar": "Calendar",
   "/media": "Médiathèque",
   "/finances": "Finances",
   "/notes": "Boîte à idées",
@@ -79,7 +76,7 @@ export function Header() {
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">Notifications</h4>
                 <p className="text-sm text-muted-foreground">
-                  You have 2 new messages.
+                  You have 1 new message.
                 </p>
               </div>
               <div className="grid gap-2">
@@ -89,15 +86,6 @@ export function Header() {
                     <p className="text-sm font-medium">Goal Update</p>
                     <p className="text-sm text-muted-foreground">
                       You are 80% to completing "Advanced React Course"!
-                    </p>
-                  </div>
-                </div>
-                 <div className="grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0">
-                  <span className="flex h-2 w-2 translate-y-1 rounded-full bg-primary" />
-                  <div className="grid gap-1">
-                    <p className="text-sm font-medium">New Task</p>
-                    <p className="text-sm text-muted-foreground">
-                      AI suggests a new task for "Project Phoenix".
                     </p>
                   </div>
                 </div>

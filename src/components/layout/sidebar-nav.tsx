@@ -4,10 +4,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Calendar,
   CheckSquare,
   LayoutDashboard,
-  ListTodo,
   Target,
   Bot,
   Library,
@@ -30,9 +28,7 @@ const navItems = [
   { href: "/habits", label: "Habits", icon: CheckSquare },
   { href: "/goals", label: "Goals", icon: Target },
   { href: "/projects", label: "Projets", icon: Briefcase },
-  { href: "/tasks", label: "Tasks", icon: ListTodo },
   { href: "/notes", label: "Idées", icon: Lightbulb },
-  { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/media", label: "Médiathèque", icon: Library },
   { href: "/finances", label: "Finances", icon: Landmark },
 ];

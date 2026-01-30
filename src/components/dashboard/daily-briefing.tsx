@@ -2,7 +2,7 @@
 
 import { useData } from '@/contexts/data-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ListTodo, Target, Wallet, Sun } from 'lucide-react';
+import { Target, Wallet, Sun } from 'lucide-react';
 import { format, isToday, parseISO, startOfMonth, endOfMonth, isWithinInterval, getDaysInMonth } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,11 +10,10 @@ import { formatCurrency } from '@/lib/utils';
 import { useMemo } from 'react';
 
 export function DailyBriefing() {
-  const { isInitialized, tasks, goals, shoppingList, income } = useData();
+  const { isInitialized, goals, shoppingList, income } = useData();
 
   const today = new Date();
 
-  const todaysTasks = tasks.filter(t => !t.completed && t.dueDate && isToday(parseISO(t.dueDate)));
   const activeGoals = goals.filter(g => g.progress < 100);
 
   const monthlyBalance = useMemo(() => {
@@ -98,19 +97,7 @@ export function DailyBriefing() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
-            
-            <div className="space-y-3">
-              <h3 className="font-semibold flex items-center gap-2 text-lg"><ListTodo className="h-5 w-5 text-primary" /> Tâches du Jour</h3>
-              {todaysTasks.length > 0 ? (
-                <ul className="list-disc list-inside space-y-1.5 text-sm text-muted-foreground pl-2">
-                  {todaysTasks.map(task => <li key={task.id}>{task.title}</li>)}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted-foreground pl-2">Aucune tâche pour aujourd'hui. Bravo !</p>
-              )}
-            </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             <div className="space-y-3">
               <h3 className="font-semibold flex items-center gap-2 text-lg"><Target className="h-5 w-5 text-primary" /> Objectifs Actifs</h3>
                {activeGoals.length > 0 ? (

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useData } from '@/contexts/data-context';
-import { isWithinInterval, addDays, subDays, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Wand2, Star, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -19,7 +18,7 @@ import type { WeeklyReviewOutput } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
 
 export function WeeklyReview() {
-  const { isInitialized, tasks, habits, goals, projects } = useData();
+  const { isInitialized, habits, goals, projects } = useData();
   const [isGenerating, setIsGenerating] = useState(false);
   const [review, setReview] = useState<WeeklyReviewOutput | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -29,24 +28,10 @@ export function WeeklyReview() {
     setIsGenerating(true);
 
     try {
-      const today = new Date();
-      const lastWeekStart = startOfDay(subDays(today, 7));
-      const nextWeekEnd = startOfDay(addDays(today, 7));
-
-      const completedTasks = tasks.filter(t => 
-        t.completed && t.updatedAt && typeof t.updatedAt === 'string' && isWithinInterval(new Date(t.updatedAt), { start: lastWeekStart, end: today })
-      );
-
-      const upcomingTasks = tasks.filter(t => 
-        !t.completed && isWithinInterval(new Date(t.dueDate), { start: today, end: nextWeekEnd })
-      );
-
       const reviewData = {
-        completedTasks: completedTasks.map(({ title, completed }) => ({ title, completed })),
         activeHabits: habits.map(({ name, progress, frequency }) => ({ name, progress, frequency })),
         goals: goals.map(({ name, progress }) => ({ name, progress })),
         projects: projects.map(({ name, status }) => ({ name, status })),
-        upcomingTasks: upcomingTasks.map(({ title, completed }) => ({ title, completed })),
       };
 
       const result = await generateWeeklyReview(reviewData);

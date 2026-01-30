@@ -4,14 +4,13 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useUser } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import type { Habit, Goal, Task, ShoppingItem, WatchlistItem, Book, Project, Income, SavingGoal, Investment, Note } from '@/lib/types';
+import type { Habit, Goal, ShoppingItem, WatchlistItem, Book, Project, Income, SavingGoal, Investment, Note } from '@/lib/types';
 
 interface DataContextType {
   isInitialized: boolean;
   habits: Habit[];
   goals: Goal[];
   projects: Project[];
-  tasks: Task[];
   shoppingList: ShoppingItem[];
   watchlist: WatchlistItem[];
   readingList: Book[];
@@ -35,9 +34,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const { data: projects, isLoading: loadingProjects } = useCollection<Project>(
     user ? `users/${user.uid}/projects` : null
   );
-  const { data: tasks, isLoading: loadingTasks } = useCollection<Task>(
-    user ? `users/${user.uid}/tasks` : null
-  );
   const { data: shoppingList, isLoading: loadingShopping } = useCollection<ShoppingItem>(
     user ? `users/${user.uid}/shopping-list` : null
   );
@@ -60,14 +56,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     user ? `users/${user.uid}/notes` : null
   );
   
-  const isInitialized = !loadingHabits && !loadingGoals && !loadingTasks && !loadingShopping && !loadingWatchlist && !loadingReading && !loadingProjects && !loadingIncome && !loadingSavingGoals && !loadingInvestments && !loadingNotes;
+  const isInitialized = !loadingHabits && !loadingGoals && !loadingShopping && !loadingWatchlist && !loadingReading && !loadingProjects && !loadingIncome && !loadingSavingGoals && !loadingInvestments && !loadingNotes;
 
   const value: DataContextType = {
     isInitialized,
     habits: habits || [],
     goals: goals || [],
     projects: projects || [],
-    tasks: tasks || [],
     shoppingList: shoppingList || [],
     watchlist: watchlist || [],
     readingList: readingList || [],

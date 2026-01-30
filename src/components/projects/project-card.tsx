@@ -15,11 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
 import { Calendar } from "lucide-react";
-import { useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useData } from "@/contexts/data-context";
 import { useFirestore, useUser } from "@/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import Link from "next/link";
@@ -33,18 +30,9 @@ const statusTranslations: Record<Project['status'], string> = {
 }
 
 export function ProjectCard({ project }: { project: Project }) {
-  const { tasks } = useData();
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-
-  const projectTasks = useMemo(() => tasks.filter(t => t.projectId === project.id), [tasks, project.id]);
-
-  const progress = useMemo(() => {
-    if (projectTasks.length === 0) return 0;
-    const completedTasks = projectTasks.filter((t) => t.completed).length;
-    return Math.round((completedTasks / projectTasks.length) * 100);
-  }, [projectTasks]);
 
   const updateStatus = async (status: Project['status']) => {
     if (!user || !firestore) return;
@@ -84,13 +72,6 @@ export function ProjectCard({ project }: { project: Project }) {
                     <span>Échéance: {new Date(project.dueDate).toLocaleDateString()}</span>
                 </div>
             )}
-            <div className="space-y-2">
-            <div className="flex justify-between items-center">
-                <p className="text-sm font-medium">Progression des tâches</p>
-                <p className="text-sm font-bold text-primary">{progress}%</p>
-            </div>
-            <Progress value={progress} />
-            </div>
         </CardContent>
         </Card>
     </Link>
