@@ -96,9 +96,7 @@ export function ProjectBoard() {
                   .filter((p) => p.channel === column.id)
                   .sort((a, b) => new Date(a.createdAt as string).getTime() - new Date(b.createdAt as string).getTime())
                   .map((project) => (
-                    <div key={project.id}>
-                        <ProjectCard project={project} />
-                    </div>
+                    <ProjectCard key={project.id} project={project} />
                   ))}
               </div>
             </div>
