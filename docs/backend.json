@@ -49,7 +49,7 @@
       "properties": {
         "name": { "type": "string" },
         "description": { "type": "string" },
-        "category": { "type": "string", "enum": ["personal", "professional", "course"] },
+        "category": { "type": "string", "enum": ["personal", "professional"] },
         "subCategory": { "type": "string", "description": "An optional sub-category for more detailed organization, e.g., 'Voyage', 'Argent', 'Famille'." },
         "dueDate": { "type": "string", "format": "date-time" },
         "progress": { "type": "number" },

@@ -19,7 +19,7 @@ export type Habit = BaseEntity & {
 export type Goal = BaseEntity & {
   name: string;
   description: string;
-  category: "personal" | "professional" | "course";
+  category: "personal" | "professional";
   subCategory?: string;
   dueDate: string;
   progress: number;

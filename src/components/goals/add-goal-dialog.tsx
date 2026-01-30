@@ -38,7 +38,7 @@ import type { Goal } from "@/lib/types";
 const goalSchema = z.object({
   name: z.string().min(3, "Le nom de l'objectif doit être d'au moins 3 caractères."),
   description: z.string().min(10, "La description est trop courte.").max(200, "La description est trop longue."),
-  category: z.enum(["personal", "professional", "course"]),
+  category: z.enum(["personal", "professional"]),
   subCategory: z.string().optional(),
   dueDay: z.string().min(1, "Le jour est requis.").max(2, "Jour invalide."),
   dueMonth: z.string().min(1, "Le mois est requis.").max(2, "Mois invalide."),
@@ -134,7 +134,6 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
                       <SelectContent>
                       <SelectItem value="personal">Personal</SelectItem>
                       <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="course">Course</SelectItem>
                       </SelectContent>
                   </Select>
                   <FormMessage />
@@ -149,7 +148,7 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
                 <FormItem>
                   <FormLabel>Sous-catégorie (Optionnel)</FormLabel>
                   <FormControl>
-                    <Input placeholder="ex: Voyage, Argent, Famille..." {...field} value={field.value ?? ''} />
+                    <Input placeholder="ex: Plan de voyage, Relations..." {...field} value={field.value ?? ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

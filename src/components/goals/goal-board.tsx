@@ -19,7 +19,6 @@ const columns: {
 }[] = [
   { id: "personal", title: "Personal" },
   { id: "professional", title: "Professional" },
-  { id: "course", title: "Courses" },
 ];
 
 export function GoalBoard() {
@@ -132,7 +131,7 @@ export function GoalBoard() {
         </AddGoalDialog>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <AnimatePresence>
           {columns.map((column) => (
             <div key={column.id} className="rounded-xl bg-card/50 p-4">
