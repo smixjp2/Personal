@@ -5,7 +5,6 @@ import type { Project } from "@/lib/types";
 import { ProjectCard } from "./project-card";
 import { AddProjectDialog } from "./add-project-dialog";
 import { Plus } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
 import { Skeleton } from "../ui/skeleton";
 import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from 'uuid';
@@ -87,7 +86,6 @@ export function ProjectBoard() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <AnimatePresence>
           {columns.map((column) => (
             <div key={column.id} className="rounded-xl bg-card/50 p-4">
               <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
@@ -98,14 +96,13 @@ export function ProjectBoard() {
                   .filter((p) => p.channel === column.id)
                   .sort((a, b) => new Date(a.createdAt as string).getTime() - new Date(b.createdAt as string).getTime())
                   .map((project) => (
-                    <motion.div key={project.id} layout>
+                    <div key={project.id}>
                         <ProjectCard project={project} />
-                    </motion.div>
+                    </div>
                   ))}
               </div>
             </div>
           ))}
-        </AnimatePresence>
       </div>
     </div>
   );
