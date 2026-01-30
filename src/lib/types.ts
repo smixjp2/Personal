@@ -28,7 +28,7 @@ export type Goal = BaseEntity & {
 export type Project = BaseEntity & {
   name: string;
   description: string;
-  channel?: "The Morroccan Analyst" | "The Morroccan CFO" | "Course";
+  channel: "The Morroccan Analyst" | "The Morroccan CFO" | "Course";
   status: "idea" | "scripting" | "recording" | "editing" | "published";
   dueDate?: string;
   objectives?: string[];

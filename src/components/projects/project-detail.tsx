@@ -80,7 +80,7 @@ export function ProjectDetail({ project }: { project: Project }) {
     }
   };
 
-  const editProject = async (updatedData: { name: string; description: string; channel?: "The Morroccan Analyst" | "The Morroccan CFO" | "Course", dueDate?: string }) => {
+  const editProject = async (updatedData: { name: string; description: string; channel: "The Morroccan Analyst" | "The Morroccan CFO" | "Course", dueDate?: string }) => {
     if (!user || !firestore) return;
     const projectRef = doc(firestore, "users", user.uid, "projects", project.id);
     const dataToUpdate: any = {
@@ -105,7 +105,7 @@ export function ProjectDetail({ project }: { project: Project }) {
         <div className="flex justify-between items-start gap-4">
             <div className="flex-1">
                 <CardTitle className="text-3xl font-headline ">{project.name}</CardTitle>
-                {project.channel && <Badge variant="secondary" className="mt-2">{project.channel}</Badge>}
+                <Badge variant="secondary" className="mt-2">{project.channel}</Badge>
             </div>
             <div className="flex items-center gap-2">
                 <Select onValueChange={updateStatus} value={project.status}>

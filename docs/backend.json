@@ -60,22 +60,23 @@
     },
     "Project": {
       "title": "Project",
-      "description": "A project the user is working on.",
+      "description": "A project the user is working on, typically a piece of content like a video or a course.",
       "type": "object",
       "properties": {
         "name": { "type": "string" },
         "description": { "type": "string" },
-        "status": { "type": "string", "enum": ["idea", "in-progress"] },
+        "channel": { "type": "string", "enum": ["The Morroccan Analyst", "The Morroccan CFO", "Course"] },
+        "status": { "type": "string", "enum": ["idea", "scripting", "recording", "editing", "published"] },
         "dueDate": { "type": "string", "format": "date-time" },
         "objectives": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "A list of key objectives for the project."
+          "description": "A list of key objectives or learning points for the content."
         },
         "ideas": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "A list of ideas to test or explore for the project."
+          "description": "A list of ideas to test or explore for the content (e.g., b-roll, angles)."
         },
         "links": {
           "type": "array",
@@ -87,12 +88,12 @@
             },
             "required": ["title", "url"]
           },
-          "description": "A list of useful links related to the project."
+          "description": "A list of useful links related to the project (e.g., research, inspiration)."
         },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["name", "status", "createdAt", "updatedAt"]
+      "required": ["name", "description", "channel", "status", "createdAt", "updatedAt"]
     },
     "ShoppingItem": {
       "title": "Shopping Item",
