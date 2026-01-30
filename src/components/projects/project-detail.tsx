@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Project } from "@/lib/types";
@@ -147,15 +148,15 @@ export function ProjectDetail({ project }: { project: Project }) {
       <CardContent className="flex-grow">
         <Tabs defaultValue="objectives" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="objectives"><CheckSquare className="mr-2 h-4 w-4" />Objectifs</TabsTrigger>
-              <TabsTrigger value="ideas"><Lightbulb className="mr-2 h-4 w-4" />Idées</TabsTrigger>
-              <TabsTrigger value="links"><LinkIcon className="mr-2 h-4 w-4" />Liens</TabsTrigger>
+              <TabsTrigger value="objectives"><CheckSquare className="mr-2 h-4 w-4" />Sujets Clés</TabsTrigger>
+              <TabsTrigger value="ideas"><Lightbulb className="mr-2 h-4 w-4" />Idées & Notes</TabsTrigger>
+              <TabsTrigger value="links"><LinkIcon className="mr-2 h-4 w-4" />Ressources & Liens</TabsTrigger>
           </TabsList>
           
           <TabsContent value="objectives" className="mt-6 space-y-4">
-              <h3 className="text-xl font-semibold">Objectifs Clés</h3>
+              <h3 className="text-xl font-semibold">Sujets Clés</h3>
               <div className="flex items-center space-x-2">
-                  <Input placeholder="Ajouter un objectif..." value={newObjective} onChange={(e) => setNewObjective(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateArrayField('objectives', newObjective, 'add')} />
+                  <Input placeholder="Ajouter un sujet clé..." value={newObjective} onChange={(e) => setNewObjective(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateArrayField('objectives', newObjective, 'add')} />
                   <Button onClick={() => handleUpdateArrayField('objectives', newObjective, 'add')} disabled={!newObjective.trim()}>Ajouter</Button>
               </div>
               <ul className="space-y-2 pt-2">
@@ -169,15 +170,15 @@ export function ProjectDetail({ project }: { project: Project }) {
                       </li>
                     ))
                   ) : (
-                    <p className="text-center text-muted-foreground pt-4">Aucun objectif défini pour ce projet.</p>
+                    <p className="text-center text-muted-foreground pt-4">Aucun sujet clé défini pour ce projet.</p>
                   )}
               </ul>
           </TabsContent>
 
           <TabsContent value="ideas" className="mt-6 space-y-4">
-              <h3 className="text-xl font-semibold">Idées & Brainstorming</h3>
+              <h3 className="text-xl font-semibold">Idées & Notes</h3>
               <div className="flex items-center space-x-2">
-                  <Input placeholder="Noter une nouvelle idée (ex: angle, b-roll)..." value={newIdea} onChange={(e) => setNewIdea(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateArrayField('ideas', newIdea, 'add')} />
+                  <Input placeholder="Noter une idée ou une note..." value={newIdea} onChange={(e) => setNewIdea(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateArrayField('ideas', newIdea, 'add')} />
                   <Button onClick={() => handleUpdateArrayField('ideas', newIdea, 'add')} disabled={!newIdea.trim()}>Ajouter</Button>
               </div>
               <ul className="space-y-2 pt-2">
@@ -191,13 +192,13 @@ export function ProjectDetail({ project }: { project: Project }) {
                       </li>
                     ))
                   ) : (
-                    <p className="text-center text-muted-foreground pt-4">Aucune idée enregistrée pour ce projet.</p>
+                    <p className="text-center text-muted-foreground pt-4">Aucune idée ou note enregistrée pour ce projet.</p>
                   )}
               </ul>
           </TabsContent>
 
           <TabsContent value="links" className="mt-6 space-y-4">
-              <h3 className="text-xl font-semibold">Liens & Ressources</h3>
+              <h3 className="text-xl font-semibold">Ressources & Liens</h3>
               <div className="space-y-2 rounded-lg border p-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
@@ -225,7 +226,7 @@ export function ProjectDetail({ project }: { project: Project }) {
                       </li>
                     ))
                   ) : (
-                    <p className="text-center text-muted-foreground pt-4">Aucune ressource enregistrée pour ce projet.</p>
+                    <p className="text-center text-muted-foreground pt-4">Aucune ressource ou lien enregistré pour ce projet.</p>
                   )}
               </ul>
           </TabsContent>

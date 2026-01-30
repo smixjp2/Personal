@@ -69,7 +69,6 @@ export function ProjectCard({ project }: { project: Project }) {
         </CardHeader>
         <CardContent className="flex-grow flex flex-col justify-end pt-4 space-y-2">
            <div className="flex items-center justify-between text-sm">
-                <Badge variant="outline">{project.channel}</Badge>
                 {project.dueDate && (
                     <div className="flex items-center text-muted-foreground">
                         <Calendar className="mr-1.5 h-4 w-4" />
