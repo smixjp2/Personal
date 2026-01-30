@@ -13,13 +13,23 @@ import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { doc, setDoc } from "firebase/firestore";
 
+const statusTranslations: Record<Project['status'], string> = {
+    idea: "Idée",
+    scripting: "Script",
+    recording: "Tournage",
+    editing: "Montage",
+    published: "Publié"
+}
+
 const columns: {
-  id: Project["channel"];
+  id: Project["status"];
   title: string;
 }[] = [
-  { id: "The Morroccan Analyst", title: "The Morroccan Analyst" },
-  { id: "The Morroccan CFO", title: "The Morroccan CFO" },
-  { id: "Course", title: "Formations" },
+  { id: "idea", title: "Idées" },
+  { id: "scripting", title: "Script" },
+  { id: "recording", title: "Tournage" },
+  { id: "editing", title: "Montage" },
+  { id: "published", title: "Publié" },
 ];
 
 export function ProjectBoard() {
@@ -55,10 +65,10 @@ export function ProjectBoard() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold font-headline">Tableau de Production</h1>
+                <h1 className="text-3xl font-bold font-headline">Pipeline de Contenu</h1>
                 <Skeleton className="h-10 w-40" />
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
                 {columns.map(column => (
                     <div key={column.id} className="rounded-xl bg-card/50 p-4">
                         <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
@@ -78,7 +88,7 @@ export function ProjectBoard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-headline">Tableau de Production</h1>
+        <h1 className="text-3xl font-bold font-headline">Pipeline de Contenu</h1>
         <AddProjectDialog onAddProject={addProject}>
             <button className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-colors hover:bg-primary/90">
                 <Plus className="h-4 w-4" /> Ajouter un Contenu
@@ -86,7 +96,7 @@ export function ProjectBoard() {
         </AddProjectDialog>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
         <AnimatePresence>
           {columns.map((column) => (
             <div key={column.id} className="rounded-xl bg-card/50 p-4">
@@ -95,7 +105,8 @@ export function ProjectBoard() {
               </h2>
               <div className="space-y-4">
                 {projects
-                  .filter((p) => p.channel === column.id)
+                  .filter((p) => p.status === column.id)
+                  .sort((a, b) => new Date(a.createdAt as string).getTime() - new Date(b.createdAt as string).getTime())
                   .map((project) => (
                     <motion.div key={project.id} layout>
                         <ProjectCard project={project} />

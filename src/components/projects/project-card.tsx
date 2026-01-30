@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Project } from "@/lib/types";
@@ -20,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useUser } from "@/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 const statusTranslations: Record<Project['status'], string> = {
     idea: "Idée",
@@ -65,13 +67,16 @@ export function ProjectCard({ project }: { project: Project }) {
             </CardTitle>
             <CardDescription className="line-clamp-2">{project.description}</CardDescription>
         </CardHeader>
-        <CardContent className="flex-grow space-y-4">
-            {project.dueDate && (
-                <div className="flex items-center text-sm text-muted-foreground">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    <span>Échéance: {new Date(project.dueDate).toLocaleDateString()}</span>
-                </div>
-            )}
+        <CardContent className="flex-grow flex flex-col justify-end pt-4 space-y-2">
+           <div className="flex items-center justify-between text-sm">
+                <Badge variant="outline">{project.channel}</Badge>
+                {project.dueDate && (
+                    <div className="flex items-center text-muted-foreground">
+                        <Calendar className="mr-1.5 h-4 w-4" />
+                        <span>{new Date(project.dueDate).toLocaleDateString()}</span>
+                    </div>
+                )}
+            </div>
         </CardContent>
         </Card>
     </Link>
