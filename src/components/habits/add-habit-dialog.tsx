@@ -35,11 +35,13 @@ import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import type { Habit } from "@/lib/types";
 import { iconMap, iconNames } from "./habit-icons";
+import { useData } from "@/contexts/data-context";
 
 const habitSchema = z.object({
   name: z.string().min(2, "Le nom doit comporter au moins 2 caractères."),
   frequency: z.enum(["daily", "monthly", "yearly"]),
   icon: z.enum(iconNames),
+  goalId: z.string().optional(),
 });
 
 type AddHabitDialogProps = {
@@ -48,17 +50,23 @@ type AddHabitDialogProps = {
 
 export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { goals } = useData();
   const form = useForm<z.infer<typeof habitSchema>>({
     resolver: zodResolver(habitSchema),
     defaultValues: {
       name: "",
       frequency: "daily",
       icon: "Wind",
+      goalId: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof habitSchema>) {
-    onAddHabit(values);
+    const dataToSend: any = { ...values };
+    if (!values.goalId) {
+      delete dataToSend.goalId;
+    }
+    onAddHabit(dataToSend);
     form.reset();
     setIsOpen(false);
   }
@@ -108,6 +116,29 @@ export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
                       <SelectItem value="daily">Quotidienne</SelectItem>
                       <SelectItem value="monthly">Mensuelle</SelectItem>
                       <SelectItem value="yearly">Annuelle</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="goalId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lier à un Objectif (Optionnel)</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Aucun objectif lié" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">Aucun</SelectItem>
+                      {goals.map((goal) => (
+                        <SelectItem key={goal.id} value={goal.id}>{goal.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

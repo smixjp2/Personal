@@ -34,11 +34,13 @@ import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import type { Habit, IconName } from "@/lib/types";
 import { iconMap, iconNames } from "./habit-icons";
+import { useData } from "@/contexts/data-context";
 
 const habitSchema = z.object({
   name: z.string().min(2, "Le nom doit comporter au moins 2 caractères."),
   frequency: z.enum(["daily", "monthly", "yearly"]),
   icon: z.enum(iconNames),
+  goalId: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof habitSchema>;
@@ -51,12 +53,14 @@ type EditHabitDialogProps = {
 
 export function EditHabitDialog({ habit, onEditHabit, children }: EditHabitDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { goals } = useData();
   const form = useForm<FormValues>({
     resolver: zodResolver(habitSchema),
     defaultValues: {
       name: habit.name,
       frequency: habit.frequency,
       icon: habit.icon,
+      goalId: habit.goalId || "",
     },
   });
 
@@ -106,6 +110,29 @@ export function EditHabitDialog({ habit, onEditHabit, children }: EditHabitDialo
                       <SelectItem value="daily">Quotidienne</SelectItem>
                       <SelectItem value="monthly">Mensuelle</SelectItem>
                       <SelectItem value="yearly">Annuelle</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="goalId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lier à un Objectif (Optionnel)</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Aucun objectif lié" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">Aucun</SelectItem>
+                      {goals.map((goal) => (
+                        <SelectItem key={goal.id} value={goal.id}>{goal.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

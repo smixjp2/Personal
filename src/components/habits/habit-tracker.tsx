@@ -16,17 +16,17 @@ import { Progress } from "@/components/ui/progress";
 import { AnimatePresence, motion } from "framer-motion";
 import { iconMap } from "./habit-icons";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, Target } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
 import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
 import { EditHabitDialog } from "./edit-habit-dialog";
 
 export function HabitTracker() {
-  const { habits, isInitialized } = useData();
+  const { habits, goals, isInitialized } = useData();
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -47,17 +47,29 @@ export function HabitTracker() {
     try {
       await setDoc(doc(firestore, "users", user.uid, "habits", newHabit.id), newHabit);
     } catch(error: any) {
-      toast({ variant: "destructive", title: "Erreur Firebase", description: error.message || "Impossible de sauvegarder la nouvelle habitude." });
+      toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Impossible de sauvegarder la nouvelle habitude." });
     }
   };
 
-  const editHabit = async (habitId: string, updatedData: { name: string; frequency: "daily" | "monthly" | "yearly"; icon: IconName; }) => {
+  const editHabit = async (habitId: string, updatedData: { name: string; frequency: "daily" | "monthly" | "yearly"; icon: IconName; goalId?: string; }) => {
     if (!user || !firestore) {
       toast({ variant: "destructive", title: "Erreur d'authentification" });
       return;
     }
+    
+    const dataToUpdate: any = {
+      ...updatedData,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (updatedData.goalId) {
+      dataToUpdate.goalId = updatedData.goalId;
+    } else {
+      dataToUpdate.goalId = deleteField();
+    }
+
     try {
-      await updateDoc(doc(firestore, "users", user.uid, "habits", habitId), { ...updatedData, updatedAt: new Date().toISOString() });
+      await updateDoc(doc(firestore, "users", user.uid, "habits", habitId), dataToUpdate);
     } catch (error: any) {
       toast({ variant: "destructive", title: "Erreur Firebase", description: error.message || "Impossible de mettre à jour l'habitude." });
     }
@@ -133,6 +145,7 @@ export function HabitTracker() {
     progress: 0,
     goal: 1,
     link: 'https://learn.corporatefinanceinstitute.com/dashboard',
+    goalId: 'static-fmva-goal',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -144,6 +157,7 @@ export function HabitTracker() {
     frequency: 'daily',
     progress: 0,
     goal: 1,
+    goalId: 'static-learning-goal',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -171,6 +185,8 @@ export function HabitTracker() {
         <AnimatePresence>
         {filteredHabits.map((habit, index) => {
           const Icon = iconMap[habit.icon];
+          const linkedGoal = habit.goalId ? goals.find(g => g.id === habit.goalId) : null;
+
           return (
           <motion.li
             key={habit.id}
@@ -184,13 +200,21 @@ export function HabitTracker() {
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Icon className="h-5 w-5 text-primary" />
-                {habit.link ? (
-                    <a href={habit.link} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">
-                      {habit.name}
-                    </a>
-                  ) : (
-                    <span className="font-medium">{habit.name}</span>
-                  )}
+                <div>
+                    {habit.link ? (
+                        <a href={habit.link} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">
+                        {habit.name}
+                        </a>
+                    ) : (
+                        <span className="font-medium">{habit.name}</span>
+                    )}
+                    {linkedGoal && (
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                            <Target className="h-3 w-3" />
+                            <span>{linkedGoal.name}</span>
+                        </div>
+                    )}
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 {habit.frequency === "daily" ? (
