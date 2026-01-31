@@ -34,7 +34,6 @@ const pageTitles: { [key: string]: string } = {
   "/goals": "Objectifs 2026",
   "/goals/personal": "Objectifs Personnels",
   "/goals/professional": "Objectifs Professionnels",
-  "/creation": "Création de Contenu",
 };
 
 export function Header() {
