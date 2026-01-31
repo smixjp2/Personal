@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useData } from '@/contexts/data-context';
 import { useUser, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
-import { doc, setDoc, deleteDoc, updateDoc, writeBatch, runTransaction } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import type { Note, ReflectionPillar } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,51 +21,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { ManagePillarDialog } from './manage-pillar-dialog';
 
-const defaultPillars: Omit<ReflectionPillar, 'createdAt' | 'updatedAt'>[] = [
-    { id: 'default-projections', title: 'Mes projections dans le futur', description: "Où vous voyez-vous dans 1, 5, 10 ans ? Quels sont vos grands rêves ?" },
-    { id: 'default-compliments', title: 'Liste des compliments', description: "Notez les compliments que les gens vous font. C'est une source de confiance et de prise de conscience de vos forces." },
-    { id: 'default-market-value', title: 'Ma valeur sur le marché', description: "Combien valez-vous professionnellement ? Quelles compétences sont les plus demandées ?" },
-    { id: 'default-investments', title: 'Autres moyens d\'investissement', description: "Explorez de nouvelles avenues pour faire fructifier votre capital au-delà des options actuelles." },
-    { id: 'default-usa-stock', title: 'Intégrer la bourse USA', description: "Quelles sont les étapes, les plateformes et les stratégies pour investir sur le marché américain ?" },
-    { id: 'default-retirement', title: 'Retraites complémentaires', description: "Quelles options de retraite existent pour compléter le système de base ?" },
-];
-
 export function NotesView() {
   const { notes, reflectionPillars, isInitialized } = useData();
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
   const [newNoteContent, setNewNoteContent] = useState('');
-  const seedingRef = useRef(false);
-
-  useEffect(() => {
-    if (!isInitialized || !user || !firestore) return;
-
-    if (seedingRef.current) return;
-    seedingRef.current = true;
-
-    const seedDefaultPillars = async () => {
-        try {
-            await runTransaction(firestore, async (transaction) => {
-                for (const pillar of defaultPillars) {
-                    const pillarRef = doc(firestore, 'users', user.uid, 'reflection-pillars', pillar.id);
-                    const docSnap = await transaction.get(pillarRef);
-                    if (!docSnap.exists()) {
-                        transaction.set(pillarRef, {
-                            ...pillar,
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString(),
-                        });
-                    }
-                }
-            });
-        } catch (e) {
-            console.error("Pillar seeding transaction failed: ", e);
-        }
-    };
-    
-    seedDefaultPillars();
-  }, [isInitialized, user, firestore]);
 
   const addPillar = async (values: {title: string, description: string}) => {
     if (!user || !firestore) return;

@@ -22,51 +22,14 @@ import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
 import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { doc, setDoc, updateDoc, deleteDoc, deleteField, writeBatch, runTransaction } from "firebase/firestore";
+import { doc, setDoc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
 import { EditHabitDialog } from "./edit-habit-dialog";
-import { useEffect, useRef } from "react";
-
-const defaultDailyHabits: Habit[] = [
-    { id: 'default-brush-teeth', name: 'Se brosser les dents', icon: 'Smile', frequency: 'daily', progress: 0, goal: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: 'default-wash-face', name: 'Se laver le visage', icon: 'Droplets', frequency: 'daily', progress: 0, goal: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: 'default-make-breakfast', name: 'Préparer le petit-déjeuner', icon: 'Apple', frequency: 'daily', progress: 0, goal: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: 'default-tidy-room', name: 'Ranger la chambre', icon: 'Bed', frequency: 'daily', progress: 0, goal: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: 'default-study-fmva', name: 'Étudier 30 min pour FMVA', icon: 'BookOpen', frequency: 'daily', progress: 0, goal: 1, link: 'https://learn.corporatefinanceinstitute.com/dashboard', goalId: 'static-fmva-goal', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: 'default-read-book', name: 'Lire 10 min par jour un livre', icon: 'BookOpen', frequency: 'daily', progress: 0, goal: 1, goalId: 'static-learning-goal', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-];
 
 export function HabitTracker() {
   const { habits, goals, isInitialized } = useData();
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const seedingRef = useRef(false);
-
-  useEffect(() => {
-    if (!isInitialized || !user || !firestore) return;
-
-    if (seedingRef.current) return;
-    seedingRef.current = true;
-
-    const seedDefaultHabits = async () => {
-        try {
-            await runTransaction(firestore, async (transaction) => {
-                for (const habit of defaultDailyHabits) {
-                    const habitRef = doc(firestore, 'users', user.uid, 'habits', habit.id);
-                    const docSnap = await transaction.get(habitRef);
-                    if (!docSnap.exists()) {
-                        transaction.set(habitRef, habit);
-                    }
-                }
-            });
-        } catch (e) {
-            console.error("Habit seeding transaction failed: ", e);
-        }
-    };
-    
-    seedDefaultHabits();
-
-  }, [isInitialized, user, firestore]);
 
   const addHabit = async (newHabitData: Omit<Habit, "id" | "progress" | "goal">) => {
     if (!user || !firestore) {
