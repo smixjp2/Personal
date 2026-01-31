@@ -2,7 +2,7 @@
 "use client";
 
 import Image from "next/image";
-import { Bell, Search, Bot, LogOut } from "lucide-react";
+import { Bell, Search, Bot, LogOut, Brain } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { getAuth, signOut } from "firebase/auth";
 
@@ -31,11 +31,12 @@ const pageTitles: { [key: string]: string } = {
   "/calendar": "Calendrier",
   "/media": "Médiathèque",
   "/finances": "Finances",
-  "/notes": "Boîte à idées",
+  "/notes": "Réflexion",
   "/affirmations": "Affirmations",
   "/goals": "Objectifs 2026",
   "/goals/personal": "Objectifs Personnels",
   "/goals/professional": "Objectifs Professionnels",
+  "/habits": "Habitudes",
 };
 
 export function Header() {

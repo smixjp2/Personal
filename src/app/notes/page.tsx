@@ -1,5 +1,5 @@
-import { NotesInbox } from "@/components/notes/notes-inbox";
+import { NotesView } from "@/components/notes/notes-view";
 
 export default function NotesPage() {
-  return <NotesInbox />;
+  return <NotesView />;
 }
