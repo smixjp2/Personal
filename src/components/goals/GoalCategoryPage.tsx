@@ -46,8 +46,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
   };
 
   const editGoal = async (goalId: string, updatedData: Partial<Omit<Goal, 'id'>>) => {
-    if (!user || !firestore) {
-      toast({ variant: "destructive", title: "Erreur d'authentification" });
+    if (!user || !firestore || goalId.startsWith('static-')) {
+      toast({ variant: "destructive", title: "Action non autorisée", description: "Cet objectif statique ne peut pas être modifié." });
       return;
     }
     try {
@@ -61,8 +61,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
   };
 
   const deleteGoal = async (goalId: string) => {
-    if (!user || !firestore) {
-      toast({ variant: "destructive", title: "Erreur d'authentification" });
+    if (!user || !firestore || goalId.startsWith('static-')) {
+      toast({ variant: "destructive", title: "Action non autorisée", description: "Cet objectif statique ne peut pas être supprimé." });
       return;
     }
     try {
@@ -72,16 +72,51 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
     }
   };
   
-  const fmvaGoal: Goal = {
-    id: 'static-fmva-goal',
-    name: 'Obtenir la certification FMVA',
-    description: "Valider la certification Financial Modeling & Valuation Analyst pour renforcer les compétences en finance d'entreprise.",
-    category: 'professional',
-    dueDate: new Date(2026, 11, 31).toISOString(),
-    progress: 5,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  const allStaticGoals: Goal[] = [
+    {
+        id: 'static-fmva-goal',
+        name: 'Obtenir la certification FMVA',
+        description: "Valider la certification Financial Modeling & Valuation Analyst pour renforcer les compétences en finance d'entreprise.",
+        category: 'professional',
+        dueDate: new Date(2026, 11, 31).toISOString(),
+        progress: 5,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    },
+    {
+        id: 'static-video-goal',
+        name: 'Vidéo : Fiscalité Bourse',
+        description: "Produire une vidéo pour 'The Moroccan Analyst' expliquant comment récupérer l'impôt sur les plus-values boursières à Casablanca.",
+        category: 'professional',
+        subCategory: 'Création de contenu',
+        dueDate: new Date(2026, 5, 30).toISOString(),
+        progress: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    },
+    {
+        id: 'static-cv-goal',
+        name: 'Mettre à jour le CV Canadien',
+        description: 'Actualiser et optimiser mon CV pour le marché du travail canadien.',
+        category: 'professional',
+        subCategory: 'Carrière',
+        dueDate: new Date(2026, 2, 31).toISOString(),
+        progress: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'static-costumes-goal',
+      name: 'Acheter 2 costumes complets',
+      description: "Acquérir deux costumes de qualité professionnelle pour les rendez-vous importants d'ici fin 2026.",
+      category: 'personal',
+      subCategory: 'Style',
+      dueDate: new Date(2026, 11, 31).toISOString(),
+      progress: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+  ];
 
   if (!isInitialized) {
     return (
@@ -99,8 +134,12 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
     )
   }
 
+  const staticGoalsForCategory = allStaticGoals.filter(g => g.category === category);
   const baseGoals = goals.filter(g => g.category === category && new Date(g.dueDate).getFullYear() === 2026);
-  const filteredGoals = category === 'professional' ? [fmvaGoal, ...baseGoals] : baseGoals;
+  
+  const uniqueStaticGoals = staticGoalsForCategory.filter(sg => !baseGoals.some(bg => bg.id === sg.id));
+  
+  const filteredGoals = [...uniqueStaticGoals, ...baseGoals];
 
 
   return (

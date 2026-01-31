@@ -52,7 +52,10 @@ export function NotesInbox() {
   };
 
   const handleDeleteNote = async (noteId: string) => {
-    if (!user || !firestore) return;
+    if (!user || !firestore || noteId.startsWith('static-')) {
+      toast({ variant: 'destructive', title: 'Action non autorisée', description: 'Cette note statique ne peut pas être supprimée.' });
+      return;
+    }
     try {
       await deleteDoc(doc(firestore, 'users', user.uid, 'notes', noteId));
       toast({ title: 'Note supprimée.' });
@@ -60,6 +63,20 @@ export function NotesInbox() {
       toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer la note.' });
     }
   };
+
+  const staticNotes: Note[] = [
+    {
+      id: 'static-usa-bourse-note',
+      content: 'Comment intégrer la bourse des USA ?',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+  ];
+
+  const allNotes = [...notes];
+  const uniqueStaticNotes = staticNotes.filter(sn => !allNotes.some(n => n.id === sn.id));
+  const combinedNotes = [...uniqueStaticNotes, ...allNotes];
+
 
   return (
     <div className="space-y-6">
@@ -92,9 +109,9 @@ export function NotesInbox() {
             <Skeleton className="h-40 w-full sm:block hidden" />
             <Skeleton className="h-40 w-full lg:block hidden" />
           </>
-        ) : notes.length > 0 ? (
+        ) : combinedNotes.length > 0 ? (
           <AnimatePresence>
-            {notes.sort((a,b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime()).map((note) => (
+            {combinedNotes.sort((a,b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime()).map((note) => (
               <motion.div
                 key={note.id}
                 layout
@@ -111,7 +128,7 @@ export function NotesInbox() {
                       <p className="text-xs text-muted-foreground">
                           {format(new Date(note.createdAt as string), 'd MMM yyyy', {locale: fr})}
                       </p>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteNote(note.id)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteNote(note.id)} disabled={note.id.startsWith('static-')}>
                           <Trash2 className="h-4 w-4" />
                           <span className="sr-only">Supprimer</span>
                       </Button>
