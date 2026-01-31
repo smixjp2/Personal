@@ -76,6 +76,30 @@ export function NotesInbox() {
       content: 'Chercher les options de retraites complémentaires.',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'static-projections-note',
+      content: 'Mes projections dans le futur.',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'static-compliments-note',
+      content: 'Liste des compliments que les gens me font.',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'static-market-value-note',
+      content: 'Combien j\'estime ma valeur sur le marché ?',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'static-investments-note',
+      content: 'Trouver d\'autres moyens d\'investissement.',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
   ];
 
