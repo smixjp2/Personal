@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useData } from '@/contexts/data-context';
 import { useUser, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -36,9 +36,13 @@ export function NotesView() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [newNoteContent, setNewNoteContent] = useState('');
+  const seedingRef = useRef(false);
 
   useEffect(() => {
     if (!isInitialized || !user || !firestore) return;
+
+    if (seedingRef.current) return;
+    seedingRef.current = true;
 
     const seedDefaultPillars = async () => {
         try {

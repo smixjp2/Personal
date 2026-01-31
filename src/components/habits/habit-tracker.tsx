@@ -24,7 +24,7 @@ import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { doc, setDoc, updateDoc, deleteDoc, deleteField, writeBatch, runTransaction } from "firebase/firestore";
 import { EditHabitDialog } from "./edit-habit-dialog";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const defaultDailyHabits: Habit[] = [
     { id: 'default-brush-teeth', name: 'Se brosser les dents', icon: 'Smile', frequency: 'daily', progress: 0, goal: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
@@ -40,9 +40,13 @@ export function HabitTracker() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const seedingRef = useRef(false);
 
   useEffect(() => {
     if (!isInitialized || !user || !firestore) return;
+
+    if (seedingRef.current) return;
+    seedingRef.current = true;
 
     const seedDefaultHabits = async () => {
         try {
