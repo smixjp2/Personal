@@ -12,11 +12,12 @@ import { ArrowLeft, ExternalLink, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ManageProjectDialog } from '@/components/projects/manage-project-dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ProjectTasks } from '@/components/projects/project-tasks';
+import { ProjectTools } from '@/components/projects/ProjectTools';
+import { ProjectNotes } from '@/components/projects/ProjectNotes';
 import { cn } from '@/lib/utils';
 
 const statusConfig = {
@@ -63,8 +64,11 @@ export default function ProjectDetailPage() {
             <Skeleton className="h-10 w-24" />
             <Skeleton className="h-48 w-full" />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Skeleton className="h-64 w-full" />
-                <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-[400px] w-full" />
+                <div className="space-y-6">
+                    <Skeleton className="h-[200px] w-full" />
+                    <Skeleton className="h-[300px] w-full" />
+                </div>
             </div>
         </div>
     );
@@ -124,14 +128,8 @@ export default function ProjectDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ProjectTasks projectId={projectId} />
             <div className="space-y-6">
-                <Card>
-                    <CardHeader><CardTitle>Outils de Création</CardTitle><CardDescription>Centralisez les liens vers Canva, YouTube Studio, vos pages, etc.</CardDescription></CardHeader>
-                    <CardContent className="text-center text-muted-foreground py-10">Bientôt disponible...</CardContent>
-                </Card>
-                <Card>
-                    <CardHeader><CardTitle>Idées &amp; Notes de Projet</CardTitle><CardDescription>Gardez une trace de vos idées, réflexions et plans.</CardDescription></CardHeader>
-                    <CardContent className="text-center text-muted-foreground py-10">Bientôt disponible...</CardContent>
-                </Card>
+                <ProjectTools projectId={projectId} />
+                <ProjectNotes projectId={projectId} />
             </div>
         </div>
     </div>

@@ -4,7 +4,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useUser } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import type { ShoppingItem, WatchlistItem, Book, Income, SavingGoal, Investment, Note, Goal, CalendarEvent, Habit, Affirmation, ReflectionPillar, Project } from '@/lib/types';
+import type { ShoppingItem, WatchlistItem, Book, Income, SavingGoal, Investment, Note, Goal, CalendarEvent, Habit, Affirmation, ReflectionPillar, Project, ProjectTask, ProjectTool, ProjectNote } from '@/lib/types';
 
 interface DataContextType {
   isInitialized: boolean;

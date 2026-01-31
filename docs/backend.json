@@ -216,6 +216,29 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["content", "completed", "createdAt", "updatedAt"]
+    },
+    "ProjectTool": {
+      "title": "Project Tool",
+      "description": "A tool or resource link associated with a project.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "link": { "type": "string", "format": "uri" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "link", "createdAt", "updatedAt"]
+    },
+    "ProjectNote": {
+      "title": "Project Note",
+      "description": "A note or idea specific to a project.",
+      "type": "object",
+      "properties": {
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["content", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -277,6 +300,14 @@
     "/users/{userId}/projects/{projectId}/tasks/{taskId}": {
       "schema": { "$ref": "#/entities/ProjectTask" },
       "description": "Stores tasks for a specific project."
+    },
+    "/users/{userId}/projects/{projectId}/tools/{toolId}": {
+      "schema": { "$ref": "#/entities/ProjectTool" },
+      "description": "Stores tools for a specific project."
+    },
+    "/users/{userId}/projects/{projectId}/notes/{noteId}": {
+      "schema": { "$ref": "#/entities/ProjectNote" },
+      "description": "Stores notes for a specific project."
     }
   }
 }
