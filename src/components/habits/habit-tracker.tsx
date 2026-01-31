@@ -137,9 +137,20 @@ export function HabitTracker() {
     updatedAt: new Date().toISOString(),
   };
 
+  const readingHabit: Habit = {
+    id: 'static-reading-habit',
+    name: 'Lire 10 min par jour un livre',
+    icon: 'BookOpen',
+    frequency: 'daily',
+    progress: 0,
+    goal: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
   const renderHabits = (frequency: "daily" | "monthly" | "yearly") => {
     const baseHabits = habits.filter((h) => h.frequency === frequency);
-    const filteredHabits = frequency === 'daily' ? [...morningRoutineHabits, fmvaHabit, ...baseHabits] : baseHabits;
+    const filteredHabits = frequency === 'daily' ? [...morningRoutineHabits, fmvaHabit, readingHabit, ...baseHabits] : baseHabits;
     
     if (!isInitialized) {
         return (
