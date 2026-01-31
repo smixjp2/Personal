@@ -8,13 +8,13 @@ import type { ShoppingItem, WatchlistItem, Book, Income, SavingGoal, Investment,
 import { doc, runTransaction } from 'firebase/firestore';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-const defaultDailyHabits: Omit<Habit, 'createdAt' | 'updatedAt'>[] = [
-    { id: 'default-brush-teeth', name: 'Se brosser les dents', icon: 'Smile', frequency: 'daily', progress: 0, goal: 1 },
-    { id: 'default-wash-face', name: 'Se laver le visage', icon: 'Droplets', frequency: 'daily', progress: 0, goal: 1 },
-    { id: 'default-make-breakfast', name: 'Préparer le petit-déjeuner', icon: 'Apple', frequency: 'daily', progress: 0, goal: 1 },
-    { id: 'default-tidy-room', name: 'Ranger la chambre', icon: 'Bed', frequency: 'daily', progress: 0, goal: 1 },
-    { id: 'default-study-fmva', name: 'Étudier 30 min pour FMVA', icon: 'BookOpen', frequency: 'daily', progress: 0, goal: 1, link: 'https://learn.corporatefinanceinstitute.com/dashboard', goalId: 'static-fmva-goal' },
-    { id: 'default-read-book', name: 'Lire 10 min par jour un livre', icon: 'BookOpen', frequency: 'daily', progress: 0, goal: 1, goalId: 'static-learning-goal' },
+const defaultDailyHabits: Omit<Habit, 'createdAt' | 'updatedAt' | 'progress'>[] = [
+    { id: 'default-brush-teeth', name: 'Se brosser les dents', icon: 'Smile', frequency: 'daily', goal: 1 },
+    { id: 'default-wash-face', name: 'Se laver le visage', icon: 'Droplets', frequency: 'daily', goal: 1 },
+    { id: 'default-make-breakfast', name: 'Préparer le petit-déjeuner', icon: 'Apple', frequency: 'daily', goal: 1 },
+    { id: 'default-tidy-room', name: 'Ranger la chambre', icon: 'Bed', frequency: 'daily', goal: 1 },
+    { id: 'default-study-fmva', name: 'Étudier 30 min pour FMVA', icon: 'BookOpen', frequency: 'daily', goal: 1, link: 'https://learn.corporatefinanceinstitute.com/dashboard', goalId: 'fmva-goal' },
+    { id: 'default-read-book', name: 'Lire 10 min par jour un livre', icon: 'BookOpen', frequency: 'daily', goal: 1, goalId: 'learning-goal' },
 ];
 
 const defaultPillars: Omit<ReflectionPillar, 'createdAt' | 'updatedAt'>[] = [
@@ -26,6 +26,128 @@ const defaultPillars: Omit<ReflectionPillar, 'createdAt' | 'updatedAt'>[] = [
     { id: 'default-retirement', title: 'Retraites complémentaires', description: "Quelles options de retraite existent pour compléter le système de base ?" },
 ];
 
+const defaultGoals: Omit<Goal, 'createdAt' | 'updatedAt' | 'progress'>[] = [
+    {
+        id: 'fmva-goal',
+        name: 'Obtenir la certification FMVA',
+        description: "Valider la certification Financial Modeling & Valuation Analyst pour renforcer les compétences en finance d'entreprise.",
+        category: 'professional',
+        subCategory: 'Certification',
+        dueDate: new Date(2026, 11, 31).toISOString(),
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-fmva')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-fmva')?.imageHint,
+    },
+     {
+        id: 'language-cert-goal',
+        name: 'Obtenir une certification de langue',
+        description: 'Passer et réussir un test de langue reconnu comme le TOEFL, IELTS ou TCF.',
+        category: 'professional',
+        subCategory: 'Certification',
+        dueDate: new Date(2026, 11, 31).toISOString(),
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-language-cert')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-language-cert')?.imageHint,
+    },
+    {
+        id: 'wealth-management-cert-goal',
+        name: 'Certification Wealth Management',
+        description: 'Obtenir la certification en Wealth Management de la Bourse de Casablanca (coût: 5000 DH).',
+        category: 'professional',
+        subCategory: 'Certification',
+        dueDate: new Date(2026, 11, 31).toISOString(),
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-wealth-management')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-wealth-management')?.imageHint,
+    },
+    {
+        id: 'bilan-competence-goal',
+        name: 'Faire un bilan de compétence',
+        description: "Réaliser un bilan de compétences pour évaluer mes points forts et axes d'amélioration.",
+        category: 'professional',
+        subCategory: 'Carrière',
+        dueDate: new Date(2026, 8, 30).toISOString(),
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-bilan-competence')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-bilan-competence')?.imageHint,
+    },
+    {
+      id: 'costumes-goal',
+      name: 'Acheter 2 costumes complets',
+      description: "Acquérir deux costumes de qualité professionnelle pour les rendez-vous importants d'ici fin 2026.",
+      category: 'personal',
+      subCategory: 'Style',
+      dueDate: new Date(2026, 11, 31).toISOString(),
+      imageUrl: PlaceHolderImages.find(p => p.id === 'goal-costumes')?.imageUrl,
+      imageHint: PlaceHolderImages.find(p => p.id === 'goal-costumes')?.imageHint,
+    },
+    {
+        id: 'learning-goal',
+        name: 'Apprendre Espagnol, VBA, SQL & Python',
+        description: 'Acquérir des compétences de base en Espagnol et des compétences solides en VBA, SQL et Python.',
+        category: 'personal',
+        subCategory: 'Apprentissage',
+        dueDate: new Date(2026, 11, 31).toISOString(),
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-learning')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-learning')?.imageHint,
+    },
+    {
+        id: 'unfair-advantage-goal',
+        name: "Trouver mon 'unfair advantage'",
+        description: "Identifier et documenter mon avantage concurrentiel pour mieux orienter mes choix de carrière et projets.",
+        category: 'personal',
+        subCategory: 'Développement personnel',
+        dueDate: new Date(2026, 11, 31).toISOString(),
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-unfair-advantage')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-unfair-advantage')?.imageHint,
+    },
+    {
+        id: 'achievements-goal',
+        name: "Lister mes réalisations",
+        description: "Créer une liste de toutes mes réalisations passées pour renforcer ma confiance et mon CV.",
+        category: 'personal',
+        subCategory: 'Réflexion',
+        dueDate: new Date(2026, 3, 30).toISOString(),
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-achievements')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-achievements')?.imageHint,
+    },
+    {
+        id: 'network-goal',
+        name: "Développer mon réseau",
+        description: "Établir des connexions significatives avec des professionnels de mon secteur.",
+        category: 'professional',
+        subCategory: 'Networking',
+        dueDate: new Date(2026, 11, 31).toISOString(),
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-network')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-network')?.imageHint,
+    },
+    {
+        id: 'cv-functional-goal',
+        name: "Mettre à jour le CV fonctionnel",
+        description: "Créer un CV fonctionnel mettant en avant les compétences plutôt que l'expérience chronologique.",
+        category: 'professional',
+        subCategory: 'Carrière',
+        dueDate: new Date(2026, 4, 31).toISOString(),
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-cv-functional')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-cv-functional')?.imageHint,
+    },
+    {
+        id: 'monetize-cfo-goal',
+        name: "Monétiser 'The Moroccan CFO'",
+        description: "Mettre en place une stratégie de monétisation pour la chaîne (partenariats, ads, etc.).",
+        category: 'professional',
+        subCategory: 'Création de contenu',
+        dueDate: new Date(2026, 11, 31).toISOString(),
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-monetize-cfo')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-monetize-cfo')?.imageHint,
+    },
+    {
+        id: 'monetize-youtube-goal',
+        name: "Monétiser 3 chaînes YouTube",
+        description: "Avoir au moins 3 chaînes YouTube monétisées en France et aux USA d'ici fin 2026.",
+        category: 'professional',
+        subCategory: 'Création de contenu',
+        dueDate: new Date(2026, 11, 31).toISOString(),
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-monetize-youtube')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-monetize-youtube')?.imageHint,
+    }
+];
 
 interface DataContextType {
   isInitialized: boolean;
@@ -107,7 +229,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const habitRef = doc(firestore, 'users', user.uid, 'habits', habit.id);
             const docSnap = await transaction.get(habitRef);
             if (!docSnap.exists()) {
-              transaction.set(habitRef, { ...habit, createdAt: now, updatedAt: now });
+              transaction.set(habitRef, { ...habit, progress: 0, createdAt: now, updatedAt: now });
             }
           }
           // Seed Pillars
@@ -116,6 +238,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const docSnap = await transaction.get(pillarRef);
             if (!docSnap.exists()) {
               transaction.set(pillarRef, { ...pillar, createdAt: now, updatedAt: now });
+            }
+          }
+          // Seed Goals
+          for (const goal of defaultGoals) {
+            const goalRef = doc(firestore, 'users', user.uid, 'goals', goal.id);
+            const docSnap = await transaction.get(goalRef);
+            if (!docSnap.exists()) {
+              transaction.set(goalRef, { ...goal, progress: goal.id === 'fmva-goal' ? 5 : 0, createdAt: now, updatedAt: now });
             }
           }
         });
