@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Goal } from "@/lib/types";
@@ -37,10 +38,9 @@ type GoalCardProps = {
   goal: Goal;
   onEdit: (goal: Partial<Omit<Goal, 'id'>>) => void;
   onDelete: () => void;
-  isStatic?: boolean;
 }
 
-export function GoalCard({ goal, onEdit, onDelete, isStatic = false }: GoalCardProps) {
+export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
 
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
@@ -58,46 +58,44 @@ export function GoalCard({ goal, onEdit, onDelete, isStatic = false }: GoalCardP
       <CardHeader>
         <div className="flex justify-between items-start">
             <CardTitle>{goal.name}</CardTitle>
-            {!isStatic && (
-              <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Options</span>
-                      </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                      <EditGoalDialog goal={goal} onEditGoal={onEdit}>
-                         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                              <Pencil className="mr-2 h-4 w-4" />
-                              <span>Modifier</span>
-                          </DropdownMenuItem>
-                      </EditGoalDialog>
-                       <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                              <DropdownMenuItem className="text-red-600" onSelect={(e) => e.preventDefault()}>
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  <span>Supprimer</span>
-                              </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                              <AlertDialogHeader>
-                                  <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                      Cette action est irréversible. L'objectif "{goal.name}" sera définitivement supprimé.
-                                  </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                  <AlertDialogAction onClick={onDelete} className="bg-destructive hover:bg-destructive/90">
-                                      Supprimer
-                                  </AlertDialogAction>
-                              </AlertDialogFooter>
-                          </AlertDialogContent>
-                      </AlertDialog>
-                  </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2">
+                        <MoreHorizontal className="h-4 w-4" />
+                        <span className="sr-only">Options</span>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <EditGoalDialog goal={goal} onEditGoal={onEdit}>
+                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            <span>Modifier</span>
+                        </DropdownMenuItem>
+                    </EditGoalDialog>
+                     <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <DropdownMenuItem className="text-red-600" onSelect={(e) => e.preventDefault()}>
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Supprimer</span>
+                            </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Cette action est irréversible. L'objectif "{goal.name}" sera définitivement supprimé.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                <AlertDialogAction onClick={onDelete} className="bg-destructive hover:bg-destructive/90">
+                                    Supprimer
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
         <CardDescription>{goal.description}</CardDescription>
       </CardHeader>

@@ -48,8 +48,9 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
   };
 
   const editGoal = async (goalId: string, updatedData: Partial<Omit<Goal, 'id'>>) => {
-    if (!user || !firestore || goalId.startsWith('static-')) {
-      toast({ variant: "destructive", title: "Action non autorisée", description: "Cet objectif statique ne peut pas être modifié." });
+    if (!user || !firestore) return;
+    if (goalId.startsWith('static-')) {
+      toast({ variant: "destructive", title: "Action non autorisée", description: "Cet objectif pré-rempli sera bientôt entièrement modifiable." });
       return;
     }
     try {
@@ -63,8 +64,9 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
   };
 
   const deleteGoal = async (goalId: string) => {
-    if (!user || !firestore || goalId.startsWith('static-')) {
-      toast({ variant: "destructive", title: "Action non autorisée", description: "Cet objectif statique ne peut pas être supprimé." });
+    if (!user || !firestore) return;
+    if (goalId.startsWith('static-')) {
+      toast({ variant: "destructive", title: "Action non autorisée", description: "Cet objectif pré-rempli sera bientôt entièrement modifiable." });
       return;
     }
     try {
@@ -85,32 +87,6 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         progress: 5,
         imageUrl: PlaceHolderImages.find(p => p.id === 'goal-fmva')?.imageUrl,
         imageHint: PlaceHolderImages.find(p => p.id === 'goal-fmva')?.imageHint,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-    },
-    {
-        id: 'static-video-goal',
-        name: 'Vidéo : Fiscalité Bourse',
-        description: "Produire une vidéo pour 'The Moroccan Analyst' expliquant comment récupérer l'impôt sur les plus-values boursières à Casablanca.",
-        category: 'professional',
-        subCategory: 'Création de contenu',
-        dueDate: new Date(2026, 5, 30).toISOString(),
-        progress: 0,
-        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-video')?.imageUrl,
-        imageHint: PlaceHolderImages.find(p => p.id === 'goal-video')?.imageHint,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-    },
-    {
-        id: 'static-cv-goal',
-        name: 'Mettre à jour le CV Canadien',
-        description: 'Actualiser et optimiser mon CV pour le marché du travail canadien.',
-        category: 'professional',
-        subCategory: 'Carrière',
-        dueDate: new Date(2026, 2, 31).toISOString(),
-        progress: 0,
-        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-cv-canadien')?.imageUrl,
-        imageHint: PlaceHolderImages.find(p => p.id === 'goal-cv-canadien')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -311,7 +287,6 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
                         goal={goal}
                         onEdit={(updatedData) => editGoal(goal.id, updatedData)}
                         onDelete={() => deleteGoal(goal.id)}
-                        isStatic={goal.id.startsWith('static-')}
                     />
                 </motion.div>
             )) : (
