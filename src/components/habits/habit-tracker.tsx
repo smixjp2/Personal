@@ -82,6 +82,49 @@ export function HabitTracker() {
     }
   };
   
+  const morningRoutineHabits: Habit[] = [
+    {
+      id: 'static-teeth-habit',
+      name: 'Se brosser les dents',
+      icon: 'Smile',
+      frequency: 'daily',
+      progress: 0,
+      goal: 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'static-face-habit',
+      name: 'Se laver le visage',
+      icon: 'Droplets',
+      frequency: 'daily',
+      progress: 0,
+      goal: 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'static-breakfast-habit',
+      name: 'Préparer le petit-déjeuner',
+      icon: 'Apple',
+      frequency: 'daily',
+      progress: 0,
+      goal: 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'static-room-habit',
+      name: 'Ranger la chambre',
+      icon: 'Bed',
+      frequency: 'daily',
+      progress: 0,
+      goal: 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+  ];
+
   const fmvaHabit: Habit = {
     id: 'static-fmva-habit',
     name: 'Étudier 30 min pour FMVA',
@@ -96,7 +139,7 @@ export function HabitTracker() {
 
   const renderHabits = (frequency: "daily" | "monthly" | "yearly") => {
     const baseHabits = habits.filter((h) => h.frequency === frequency);
-    const filteredHabits = frequency === 'daily' ? [fmvaHabit, ...baseHabits] : baseHabits;
+    const filteredHabits = frequency === 'daily' ? [...morningRoutineHabits, fmvaHabit, ...baseHabits] : baseHabits;
     
     if (!isInitialized) {
         return (
