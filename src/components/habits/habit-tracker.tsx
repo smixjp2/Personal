@@ -22,17 +22,17 @@ import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
 import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { doc, setDoc, updateDoc, deleteDoc, deleteField, writeBatch } from "firebase/firestore";
+import { doc, setDoc, updateDoc, deleteDoc, deleteField, writeBatch, runTransaction } from "firebase/firestore";
 import { EditHabitDialog } from "./edit-habit-dialog";
 import { useEffect } from "react";
 
-const defaultDailyHabits: Omit<Habit, 'id' | 'createdAt' | 'updatedAt'>[] = [
-    { name: 'Se brosser les dents', icon: 'Smile', frequency: 'daily', progress: 0, goal: 1 },
-    { name: 'Se laver le visage', icon: 'Droplets', frequency: 'daily', progress: 0, goal: 1 },
-    { name: 'Préparer le petit-déjeuner', icon: 'Apple', frequency: 'daily', progress: 0, goal: 1 },
-    { name: 'Ranger la chambre', icon: 'Bed', frequency: 'daily', progress: 0, goal: 1 },
-    { name: 'Étudier 30 min pour FMVA', icon: 'BookOpen', frequency: 'daily', progress: 0, goal: 1, link: 'https://learn.corporatefinanceinstitute.com/dashboard', goalId: 'static-fmva-goal' },
-    { name: 'Lire 10 min par jour un livre', icon: 'BookOpen', frequency: 'daily', progress: 0, goal: 1, goalId: 'static-learning-goal' },
+const defaultDailyHabits: Habit[] = [
+    { id: 'default-brush-teeth', name: 'Se brosser les dents', icon: 'Smile', frequency: 'daily', progress: 0, goal: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 'default-wash-face', name: 'Se laver le visage', icon: 'Droplets', frequency: 'daily', progress: 0, goal: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 'default-make-breakfast', name: 'Préparer le petit-déjeuner', icon: 'Apple', frequency: 'daily', progress: 0, goal: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 'default-tidy-room', name: 'Ranger la chambre', icon: 'Bed', frequency: 'daily', progress: 0, goal: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 'default-study-fmva', name: 'Étudier 30 min pour FMVA', icon: 'BookOpen', frequency: 'daily', progress: 0, goal: 1, link: 'https://learn.corporatefinanceinstitute.com/dashboard', goalId: 'static-fmva-goal', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 'default-read-book', name: 'Lire 10 min par jour un livre', icon: 'BookOpen', frequency: 'daily', progress: 0, goal: 1, goalId: 'static-learning-goal', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
 ];
 
 export function HabitTracker() {
@@ -42,24 +42,27 @@ export function HabitTracker() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (isInitialized && user && firestore && habits.length === 0) {
-        const batch = writeBatch(firestore);
-        defaultDailyHabits.forEach(habit => {
-            const habitId = uuidv4();
-            const habitRef = doc(firestore, 'users', user.uid, 'habits', habitId);
-            batch.set(habitRef, {
-                ...habit,
-                id: habitId,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+    if (!isInitialized || !user || !firestore) return;
+
+    const seedDefaultHabits = async () => {
+        try {
+            await runTransaction(firestore, async (transaction) => {
+                for (const habit of defaultDailyHabits) {
+                    const habitRef = doc(firestore, 'users', user.uid, 'habits', habit.id);
+                    const docSnap = await transaction.get(habitRef);
+                    if (!docSnap.exists()) {
+                        transaction.set(habitRef, habit);
+                    }
+                }
             });
-        });
-        batch.commit().catch(error => {
-            console.error("Failed to seed habits:", error);
-            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible d\'initialiser les habitudes.' });
-        });
-    }
-  }, [isInitialized, user, firestore, habits, toast]);
+        } catch (e) {
+            console.error("Habit seeding transaction failed: ", e);
+        }
+    };
+    
+    seedDefaultHabits();
+
+  }, [isInitialized, user, firestore]);
 
   const addHabit = async (newHabitData: Omit<Habit, "id" | "progress" | "goal">) => {
     if (!user || !firestore) {

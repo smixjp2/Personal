@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -5,7 +6,7 @@ import { useData } from '@/contexts/data-context';
 import { useUser, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
-import { doc, setDoc, writeBatch } from 'firebase/firestore';
+import { doc, setDoc, runTransaction } from 'firebase/firestore';
 import type { Project } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
@@ -16,8 +17,9 @@ import { ProjectCard } from './project-card';
 import { ManageProjectDialog } from './manage-project-dialog';
 import Link from 'next/link';
 
-const defaultProjects: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>[] = [
+const defaultProjects: Omit<Project, 'createdAt' | 'updatedAt'>[] = [
     {
+        id: 'the-moroccan-analyst',
         name: 'The Moroccan Analyst',
         description: 'Chaîne YouTube sur l\'analyse financière et la bourse au Maroc. Déjà monétisée.',
         link: 'https://www.youtube.com/@The_Moroccan_Analyst',
@@ -26,6 +28,7 @@ const defaultProjects: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>[] = [
         imageHint: PlaceHolderImages.find(p => p.id === 'project-analyst')?.imageHint,
     },
     {
+        id: 'the-moroccan-cfo',
         name: 'The Moroccan CFO',
         description: 'Chaîne YouTube axée sur la finance d\'entreprise. Pas encore monétisée.',
         link: 'https://www.youtube.com/@TheMoroccanCFO',
@@ -42,24 +45,31 @@ export function ProjectsView() {
     const { toast } = useToast();
     
     useEffect(() => {
-        if (isInitialized && user && firestore && projects.length === 0) {
-            const batch = writeBatch(firestore);
-            defaultProjects.forEach(project => {
-                const projectId = uuidv4();
-                const projectRef = doc(firestore, 'users', user.uid, 'projects', projectId);
-                batch.set(projectRef, {
-                    ...project,
-                    id: projectId,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
+        if (!isInitialized || !user || !firestore) return;
+
+        const seedDefaultProjects = async () => {
+            try {
+                await runTransaction(firestore, async (transaction) => {
+                    for (const project of defaultProjects) {
+                        const projectRef = doc(firestore, 'users', user.uid, 'projects', project.id);
+                        const docSnap = await transaction.get(projectRef);
+
+                        if (!docSnap.exists()) {
+                            transaction.set(projectRef, {
+                                ...project,
+                                createdAt: new Date().toISOString(),
+                                updatedAt: new Date().toISOString()
+                            });
+                        }
+                    }
                 });
-            });
-            batch.commit().catch(error => {
-                console.error("Failed to seed projects:", error);
-                toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible d\'initialiser les projets.' });
-            });
-        }
-    }, [isInitialized, user, firestore, projects, toast]);
+            } catch (e) {
+                console.error("Project seeding transaction failed: ", e);
+            }
+        };
+
+        seedDefaultProjects();
+    }, [isInitialized, user, firestore]);
     
     const saveProject = async (values: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>, projectId?: string) => {
         if (!user || !firestore) return;
