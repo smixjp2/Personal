@@ -123,6 +123,22 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["content", "createdAt", "updatedAt"]
+    },
+    "Goal": {
+      "title": "Goal",
+      "description": "A user's goal.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string", "enum": ["personal", "professional"] },
+        "subCategory": { "type": "string" },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "progress": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "description", "category", "dueDate", "progress", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -160,6 +176,10 @@
     "/users/{userId}/notes/{noteId}": {
       "schema": { "$ref": "#/entities/Note" },
       "description": "Stores user's raw notes and ideas."
+    },
+    "/users/{userId}/goals/{goalId}": {
+      "schema": { "$ref": "#/entities/Goal" },
+      "description": "Stores user goals."
     }
   }
 }

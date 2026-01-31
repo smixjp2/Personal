@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { Goal } from "@/lib/types";
@@ -17,8 +16,8 @@ const columns: {
   id: Goal["category"];
   title: string;
 }[] = [
-  { id: "personal", title: "Personal" },
-  { id: "professional", title: "Professional" },
+  { id: "personal", title: "Personnel" },
+  { id: "professional", title: "Professionnel" },
 ];
 
 export function GoalBoard() {
@@ -29,7 +28,7 @@ export function GoalBoard() {
 
   const addGoal = async (newGoalData: Omit<Goal, 'id' | 'progress'>) => {
     if (!user || !firestore) {
-      toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add a goal." });
+      toast({ variant: "destructive", title: "Erreur d'authentification", description: "Vous devez être connecté pour ajouter un objectif." });
       return;
     }
     const newGoal: Goal = {
@@ -42,67 +41,18 @@ export function GoalBoard() {
     try {
         await setDoc(doc(firestore, "users", user.uid, "goals", newGoal.id), newGoal);
     } catch (error: any) {
-        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new goal." });
+        toast({ variant: "destructive", title: "Erreur Firebase", description: error.message || "Impossible de sauvegarder le nouvel objectif." });
     }
   };
-
-  const renderColumnContent = (columnId: Goal['category']) => {
-    const columnGoals = goals.filter((g) => g.category === columnId);
-
-    if (columnId !== 'personal' || columnGoals.every(g => !g.subCategory)) {
-        return (
-            <div className="space-y-4">
-                {columnGoals.map((goal) => (
-                    <motion.div key={goal.id} layout>
-                        <GoalCard goal={goal} />
-                    </motion.div>
-                ))}
-            </div>
-        );
-    }
-
-    const groupedGoals = columnGoals.reduce((acc, goal) => {
-        const subCategory = goal.subCategory || 'Général';
-        if (!acc[subCategory]) {
-            acc[subCategory] = [];
-        }
-        acc[subCategory].push(goal);
-        return acc;
-    }, {} as Record<string, Goal[]>);
-
-    const subCategories = Object.keys(groupedGoals).sort((a,b) => {
-        if (a === 'Général') return 1;
-        if (b === 'Général') return -1;
-        return a.localeCompare(b);
-    });
-
-    return (
-        <div className="space-y-6">
-            {subCategories.map(subCategory => (
-                <div key={subCategory}>
-                    <h3 className="mb-3 text-md font-medium text-muted-foreground">{subCategory}</h3>
-                    <div className="space-y-4">
-                        {groupedGoals[subCategory].map(goal => (
-                            <motion.div key={goal.id} layout>
-                                <GoalCard goal={goal} />
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-  };
-
 
   if (!isInitialized) {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold font-headline">Goals</h1>
-                <Skeleton className="h-10 w-28" />
+                <h1 className="text-3xl font-bold font-headline">Objectifs 2026</h1>
+                <Skeleton className="h-10 w-36" />
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {columns.map(column => (
                     <div key={column.id} className="rounded-xl bg-card/50 p-4">
                         <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
@@ -119,14 +69,16 @@ export function GoalBoard() {
     )
   }
 
+  const filteredGoals = goals.filter(g => new Date(g.dueDate).getFullYear() === 2026);
+
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-headline">Goals</h1>
+        <h1 className="text-3xl font-bold font-headline">Objectifs 2026</h1>
         <AddGoalDialog onAddGoal={addGoal}>
             <button className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-colors hover:bg-primary/90">
-                <Plus className="h-4 w-4" /> Add Goal
+                <Plus className="mr-2 h-4 w-4" /> Ajouter un objectif
             </button>
         </AddGoalDialog>
       </div>
@@ -138,7 +90,16 @@ export function GoalBoard() {
               <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
                 {column.title}
               </h2>
-              {renderColumnContent(column.id)}
+               <div className="space-y-4">
+                {filteredGoals.filter(g => g.category === column.id).map((goal) => (
+                    <motion.div key={goal.id} layout>
+                        <GoalCard goal={goal} />
+                    </motion.div>
+                ))}
+                {filteredGoals.filter(g => g.category === column.id).length === 0 && (
+                    <p className="text-muted-foreground text-center py-8">Aucun objectif {column.id === 'personal' ? 'personnel' : 'professionnel'} pour 2026.</p>
+                )}
+              </div>
             </div>
           ))}
         </AnimatePresence>

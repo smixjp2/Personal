@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { Goal } from "@/lib/types";
@@ -28,7 +27,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <div className="flex items-center">
             <Calendar className="mr-2 h-4 w-4" />
-            <span>Due by {new Date(goal.dueDate).toLocaleDateString()}</span>
+            <span>Échéance: {new Date(goal.dueDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric'})}</span>
           </div>
           {goal.subCategory && (
             <Badge variant="outline" className="font-normal">{goal.subCategory}</Badge>
@@ -36,7 +35,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
         </div>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <p className="text-sm font-medium">Progress</p>
+            <p className="text-sm font-medium">Progression</p>
             <p className="text-sm font-bold text-primary">{goal.progress}%</p>
           </div>
           <Progress value={goal.progress} />

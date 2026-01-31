@@ -9,6 +9,7 @@ import {
   Library,
   Landmark,
   Lightbulb,
+  Target,
 } from "lucide-react";
 
 import {
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/notes", label: "Idées", icon: Lightbulb },
   { href: "/media", label: "Médiathèque", icon: Library },
   { href: "/finances", label: "Finances", icon: Landmark },
+  { href: "/goals", label: "Objectifs 2026", icon: Target },
 ];
 
 export function SidebarNav() {

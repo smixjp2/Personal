@@ -61,6 +61,15 @@ export type Note = BaseEntity & {
   content: string;
 };
 
+export type Goal = BaseEntity & {
+  name: string;
+  description: string;
+  category: 'personal' | 'professional';
+  subCategory?: string;
+  dueDate: string;
+  progress: number;
+};
+
 
 export type { IconName };
 

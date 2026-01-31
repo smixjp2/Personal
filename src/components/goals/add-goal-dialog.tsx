@@ -42,16 +42,15 @@ const goalSchema = z.object({
   subCategory: z.string().optional(),
   dueDay: z.string().min(1, "Le jour est requis.").max(2, "Jour invalide."),
   dueMonth: z.string().min(1, "Le mois est requis.").max(2, "Mois invalide."),
-  dueYear: z.string().min(4, "L'année doit comporter 4 chiffres.").max(4, "L'année doit comporter 4 chiffres."),
 }).refine((data) => {
+    const year = 2026;
     const day = parseInt(data.dueDay, 10);
     const month = parseInt(data.dueMonth, 10);
-    const year = parseInt(data.dueYear, 10);
-    if (isNaN(day) || isNaN(month) || isNaN(year)) return false;
+    if (isNaN(day) || isNaN(month)) return false;
     const date = new Date(year, month - 1, day);
-    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day && date >= startOfDay(new Date());
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
   }, {
-    message: "La date est invalide ou passée.",
+    message: "La date est invalide.",
     path: ["dueDay"],
   });
 
@@ -73,8 +72,8 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
   });
 
   function onSubmit(values: z.infer<typeof goalSchema>) {
-    const { dueDay, dueMonth, dueYear, ...rest } = values;
-    const dueDate = new Date(parseInt(dueYear), parseInt(dueMonth) - 1, parseInt(dueDay)).toISOString();
+    const { dueDay, dueMonth, ...rest } = values;
+    const dueDate = new Date(2026, parseInt(dueMonth) - 1, parseInt(dueDay)).toISOString();
     onAddGoal({ ...rest, dueDate });
     form.reset();
     setIsOpen(false);
@@ -85,9 +84,9 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Set a New Goal</DialogTitle>
+          <DialogTitle>Nouvel Objectif pour 2026</DialogTitle>
           <DialogDescription>
-            Define your next big objective.
+            Définissez un objectif à atteindre en 2026.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -97,9 +96,9 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Goal</FormLabel>
+                  <FormLabel>Nom de l'objectif</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Run a half marathon" {...field} />
+                    <Input placeholder="ex: Apprendre une nouvelle langue" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -112,7 +111,7 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Describe what success looks like." {...field} />
+                    <Textarea placeholder="Décrivez ce que le succès signifie pour cet objectif." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -124,16 +123,16 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
               name="category"
               render={({ field }) => (
                   <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <FormLabel>Catégorie</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                       <SelectTrigger>
-                          <SelectValue placeholder="Select a category" />
+                          <SelectValue placeholder="Sélectionner une catégorie" />
                       </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                      <SelectItem value="personal">Personal</SelectItem>
-                      <SelectItem value="professional">Professional</SelectItem>
+                      <SelectItem value="personal">Personnel</SelectItem>
+                      <SelectItem value="professional">Professionnel</SelectItem>
                       </SelectContent>
                   </Select>
                   <FormMessage />
@@ -148,7 +147,7 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
                 <FormItem>
                   <FormLabel>Sous-catégorie (Optionnel)</FormLabel>
                   <FormControl>
-                    <Input placeholder="ex: Plan de voyage, Relations..." {...field} value={field.value ?? ''} />
+                    <Input placeholder="ex: Carrière, Santé, Finances..." {...field} value={field.value ?? ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -156,7 +155,7 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
             />
             
             <FormItem>
-              <FormLabel>Due Date</FormLabel>
+              <FormLabel>Échéance en 2026</FormLabel>
               <div className="grid grid-cols-3 gap-2">
                 <FormField control={form.control} name="dueDay" render={({ field }) => (
                   <FormItem>
@@ -168,17 +167,15 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
                     <FormControl><Input placeholder="Mois" {...field} /></FormControl>
                   </FormItem>
                 )} />
-                <FormField control={form.control} name="dueYear" render={({ field }) => (
-                  <FormItem>
-                    <FormControl><Input placeholder="Année" {...field} /></FormControl>
+                 <FormItem>
+                    <FormControl><Input placeholder="Année" value="2026" disabled /></FormControl>
                   </FormItem>
-                )} />
               </div>
               <FormMessage>{form.formState.errors.dueDay?.message}</FormMessage>
             </FormItem>
 
             <DialogFooter className="pt-4">
-              <Button type="submit">Create Goal</Button>
+              <Button type="submit">Créer l'Objectif</Button>
             </DialogFooter>
           </form>
         </Form>
