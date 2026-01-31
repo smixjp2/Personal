@@ -27,9 +27,6 @@ import { useFirebaseApp, useUser } from "@/firebase";
 
 const pageTitles: { [key: string]: string } = {
   "/": "Dashboard",
-  "/habits": "Habit Tracker",
-  "/goals": "Goal Management",
-  "/projects": "Projets",
   "/media": "Médiathèque",
   "/finances": "Finances",
   "/notes": "Boîte à idées",
@@ -48,9 +45,6 @@ export function Header() {
   };
 
   const getTitle = () => {
-    if (pathname.startsWith('/projects/')) {
-        return "Détail du Projet";
-    }
     return pageTitles[pathname] || "Life Architect";
   }
 
