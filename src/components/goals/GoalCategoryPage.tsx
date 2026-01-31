@@ -216,6 +216,17 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         progress: 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+    },
+    {
+        id: 'static-youtube-monetization-goal',
+        name: "Monétiser 3 chaînes YouTube",
+        description: "Avoir au moins 3 chaînes YouTube monétisées en France et aux USA d'ici fin 2026.",
+        category: 'professional',
+        subCategory: 'Création de contenu',
+        dueDate: new Date(2026, 11, 31).toISOString(),
+        progress: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
     }
   ];
 
