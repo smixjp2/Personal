@@ -8,28 +8,6 @@ import type { ShoppingItem, WatchlistItem, Book, Income, SavingGoal, Investment,
 import { doc, runTransaction } from 'firebase/firestore';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-// Default data for seeding
-const defaultProjects: Omit<Project, 'createdAt' | 'updatedAt'>[] = [
-    {
-        id: 'the-moroccan-analyst',
-        name: 'The Moroccan Analyst',
-        description: 'Chaîne YouTube sur l\'analyse financière et la bourse au Maroc. Déjà monétisée.',
-        link: 'https://www.youtube.com/@The_Moroccan_Analyst',
-        status: 'monetized',
-        imageUrl: PlaceHolderImages.find(p => p.id === 'project-analyst')?.imageUrl,
-        imageHint: PlaceHolderImages.find(p => p.id === 'project-analyst')?.imageHint,
-    },
-    {
-        id: 'the-moroccan-cfo',
-        name: 'The Moroccan CFO',
-        description: 'Chaîne YouTube axée sur la finance d\'entreprise. Pas encore monétisée.',
-        link: 'https://www.youtube.com/@TheMoroccanCFO',
-        status: 'pre-monetization',
-        imageUrl: PlaceHolderImages.find(p => p.id === 'project-cfo')?.imageUrl,
-        imageHint: PlaceHolderImages.find(p => p.id === 'project-cfo')?.imageHint,
-    }
-];
-
 const defaultDailyHabits: Omit<Habit, 'createdAt' | 'updatedAt'>[] = [
     { id: 'default-brush-teeth', name: 'Se brosser les dents', icon: 'Smile', frequency: 'daily', progress: 0, goal: 1 },
     { id: 'default-wash-face', name: 'Se laver le visage', icon: 'Droplets', frequency: 'daily', progress: 0, goal: 1 },
@@ -124,14 +102,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const seedData = async () => {
       try {
         await runTransaction(firestore, async (transaction) => {
-          // Seed Projects
-          for (const project of defaultProjects) {
-            const projectRef = doc(firestore, 'users', user.uid, 'projects', project.id);
-            const docSnap = await transaction.get(projectRef);
-            if (!docSnap.exists()) {
-              transaction.set(projectRef, { ...project, createdAt: now, updatedAt: now });
-            }
-          }
           // Seed Habits
           for (const habit of defaultDailyHabits) {
             const habitRef = doc(firestore, 'users', user.uid, 'habits', habit.id);
