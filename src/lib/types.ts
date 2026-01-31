@@ -107,6 +107,11 @@ export type Project = BaseEntity & {
   imageHint?: string;
 };
 
+export type ProjectTask = BaseEntity & {
+  content: string;
+  completed: boolean;
+};
+
 
 export type { IconName };
 

@@ -204,6 +204,18 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "description", "status", "createdAt", "updatedAt"]
+    },
+    "ProjectTask": {
+      "title": "Project Task",
+      "description": "A specific task belonging to a project.",
+      "type": "object",
+      "properties": {
+        "content": { "type": "string" },
+        "completed": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["content", "completed", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -261,6 +273,10 @@
     "/users/{userId}/projects/{projectId}": {
       "schema": { "$ref": "#/entities/Project" },
       "description": "Stores user's projects."
+    },
+    "/users/{userId}/projects/{projectId}/tasks/{taskId}": {
+      "schema": { "$ref": "#/entities/ProjectTask" },
+      "description": "Stores tasks for a specific project."
     }
   }
 }

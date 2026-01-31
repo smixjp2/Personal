@@ -5,7 +5,7 @@ import { useData } from '@/contexts/data-context';
 import { useUser, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
-import { doc, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
+import { doc, setDoc, writeBatch } from 'firebase/firestore';
 import type { Project } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ProjectCard } from './project-card';
 import { ManageProjectDialog } from './manage-project-dialog';
+import Link from 'next/link';
 
 const defaultProjects: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>[] = [
     {
@@ -78,12 +79,6 @@ export function ProjectsView() {
             toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de sauvegarder le projet.' });
         }
     };
-    
-    const deleteProject = async (projectId: string) => {
-        if (!user || !firestore) return;
-        await deleteDoc(doc(firestore, 'users', user.uid, 'projects', projectId));
-        toast({ title: 'Projet supprimé.' });
-    };
 
     return (
         <div className="space-y-6">
@@ -106,7 +101,9 @@ export function ProjectsView() {
                     <AnimatePresence>
                         {projects.sort((a,b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime()).map(project => (
                             <motion.div key={project.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
-                                <ProjectCard project={project} onEdit={saveProject} onDelete={deleteProject} />
+                                <Link href={`/projects/${project.id}`} className="h-full flex">
+                                    <ProjectCard project={project} />
+                                </Link>
                             </motion.div>
                         ))}
                     </AnimatePresence>
