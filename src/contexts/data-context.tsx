@@ -149,6 +149,8 @@ const defaultGoals: Omit<Goal, 'createdAt' | 'updatedAt' | 'progress'>[] = [
     }
 ];
 
+const defaultProjects: Omit<Project, 'createdAt' | 'updatedAt'>[] = [];
+
 interface DataContextType {
   isInitialized: boolean;
   shoppingList: ShoppingItem[];
@@ -213,7 +215,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     user ? `users/${user.uid}/projects` : null
   );
   
-  const isInitialized = !loadingShopping && !loadingWatchlist && !loadingReading && !loadingIncome && !loadingSavingGoals && !loadingInvestments && !loadingNotes && !loadingGoals && !loadingCalendarEvents && !loadingHabits && !loadingAffirmations && !loadingReflectionPillars && !loadingProjects;
+  const isInitialized = !loadingShopping && !loadingWatchlist && !loadingReading && !loadingIncome && !loadingSavingGoals && !loadingInvestments && !loadingNotes && !loadingGoals && !loadingCalendarEvents && !loadingHabits && !loadingAffirmations && !loadingProjects;
 
   useEffect(() => {
     if (!isInitialized || !user || !firestore || seedingRef.current) return;
@@ -246,6 +248,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const docSnap = await transaction.get(goalRef);
             if (!docSnap.exists()) {
               transaction.set(goalRef, { ...goal, progress: goal.id === 'fmva-goal' ? 5 : 0, createdAt: now, updatedAt: now });
+            }
+          }
+          // Seed Projects
+          for (const project of defaultProjects) {
+            const projectRef = doc(firestore, 'users', user.uid, 'projects', project.id);
+            const docSnap = await transaction.get(projectRef);
+            if (!docSnap.exists()) {
+              transaction.set(projectRef, { ...project, createdAt: now, updatedAt: now });
             }
           }
         });
