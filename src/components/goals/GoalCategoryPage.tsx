@@ -10,7 +10,7 @@ import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from 'uuid';
 import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -42,6 +42,33 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         await setDoc(doc(firestore, "users", user.uid, "goals", newGoal.id), newGoal);
     } catch (error: any) {
         toast({ variant: "destructive", title: "Erreur Firebase", description: error.message || "Impossible de sauvegarder le nouvel objectif." });
+    }
+  };
+
+  const editGoal = async (goalId: string, updatedData: Partial<Omit<Goal, 'id'>>) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Erreur d'authentification" });
+      return;
+    }
+    try {
+      await updateDoc(doc(firestore, "users", user.uid, "goals", goalId), {
+        ...updatedData,
+        updatedAt: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Erreur Firebase", description: error.message || "Impossible de modifier l'objectif." });
+    }
+  };
+
+  const deleteGoal = async (goalId: string) => {
+    if (!user || !firestore) {
+      toast({ variant: "destructive", title: "Erreur d'authentification" });
+      return;
+    }
+    try {
+      await deleteDoc(doc(firestore, "users", user.uid, "goals", goalId));
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Erreur Firebase", description: error.message || "Impossible de supprimer l'objectif." });
     }
   };
   
@@ -87,7 +114,11 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         <AnimatePresence>
             {filteredGoals.length > 0 ? filteredGoals.map((goal) => (
                 <motion.div key={goal.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
-                    <GoalCard goal={goal} />
+                    <GoalCard 
+                        goal={goal}
+                        onEdit={(updatedData) => editGoal(goal.id, updatedData)}
+                        onDelete={() => deleteGoal(goal.id)}
+                    />
                 </motion.div>
             )) : (
                 <div className="col-span-full text-center py-16 text-muted-foreground">
