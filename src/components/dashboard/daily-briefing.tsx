@@ -2,7 +2,7 @@
 
 import { useData } from '@/contexts/data-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wallet, Sun } from 'lucide-react';
+import { Wallet, Sun, Clapperboard } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, isWithinInterval, getDaysInMonth, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,7 +10,7 @@ import { formatCurrency } from '@/lib/utils';
 import { useMemo } from 'react';
 
 export function DailyBriefing() {
-  const { isInitialized, shoppingList, income } = useData();
+  const { isInitialized, shoppingList, income, watchlist } = useData();
 
   const today = new Date();
 
@@ -69,6 +69,11 @@ export function DailyBriefing() {
     return totalIncome - totalExpenses;
   }, [isInitialized, income, shoppingList]);
 
+  const currentlyWatching = useMemo(() => {
+    if (!isInitialized) return null;
+    return watchlist.find(item => item.currentlyWatching);
+  }, [isInitialized, watchlist]);
+
   if (!isInitialized) {
     return (
         <Card>
@@ -100,6 +105,24 @@ export function DailyBriefing() {
             <p className="text-3xl font-bold">{formatCurrency(monthlyBalance)} MAD</p>
            <p className="text-sm text-muted-foreground">Revenus moins dépenses pour le mois en cours.</p>
         </div>
+        
+        {currentlyWatching && (
+          <div className="space-y-3 border-t pt-6">
+            <h3 className="font-semibold flex items-center gap-2 text-lg">
+                <Clapperboard className="h-5 w-5 text-primary" /> Visionnage en cours
+            </h3>
+            <div>
+                <p className="text-xl font-bold">{currentlyWatching.title}</p>
+                {currentlyWatching.category === 'tv-show' && (currentlyWatching.season || currentlyWatching.episode) && (
+                    <p className="text-sm text-muted-foreground">
+                        {currentlyWatching.season && `Saison ${currentlyWatching.season}`}
+                        {currentlyWatching.season && currentlyWatching.episode && ' - '}
+                        {currentlyWatching.episode && `Épisode ${currentlyWatching.episode}`}
+                    </p>
+                )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
