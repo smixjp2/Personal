@@ -17,9 +17,10 @@ import { Button } from "@/components/ui/button";
 type GoalCategoryPageProps = {
     category: 'personal' | 'professional';
     categoryName: string;
+    description?: string;
 }
 
-export function GoalCategoryPage({ category, categoryName }: GoalCategoryPageProps) {
+export function GoalCategoryPage({ category, categoryName, description }: GoalCategoryPageProps) {
   const { goals, isInitialized } = useData();
   const { user } = useUser();
   const firestore = useFirestore();
@@ -79,6 +80,8 @@ export function GoalCategoryPage({ category, categoryName }: GoalCategoryPagePro
             </button>
         </AddGoalDialog>
       </div>
+
+      {description && <p className="text-lg text-muted-foreground">{description}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
         <AnimatePresence>

@@ -1,5 +1,7 @@
+"use client";
+
 import Link from 'next/link';
-import { Plane, Repeat, Wallet, ShoppingCart, ArrowLeft } from 'lucide-react';
+import { Plane, Repeat, ArrowLeft, Home, ShoppingCart } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -13,19 +15,19 @@ const personalCategories = [
   {
     href: "/habits",
     title: "Habitudes",
-    description: "Suivez vos routines et construisez de nouvelles habitudes.",
+    description: "Construisez des routines et suivez vos progrès.",
     icon: Repeat,
   },
   {
     href: "/finances",
-    title: "Argent",
-    description: "Gérez vos finances, épargne et investissements.",
-    icon: Wallet,
+    title: "Objectifs d'Épargne",
+    description: "Économisez pour une maison, une voiture ou un autre grand projet.",
+    icon: Home,
   },
   {
     href: "/finances",
-    title: "Liste d'achats",
-    description: "Planifiez vos dépenses et achats mensuels.",
+    title: "Dépenses Mensuelles",
+    description: "Suivez vos abonnements et achats du quotidien.",
     icon: ShoppingCart,
   },
 ];
