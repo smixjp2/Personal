@@ -10,6 +10,7 @@ import {
   Landmark,
   Lightbulb,
   Target,
+  Calendar,
 } from "lucide-react";
 
 import {
@@ -23,6 +24,7 @@ import {
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/calendar", label: "Calendrier", icon: Calendar },
   { href: "/notes", label: "Idées", icon: Lightbulb },
   { href: "/media", label: "Médiathèque", icon: Library },
   { href: "/finances", label: "Finances", icon: Landmark },

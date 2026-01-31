@@ -4,7 +4,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useUser } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import type { ShoppingItem, WatchlistItem, Book, Income, SavingGoal, Investment, Note, Goal } from '@/lib/types';
+import type { ShoppingItem, WatchlistItem, Book, Income, SavingGoal, Investment, Note, Goal, CalendarEvent } from '@/lib/types';
 
 interface DataContextType {
   isInitialized: boolean;
@@ -16,6 +16,7 @@ interface DataContextType {
   investments: Investment[];
   notes: Note[];
   goals: Goal[];
+  calendarEvents: CalendarEvent[];
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -47,8 +48,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const { data: goals, isLoading: loadingGoals } = useCollection<Goal>(
     user ? `users/${user.uid}/goals` : null
   );
+  const { data: calendarEvents, isLoading: loadingCalendarEvents } = useCollection<CalendarEvent>(
+    user ? `users/${user.uid}/calendar-events` : null
+  );
   
-  const isInitialized = !loadingShopping && !loadingWatchlist && !loadingReading && !loadingIncome && !loadingSavingGoals && !loadingInvestments && !loadingNotes && !loadingGoals;
+  const isInitialized = !loadingShopping && !loadingWatchlist && !loadingReading && !loadingIncome && !loadingSavingGoals && !loadingInvestments && !loadingNotes && !loadingGoals && !loadingCalendarEvents;
 
   const value: DataContextType = {
     isInitialized,
@@ -60,6 +64,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     investments: investments || [],
     notes: notes || [],
     goals: goals || [],
+    calendarEvents: calendarEvents || [],
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

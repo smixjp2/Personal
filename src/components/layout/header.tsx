@@ -28,6 +28,7 @@ import { useFirebaseApp, useUser } from "@/firebase";
 
 const pageTitles: { [key: string]: string } = {
   "/": "Dashboard",
+  "/calendar": "Calendrier",
   "/media": "Médiathèque",
   "/finances": "Finances",
   "/notes": "Boîte à idées",

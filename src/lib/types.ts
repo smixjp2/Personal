@@ -70,6 +70,13 @@ export type Goal = BaseEntity & {
   progress: number;
 };
 
+export type CalendarEvent = BaseEntity & {
+  title: string;
+  date: string; // ISO string
+  type: 'task' | 'deadline' | 'reminder';
+  completed: boolean;
+};
+
 
 export type { IconName };
 

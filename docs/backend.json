@@ -139,6 +139,20 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "description", "category", "dueDate", "progress", "createdAt", "updatedAt"]
+    },
+    "CalendarEvent": {
+      "title": "Calendar Event",
+      "description": "Represents an event on the user's calendar, like a task, deadline, or reminder.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "type": { "type": "string", "enum": ["task", "deadline", "reminder"] },
+        "completed": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "date", "type", "completed", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -180,6 +194,10 @@
     "/users/{userId}/goals/{goalId}": {
       "schema": { "$ref": "#/entities/Goal" },
       "description": "Stores user goals."
+    },
+    "/users/{userId}/calendar-events/{eventId}": {
+      "schema": { "$ref": "#/entities/CalendarEvent" },
+      "description": "Stores user's calendar events."
     }
   }
 }
