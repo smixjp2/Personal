@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { startOfDay } from "date-fns";
+import React from 'react';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -58,18 +59,29 @@ const goalSchema = z.object({
 type AddGoalDialogProps = {
   children: React.ReactNode;
   onAddGoal: (goal: Omit<Goal, 'id' | 'progress'>) => void;
+  defaultCategory?: 'personal' | 'professional';
 };
 
-export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
+export function AddGoalDialog({ children, onAddGoal, defaultCategory }: AddGoalDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const form = useForm<z.infer<typeof goalSchema>>({
     resolver: zodResolver(goalSchema),
     defaultValues: {
       name: "",
       description: "",
-      category: "personal",
+      category: defaultCategory || "personal",
     },
   });
+
+  React.useEffect(() => {
+    if (defaultCategory) {
+        form.reset({
+            name: "",
+            description: "",
+            category: defaultCategory,
+        });
+    }
+  }, [defaultCategory, form, isOpen]);
 
   function onSubmit(values: z.infer<typeof goalSchema>) {
     const { dueDay, dueMonth, ...rest } = values;
@@ -124,7 +136,7 @@ export function AddGoalDialog({ children, onAddGoal }: AddGoalDialogProps) {
               render={({ field }) => (
                   <FormItem>
                   <FormLabel>Catégorie</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!!defaultCategory}>
                       <FormControl>
                       <SelectTrigger>
                           <SelectValue placeholder="Sélectionner une catégorie" />
