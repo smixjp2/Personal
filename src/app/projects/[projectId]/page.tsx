@@ -125,11 +125,11 @@ export default function ProjectDetailPage() {
             <ProjectTasks projectId={projectId} />
             <div className="space-y-6">
                 <Card>
-                    <CardHeader><CardTitle>Outils & Liens</CardTitle><CardDescription>Centralisez les ressources importantes de votre projet.</CardDescription></CardHeader>
+                    <CardHeader><CardTitle>Outils de Création</CardTitle><CardDescription>Centralisez les liens vers Canva, YouTube Studio, vos pages, etc.</CardDescription></CardHeader>
                     <CardContent className="text-center text-muted-foreground py-10">Bientôt disponible...</CardContent>
                 </Card>
                 <Card>
-                    <CardHeader><CardTitle>Notes de Projet</CardTitle><CardDescription>Gardez une trace de vos idées et réflexions.</CardDescription></CardHeader>
+                    <CardHeader><CardTitle>Idées &amp; Notes de Projet</CardTitle><CardDescription>Gardez une trace de vos idées, réflexions et plans.</CardDescription></CardHeader>
                     <CardContent className="text-center text-muted-foreground py-10">Bientôt disponible...</CardContent>
                 </Card>
             </div>
