@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Calendar, Pencil, Link as LinkIcon, Trash2, Lightbulb, FileText, Video, Scissors, CheckCircle2, Info, ListChecks, Brain, FileArchive } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -179,85 +178,86 @@ export function ProjectDetail({ project }: { project: Project }) {
             </Card>
         </div>
         
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>Contenu du Projet</CardTitle>
-                    <CardDescription>Organisez ici tous les éléments de votre projet.</CardDescription>
+                    <CardTitle className="flex items-center"><ListChecks className="mr-3 h-5 w-5 text-primary"/>Sujets Clés &amp; Plan</CardTitle>
+                    <CardDescription>Définissez ici les grands sujets et la structure de votre contenu.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <Accordion type="multiple" defaultValue={['objectives', 'ideas']} className="w-full">
-                        <AccordionItem value="objectives">
-                            <AccordionTrigger className="text-lg font-medium"><ListChecks className="mr-2 h-5 w-5 text-primary"/>Sujets Clés &amp; Plan</AccordionTrigger>
-                            <AccordionContent className="pt-4 space-y-4">
-                                <div className="flex items-center space-x-2">
-                                    <Input placeholder="Ajouter un sujet, un point du plan..." value={newObjective} onChange={(e) => setNewObjective(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateArrayField('objectives', newObjective, 'add')} />
-                                    <Button onClick={() => handleUpdateArrayField('objectives', newObjective, 'add')} disabled={!newObjective.trim()}>Ajouter</Button>
-                                </div>
-                                <ul className="space-y-2 pt-2">
-                                    {(project.objectives && project.objectives.length > 0) ? (
-                                        project.objectives.map((obj, index) => (
-                                        <li key={index} className="flex items-center justify-between p-3 rounded-lg border bg-background hover:bg-accent/50 group">
-                                            <span className="flex-1">{obj}</span>
-                                            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => handleUpdateArrayField('objectives', obj, 'remove')}>
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </li>
-                                        ))
-                                    ) : <p className="text-center text-muted-foreground py-4">Définissez ici les grands sujets à aborder.</p>}
-                                </ul>
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="ideas">
-                            <AccordionTrigger className="text-lg font-medium"><Brain className="mr-2 h-5 w-5 text-primary"/>Idées &amp; Brainstorming</AccordionTrigger>
-                            <AccordionContent className="pt-4 space-y-4">
-                                <div className="flex items-center space-x-2">
-                                    <Input placeholder="Noter une idée, une phrase..." value={newIdea} onChange={(e) => setNewIdea(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateArrayField('ideas', newIdea, 'add')} />
-                                    <Button onClick={() => handleUpdateArrayField('ideas', newIdea, 'add')} disabled={!newIdea.trim()}>Noter</Button>
-                                </div>
-                                <ul className="space-y-2 pt-2">
-                                    {(project.ideas && project.ideas.length > 0) ? (
-                                        project.ideas.map((idea, index) => (
-                                        <li key={index} className="flex items-center justify-between p-3 rounded-lg border bg-background hover:bg-accent/50 group">
-                                            <span className="flex-1">{idea}</span>
-                                            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => handleUpdateArrayField('ideas', idea, 'remove')}>
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </li>
-                                        ))
-                                    ) : <p className="text-center text-muted-foreground py-4">Votre espace de brainstorming est vide.</p>}
-                                </ul>
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="links" className="border-b-0">
-                            <AccordionTrigger className="text-lg font-medium"><FileArchive className="mr-2 h-5 w-5 text-primary"/>Ressources &amp; Liens</AccordionTrigger>
-                            <AccordionContent className="pt-4 space-y-4">
-                               <div className="space-y-2 rounded-lg border p-4">
-                                    <h4 className="font-medium text-sm">Ajouter une nouvelle ressource</h4>
-                                    <div className="flex flex-col sm:flex-row gap-2">
-                                        <Input placeholder="Titre (ex: Article sur l'inflation)" value={newLink.title} onChange={(e) => setNewLink({ ...newLink, title: e.target.value })} />
-                                        <Input placeholder="URL (https://...)" value={newLink.url} onChange={(e) => setNewLink({ ...newLink, url: e.target.value })} />
-                                        <Button onClick={() => handleUpdateArrayField('links', newLink, 'add')} disabled={!newLink.title.trim() || !newLink.url.trim()} className="sm:w-auto">Ajouter</Button>
-                                    </div>
-                                </div>
-                                <ul className="space-y-2 pt-2">
-                                    {(project.links && project.links.length > 0) ? (
-                                        project.links.map((link, index) => (
-                                        <li key={index} className="flex items-center justify-between p-3 rounded-lg border bg-background hover:bg-accent/50 group">
-                                            <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-2 flex-1 break-all">
-                                                <LinkIcon className="h-4 w-4 flex-shrink-0" />
-                                                {link.title}
-                                            </a>
-                                            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => handleUpdateArrayField('links', link, 'remove')}>
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </li>
-                                        ))
-                                    ) : <p className="text-center text-muted-foreground py-4">Aucune ressource enregistrée.</p>}
-                                </ul>
-                            </AccordionContent>
-                        </AccordionItem>
-                    </Accordion>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                        <Input placeholder="Ajouter un sujet..." value={newObjective} onChange={(e) => setNewObjective(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateArrayField('objectives', newObjective, 'add')} />
+                        <Button onClick={() => handleUpdateArrayField('objectives', newObjective, 'add')} disabled={!newObjective.trim()}>Ajouter</Button>
+                    </div>
+                    <ul className="space-y-2 pt-2">
+                        {(project.objectives && project.objectives.length > 0) ? (
+                            project.objectives.map((obj, index) => (
+                            <li key={index} className="flex items-center justify-between p-3 rounded-lg border bg-background hover:bg-accent/50 group">
+                                <span className="flex-1">{obj}</span>
+                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => handleUpdateArrayField('objectives', obj, 'remove')}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </li>
+                            ))
+                        ) : <p className="text-center text-muted-foreground py-4 text-sm">Aucun sujet défini.</p>}
+                    </ul>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center"><Brain className="mr-3 h-5 w-5 text-primary"/>Idées &amp; Brainstorming</CardTitle>
+                    <CardDescription>Votre espace pour noter toutes les idées en vrac.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                        <Input placeholder="Noter une idée, une phrase..." value={newIdea} onChange={(e) => setNewIdea(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateArrayField('ideas', newIdea, 'add')} />
+                        <Button onClick={() => handleUpdateArrayField('ideas', newIdea, 'add')} disabled={!newIdea.trim()}>Noter</Button>
+                    </div>
+                    <ul className="space-y-2 pt-2">
+                        {(project.ideas && project.ideas.length > 0) ? (
+                            project.ideas.map((idea, index) => (
+                            <li key={index} className="flex items-center justify-between p-3 rounded-lg border bg-background hover:bg-accent/50 group">
+                                <span className="flex-1">{idea}</span>
+                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => handleUpdateArrayField('ideas', idea, 'remove')}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </li>
+                            ))
+                        ) : <p className="text-center text-muted-foreground py-4 text-sm">Aucune idée pour le moment.</p>}
+                    </ul>
+                </CardContent>
+            </Card>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center"><FileArchive className="mr-3 h-5 w-5 text-primary"/>Ressources &amp; Liens</CardTitle>
+                    <CardDescription>Gardez tous vos liens de recherche et sources utiles au même endroit.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                   <div className="space-y-2 rounded-lg border p-4">
+                        <h4 className="font-medium text-sm">Ajouter une nouvelle ressource</h4>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                            <Input placeholder="Titre (ex: Article sur l'inflation)" value={newLink.title} onChange={(e) => setNewLink({ ...newLink, title: e.target.value })} />
+                            <Input placeholder="URL (https://...)" value={newLink.url} onChange={(e) => setNewLink({ ...newLink, url: e.target.value })} />
+                            <Button onClick={() => handleUpdateArrayField('links', newLink, 'add')} disabled={!newLink.title.trim() || !newLink.url.trim()} className="sm:w-auto shrink-0">Ajouter</Button>
+                        </div>
+                    </div>
+                    <ul className="space-y-2 pt-2">
+                        {(project.links && project.links.length > 0) ? (
+                            project.links.map((link, index) => (
+                            <li key={index} className="flex items-center justify-between p-3 rounded-lg border bg-background hover:bg-accent/50 group">
+                                <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-2 flex-1 break-all">
+                                    <LinkIcon className="h-4 w-4 flex-shrink-0" />
+                                    {link.title}
+                                </a>
+                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => handleUpdateArrayField('links', link, 'remove')}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </li>
+                            ))
+                        ) : <p className="text-center text-muted-foreground py-4 text-sm">Aucune ressource enregistrée.</p>}
+                    </ul>
                 </CardContent>
             </Card>
         </div>
