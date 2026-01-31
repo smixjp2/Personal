@@ -83,6 +83,7 @@ export type Habit = BaseEntity & {
   frequency: "daily" | "monthly" | "yearly";
   progress: number; // 0 or 1 for daily, 0-100 for others
   goal: number;
+  link?: string;
 };
 
 

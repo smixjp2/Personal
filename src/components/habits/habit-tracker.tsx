@@ -82,8 +82,21 @@ export function HabitTracker() {
     }
   };
   
+  const fmvaHabit: Habit = {
+    id: 'static-fmva-habit',
+    name: 'Étudier 30 min pour FMVA',
+    icon: 'BookOpen',
+    frequency: 'daily',
+    progress: 0,
+    goal: 1,
+    link: 'https://learn.corporatefinanceinstitute.com/dashboard',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
   const renderHabits = (frequency: "daily" | "monthly" | "yearly") => {
-    const filteredHabits = habits.filter((h) => h.frequency === frequency);
+    const baseHabits = habits.filter((h) => h.frequency === frequency);
+    const filteredHabits = frequency === 'daily' ? [fmvaHabit, ...baseHabits] : baseHabits;
     
     if (!isInitialized) {
         return (
@@ -117,7 +130,13 @@ export function HabitTracker() {
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Icon className="h-5 w-5 text-primary" />
-                <span className="font-medium">{habit.name}</span>
+                {habit.link ? (
+                    <a href={habit.link} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">
+                      {habit.name}
+                    </a>
+                  ) : (
+                    <span className="font-medium">{habit.name}</span>
+                  )}
               </div>
               <div className="flex items-center gap-4">
                 {habit.frequency === "daily" ? (
@@ -125,6 +144,7 @@ export function HabitTracker() {
                     id={`habit-check-${habit.id}`}
                     checked={habit.progress === 1}
                     onCheckedChange={() => toggleDailyHabit(habit)}
+                    disabled={habit.id.startsWith('static-')}
                   />
                 ) : (
                   <div className="w-32 flex items-center gap-2">
@@ -134,7 +154,7 @@ export function HabitTracker() {
                 )}
                 <div className="flex items-center gap-1">
                   <EditHabitDialog habit={habit} onEditHabit={(values) => editHabit(habit.id, values)}>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" disabled={habit.id.startsWith('static-')}>
                           <Pencil className="h-4 w-4" />
                           <span className="sr-only">Modifier l'habitude</span>
                       </Button>
@@ -144,6 +164,7 @@ export function HabitTracker() {
                       size="icon" 
                       className="h-8 w-8 text-muted-foreground hover:text-destructive" 
                       onClick={() => deleteHabit(habit.id)}
+                      disabled={habit.id.startsWith('static-')}
                   >
                       <Trash2 className="h-4 w-4" />
                       <span className="sr-only">Supprimer l'habitude</span>

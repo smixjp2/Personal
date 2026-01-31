@@ -72,6 +72,17 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
     }
   };
   
+  const fmvaGoal: Goal = {
+    id: 'static-fmva-goal',
+    name: 'Obtenir la certification FMVA',
+    description: "Valider la certification Financial Modeling & Valuation Analyst pour renforcer les compétences en finance d'entreprise.",
+    category: 'professional',
+    dueDate: new Date(2026, 11, 31).toISOString(),
+    progress: 5,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
   if (!isInitialized) {
     return (
         <div className="space-y-6">
@@ -88,7 +99,9 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
     )
   }
 
-  const filteredGoals = goals.filter(g => g.category === category && new Date(g.dueDate).getFullYear() === 2026);
+  const baseGoals = goals.filter(g => g.category === category && new Date(g.dueDate).getFullYear() === 2026);
+  const filteredGoals = category === 'professional' ? [fmvaGoal, ...baseGoals] : baseGoals;
+
 
   return (
     <div className="space-y-6">
@@ -118,6 +131,7 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
                         goal={goal}
                         onEdit={(updatedData) => editGoal(goal.id, updatedData)}
                         onDelete={() => deleteGoal(goal.id)}
+                        isStatic={goal.id.startsWith('static-')}
                     />
                 </motion.div>
             )) : (
