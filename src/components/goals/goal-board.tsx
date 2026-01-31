@@ -11,14 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { doc, setDoc } from "firebase/firestore";
-
-const columns: {
-  id: Goal["category"];
-  title: string;
-}[] = [
-  { id: "personal", title: "Personnel" },
-  { id: "professional", title: "Professionnel" },
-];
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function GoalBoard() {
   const { goals, isInitialized } = useData();
@@ -52,25 +45,21 @@ export function GoalBoard() {
                 <h1 className="text-3xl font-bold font-headline">Objectifs 2026</h1>
                 <Skeleton className="h-10 w-36" />
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {columns.map(column => (
-                    <div key={column.id} className="rounded-xl bg-card/50 p-4">
-                        <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
-                            {column.title}
-                        </h2>
-                        <div className="space-y-4">
-                            <Skeleton className="h-48 w-full" />
-                            <Skeleton className="h-48 w-full" />
-                        </div>
-                    </div>
-                ))}
+            <div className="space-y-6">
+                <Skeleton className="h-10 w-full max-w-sm mx-auto" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-48 w-full hidden lg:block" />
+                </div>
             </div>
       </div>
     )
   }
 
   const filteredGoals = goals.filter(g => new Date(g.dueDate).getFullYear() === 2026);
-
+  const personalGoals = filteredGoals.filter(g => g.category === 'personal');
+  const professionalGoals = filteredGoals.filter(g => g.category === 'professional');
 
   return (
     <div className="space-y-6">
@@ -83,27 +72,42 @@ export function GoalBoard() {
         </AddGoalDialog>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <AnimatePresence>
-          {columns.map((column) => (
-            <div key={column.id} className="rounded-xl bg-card/50 p-4">
-              <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
-                {column.title}
-              </h2>
-               <div className="space-y-4">
-                {filteredGoals.filter(g => g.category === column.id).map((goal) => (
-                    <motion.div key={goal.id} layout>
-                        <GoalCard goal={goal} />
-                    </motion.div>
-                ))}
-                {filteredGoals.filter(g => g.category === column.id).length === 0 && (
-                    <p className="text-muted-foreground text-center py-8">Aucun objectif {column.id === 'personal' ? 'personnel' : 'professionnel'} pour 2026.</p>
-                )}
-              </div>
+      <Tabs defaultValue="personal" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 max-w-sm mx-auto">
+            <TabsTrigger value="personal">Personnel</TabsTrigger>
+            <TabsTrigger value="professional">Professionnel</TabsTrigger>
+        </TabsList>
+        <TabsContent value="personal" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <AnimatePresence>
+                    {personalGoals.length > 0 ? personalGoals.map((goal) => (
+                        <motion.div key={goal.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                            <GoalCard goal={goal} />
+                        </motion.div>
+                    )) : (
+                        <div className="col-span-full text-center py-16 text-muted-foreground">
+                            <p>Aucun objectif personnel pour 2026.</p>
+                        </div>
+                    )}
+                </AnimatePresence>
             </div>
-          ))}
-        </AnimatePresence>
-      </div>
+        </TabsContent>
+        <TabsContent value="professional" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <AnimatePresence>
+                        {professionalGoals.length > 0 ? professionalGoals.map((goal) => (
+                        <motion.div key={goal.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                            <GoalCard goal={goal} />
+                        </motion.div>
+                    )) : (
+                        <div className="col-span-full text-center py-16 text-muted-foreground">
+                            <p>Aucun objectif professionnel pour 2026.</p>
+                        </div>
+                    )}
+                </AnimatePresence>
+            </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
