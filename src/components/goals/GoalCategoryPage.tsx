@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 type GoalCategoryPageProps = {
     category: 'personal' | 'professional';
@@ -82,6 +83,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Certification',
         dueDate: new Date(2026, 11, 31).toISOString(),
         progress: 5,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-fmva')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-fmva')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -93,6 +96,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Création de contenu',
         dueDate: new Date(2026, 5, 30).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-video')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-video')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -104,6 +109,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Carrière',
         dueDate: new Date(2026, 2, 31).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-cv-canadien')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-cv-canadien')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -115,6 +122,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Certification',
         dueDate: new Date(2026, 11, 31).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-language-cert')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-language-cert')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -126,6 +135,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Certification',
         dueDate: new Date(2026, 11, 31).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-wealth-management')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-wealth-management')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -137,6 +148,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Carrière',
         dueDate: new Date(2026, 8, 30).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-bilan-competence')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-bilan-competence')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -148,6 +161,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
       subCategory: 'Style',
       dueDate: new Date(2026, 11, 31).toISOString(),
       progress: 0,
+      imageUrl: PlaceHolderImages.find(p => p.id === 'goal-costumes')?.imageUrl,
+      imageHint: PlaceHolderImages.find(p => p.id === 'goal-costumes')?.imageHint,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
@@ -159,6 +174,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Apprentissage',
         dueDate: new Date(2026, 11, 31).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-learning')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-learning')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -170,6 +187,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Développement personnel',
         dueDate: new Date(2026, 11, 31).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-unfair-advantage')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-unfair-advantage')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -181,6 +200,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Réflexion',
         dueDate: new Date(2026, 3, 30).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-achievements')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-achievements')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -192,6 +213,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Networking',
         dueDate: new Date(2026, 11, 31).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-network')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-network')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -203,6 +226,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Carrière',
         dueDate: new Date(2026, 4, 31).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-cv-functional')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-cv-functional')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -214,6 +239,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Création de contenu',
         dueDate: new Date(2026, 11, 31).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-monetize-cfo')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-monetize-cfo')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -225,6 +252,8 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
         subCategory: 'Création de contenu',
         dueDate: new Date(2026, 11, 31).toISOString(),
         progress: 0,
+        imageUrl: PlaceHolderImages.find(p => p.id === 'goal-monetize-youtube')?.imageUrl,
+        imageHint: PlaceHolderImages.find(p => p.id === 'goal-monetize-youtube')?.imageHint,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     }
@@ -238,9 +267,9 @@ export function GoalCategoryPage({ category, categoryName, description }: GoalCa
                 <Skeleton className="h-10 w-36" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-48 w-full hidden lg:block" />
+                <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-64 w-full hidden lg:block" />
             </div>
       </div>
     )

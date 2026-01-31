@@ -61,6 +61,10 @@ export type Note = BaseEntity & {
   content: string;
 };
 
+export type Affirmation = BaseEntity & {
+  content: string;
+};
+
 export type Goal = BaseEntity & {
   name: string;
   description: string;
@@ -68,6 +72,8 @@ export type Goal = BaseEntity & {
   subCategory?: string;
   dueDate: string;
   progress: number;
+  imageUrl?: string;
+  imageHint?: string;
 };
 
 export type CalendarEvent = BaseEntity & {

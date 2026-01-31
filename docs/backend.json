@@ -124,6 +124,17 @@
       },
       "required": ["content", "createdAt", "updatedAt"]
     },
+    "Affirmation": {
+      "title": "Affirmation",
+      "description": "A personal affirmation to build confidence.",
+      "type": "object",
+      "properties": {
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["content", "createdAt", "updatedAt"]
+    },
     "Goal": {
       "title": "Goal",
       "description": "A user's goal.",
@@ -135,6 +146,8 @@
         "subCategory": { "type": "string" },
         "dueDate": { "type": "string", "format": "date-time" },
         "progress": { "type": "number" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "imageHint": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
@@ -190,6 +203,10 @@
     "/users/{userId}/notes/{noteId}": {
       "schema": { "$ref": "#/entities/Note" },
       "description": "Stores user's raw notes and ideas."
+    },
+    "/users/{userId}/affirmations/{affirmationId}": {
+      "schema": { "$ref": "#/entities/Affirmation" },
+      "description": "Stores user's personal affirmations."
     },
     "/users/{userId}/goals/{goalId}": {
       "schema": { "$ref": "#/entities/Goal" },

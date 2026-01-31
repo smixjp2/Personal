@@ -23,6 +23,76 @@
       "description": "A person reading a book in a cozy chair.",
       "imageUrl": "https://images.unsplash.com/photo-1524995767968-3da7d7862529?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyZWFkaW5nJTIwYm9va3xlbnwwfHx8fDE3NzAxMTY0MzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "reading book"
+    },
+    {
+      "id": "goal-fmva",
+      "imageUrl": "https://images.unsplash.com/photo-1659080907168-d567d70d27ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmaW5hbmNlJTIwY2VydGlmaWNhdGlvbnxlbnwwfHx8fDE3Njk4NzI5NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "finance certification"
+    },
+    {
+      "id": "goal-video",
+      "imageUrl": "https://images.unsplash.com/photo-1574717025058-2f8737d2e2b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx2aWRlbyUyMHByb2R1Y3Rpb258ZW58MHx8fHwxNzY5ODcyOTU4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "video production"
+    },
+    {
+      "id": "goal-cv-canadien",
+      "imageUrl": "https://images.unsplash.com/photo-1761070370597-e26aa99f67a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyZXN1bWUlMjBjYW5hZGF8ZW58MHx8fHwxNzY5ODcyOTU3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "resume canada"
+    },
+    {
+      "id": "goal-language-cert",
+      "imageUrl": "https://images.unsplash.com/photo-1695970383927-1d881f200789?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxsYW5ndWFnZSUyMHRlc3R8ZW58MHx8fHwxNzY5ODcyOTU3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "language test"
+    },
+    {
+      "id": "goal-wealth-management",
+      "imageUrl": "https://images.unsplash.com/photo-1559526324-593bc073d938?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d2VhbHRoJTIwbWFuYWdlbWVudHxlbnwwfHx8fDE3Njk4NzI5NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "wealth management"
+    },
+    {
+      "id": "goal-bilan-competence",
+      "imageUrl": "https://images.unsplash.com/photo-1767972463898-e763a9f14995?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxza2lsbHMlMjBhc3Nlc3NtZW50fGVufDB8fHx8MTc2OTg3Mjk1N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "skills assessment"
+    },
+    {
+      "id": "goal-costumes",
+      "imageUrl": "https://images.unsplash.com/photo-1611937663641-5cef5189d71b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxidXNpbmVzcyUyMHN1aXR8ZW58MHx8fHwxNzY5ODU0NDIxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "business suit"
+    },
+    {
+      "id": "goal-learning",
+      "imageUrl": "https://images.unsplash.com/photo-1763568258605-6783d4fad7b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxsZWFybmluZyUyMGNvZGV8ZW58MHx8fHwxNzY5ODM0ODc5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "learning code"
+    },
+    {
+      "id": "goal-unfair-advantage",
+      "imageUrl": "https://images.unsplash.com/photo-1689073016656-d8c0b43d4394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c3RyYXRlZ3klMjBib2FyZHxlbnwwfHx8fDE3Njk4MTU2NzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "strategy board"
+    },
+    {
+      "id": "goal-achievements",
+      "imageUrl": "https://images.unsplash.com/photo-1656761961819-7c868b11b2d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx0cm9waHklMjBhd2FyZHxlbnwwfHx8fDE3Njk4NzAyOTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "trophy award"
+    },
+    {
+      "id": "goal-network",
+      "imageUrl": "https://images.unsplash.com/photo-1675716921224-e087a0cca69a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxuZXR3b3JraW5nJTIwZXZlbnR8ZW58MHx8fHwxNzY5ODUwNzQ0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "networking event"
+    },
+    {
+      "id": "goal-cv-functional",
+      "imageUrl": "https://images.unsplash.com/photo-1622156178521-1f8dc2e9a70c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyZXN1bWUlMjBkZXNpZ258ZW58MHx8fHwxNzY5NzYxOTk4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "resume design"
+    },
+    {
+      "id": "goal-monetize-cfo",
+      "imageUrl": "https://images.unsplash.com/photo-1694878982141-cc798b98f926?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx5b3V0dWJlJTIwbW9uZXl8ZW58MHx8fHwxNzY5ODcyOTU3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "youtube money"
+    },
+    {
+      "id": "goal-monetize-youtube",
+      "imageUrl": "https://images.unsplash.com/photo-1676380367878-c79a5f40edb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx5b3V0dWJlJTIwY3JlYXRvcnxlbnwwfHx8fDE3Njk4NzI5NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "youtube creator"
     }
   ]
 }

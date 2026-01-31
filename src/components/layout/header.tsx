@@ -32,6 +32,7 @@ const pageTitles: { [key: string]: string } = {
   "/media": "Médiathèque",
   "/finances": "Finances",
   "/notes": "Boîte à idées",
+  "/affirmations": "Affirmations",
   "/goals": "Objectifs 2026",
   "/goals/personal": "Objectifs Personnels",
   "/goals/professional": "Objectifs Professionnels",

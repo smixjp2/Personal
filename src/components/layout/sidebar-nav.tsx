@@ -12,6 +12,7 @@ import {
   Target,
   Calendar,
   Repeat,
+  Sparkles,
 } from "lucide-react";
 
 import {
@@ -28,6 +29,7 @@ const navItems = [
   { href: "/calendar", label: "Calendrier", icon: Calendar },
   { href: "/habits", label: "Habitudes", icon: Repeat },
   { href: "/notes", label: "Idées", icon: Lightbulb },
+  { href: "/affirmations", label: "Affirmations", icon: Sparkles },
   { href: "/media", label: "Médiathèque", icon: Library },
   { href: "/finances", label: "Finances", icon: Landmark },
   { href: "/goals", label: "Objectifs 2026", icon: Target },

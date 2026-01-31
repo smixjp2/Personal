@@ -31,6 +31,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { EditGoalDialog } from "./edit-goal-dialog";
+import Image from "next/image";
 
 type GoalCardProps = {
   goal: Goal;
@@ -43,6 +44,17 @@ export function GoalCard({ goal, onEdit, onDelete, isStatic = false }: GoalCardP
 
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
+      {goal.imageUrl && (
+        <div className="relative aspect-[16/9] w-full">
+          <Image
+            src={goal.imageUrl}
+            alt={goal.name}
+            fill
+            className="object-cover"
+            data-ai-hint={goal.imageHint}
+          />
+        </div>
+      )}
       <CardHeader>
         <div className="flex justify-between items-start">
             <CardTitle>{goal.name}</CardTitle>
