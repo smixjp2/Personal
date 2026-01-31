@@ -22,14 +22,44 @@ import { useData } from "@/contexts/data-context";
 import { v4 as uuidv4 } from "uuid";
 import { useFirestore, useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { doc, setDoc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
+import { doc, setDoc, updateDoc, deleteDoc, deleteField, writeBatch } from "firebase/firestore";
 import { EditHabitDialog } from "./edit-habit-dialog";
+import { useEffect } from "react";
+
+const defaultDailyHabits: Omit<Habit, 'id' | 'createdAt' | 'updatedAt'>[] = [
+    { name: 'Se brosser les dents', icon: 'Smile', frequency: 'daily', progress: 0, goal: 1 },
+    { name: 'Se laver le visage', icon: 'Droplets', frequency: 'daily', progress: 0, goal: 1 },
+    { name: 'Préparer le petit-déjeuner', icon: 'Apple', frequency: 'daily', progress: 0, goal: 1 },
+    { name: 'Ranger la chambre', icon: 'Bed', frequency: 'daily', progress: 0, goal: 1 },
+    { name: 'Étudier 30 min pour FMVA', icon: 'BookOpen', frequency: 'daily', progress: 0, goal: 1, link: 'https://learn.corporatefinanceinstitute.com/dashboard', goalId: 'static-fmva-goal' },
+    { name: 'Lire 10 min par jour un livre', icon: 'BookOpen', frequency: 'daily', progress: 0, goal: 1, goalId: 'static-learning-goal' },
+];
 
 export function HabitTracker() {
   const { habits, goals, isInitialized } = useData();
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (isInitialized && user && firestore && habits.length === 0) {
+        const batch = writeBatch(firestore);
+        defaultDailyHabits.forEach(habit => {
+            const habitId = uuidv4();
+            const habitRef = doc(firestore, 'users', user.uid, 'habits', habitId);
+            batch.set(habitRef, {
+                ...habit,
+                id: habitId,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            });
+        });
+        batch.commit().catch(error => {
+            console.error("Failed to seed habits:", error);
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible d\'initialiser les habitudes.' });
+        });
+    }
+  }, [isInitialized, user, firestore, habits, toast]);
 
   const addHabit = async (newHabitData: Omit<Habit, "id" | "progress" | "goal">) => {
     if (!user || !firestore) {
@@ -94,77 +124,8 @@ export function HabitTracker() {
     }
   };
   
-  const morningRoutineHabits: Habit[] = [
-    {
-      id: 'static-teeth-habit',
-      name: 'Se brosser les dents',
-      icon: 'Smile',
-      frequency: 'daily',
-      progress: 0,
-      goal: 1,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'static-face-habit',
-      name: 'Se laver le visage',
-      icon: 'Droplets',
-      frequency: 'daily',
-      progress: 0,
-      goal: 1,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'static-breakfast-habit',
-      name: 'Préparer le petit-déjeuner',
-      icon: 'Apple',
-      frequency: 'daily',
-      progress: 0,
-      goal: 1,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'static-room-habit',
-      name: 'Ranger la chambre',
-      icon: 'Bed',
-      frequency: 'daily',
-      progress: 0,
-      goal: 1,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-  ];
-
-  const fmvaHabit: Habit = {
-    id: 'static-fmva-habit',
-    name: 'Étudier 30 min pour FMVA',
-    icon: 'BookOpen',
-    frequency: 'daily',
-    progress: 0,
-    goal: 1,
-    link: 'https://learn.corporatefinanceinstitute.com/dashboard',
-    goalId: 'static-fmva-goal',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  const readingHabit: Habit = {
-    id: 'static-reading-habit',
-    name: 'Lire 10 min par jour un livre',
-    icon: 'BookOpen',
-    frequency: 'daily',
-    progress: 0,
-    goal: 1,
-    goalId: 'static-learning-goal',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
   const renderHabits = (frequency: "daily" | "monthly" | "yearly") => {
-    const baseHabits = habits.filter((h) => h.frequency === frequency);
-    const filteredHabits = frequency === 'daily' ? [...morningRoutineHabits, fmvaHabit, readingHabit, ...baseHabits] : baseHabits;
+    const filteredHabits = habits.filter((h) => h.frequency === frequency);
     
     if (!isInitialized) {
         return (
@@ -222,7 +183,6 @@ export function HabitTracker() {
                     id={`habit-check-${habit.id}`}
                     checked={habit.progress === 1}
                     onCheckedChange={() => toggleDailyHabit(habit)}
-                    disabled={habit.id.startsWith('static-')}
                   />
                 ) : (
                   <div className="w-32 flex items-center gap-2">
@@ -232,7 +192,7 @@ export function HabitTracker() {
                 )}
                 <div className="flex items-center gap-1">
                   <EditHabitDialog habit={habit} onEditHabit={(values) => editHabit(habit.id, values)}>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" disabled={habit.id.startsWith('static-')}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
                           <Pencil className="h-4 w-4" />
                           <span className="sr-only">Modifier l'habitude</span>
                       </Button>
@@ -242,7 +202,6 @@ export function HabitTracker() {
                       size="icon" 
                       className="h-8 w-8 text-muted-foreground hover:text-destructive" 
                       onClick={() => deleteHabit(habit.id)}
-                      disabled={habit.id.startsWith('static-')}
                   >
                       <Trash2 className="h-4 w-4" />
                       <span className="sr-only">Supprimer l'habitude</span>
