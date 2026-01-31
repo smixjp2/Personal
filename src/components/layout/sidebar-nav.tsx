@@ -13,6 +13,7 @@ import {
   Calendar,
   Repeat,
   Sparkles,
+  FolderKanban,
 } from "lucide-react";
 
 import {
@@ -33,6 +34,7 @@ const navItems = [
   { href: "/media", label: "Médiathèque", icon: Library },
   { href: "/finances", label: "Finances", icon: Landmark },
   { href: "/goals", label: "Objectifs 2026", icon: Target },
+  { href: "/projects", label: "Projets", icon: FolderKanban },
 ];
 
 export function SidebarNav() {

@@ -188,6 +188,22 @@
         }
       },
       "required": ["title", "description", "createdAt", "updatedAt"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "A user's project, like a YouTube channel or side business.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "link": { "type": "string", "format": "uri" },
+        "status": { "type": "string", "enum": ["monetized", "pre-monetization", "idea"] },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "imageHint": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "description", "status", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -241,6 +257,10 @@
     "/users/{userId}/reflection-pillars/{pillarId}": {
       "schema": { "$ref": "#/entities/ReflectionPillar" },
       "description": "Stores user's strategic reflection pillars."
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Stores user's projects."
     }
   }
 }

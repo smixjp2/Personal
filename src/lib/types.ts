@@ -98,6 +98,15 @@ export type ReflectionPillar = BaseEntity & {
   description: string;
 };
 
+export type Project = BaseEntity & {
+  name: string;
+  description: string;
+  link?: string;
+  status: 'monetized' | 'pre-monetization' | 'idea';
+  imageUrl?: string;
+  imageHint?: string;
+};
+
 
 export type { IconName };
 

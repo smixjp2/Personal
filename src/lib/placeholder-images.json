@@ -30,16 +30,6 @@
       "imageHint": "finance certification"
     },
     {
-      "id": "goal-video",
-      "imageUrl": "https://images.unsplash.com/photo-1574717025058-2f8737d2e2b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx2aWRlbyUyMHByb2R1Y3Rpb258ZW58MHx8fHwxNzY5ODcyOTU4fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "video production"
-    },
-    {
-      "id": "goal-cv-canadien",
-      "imageUrl": "https://images.unsplash.com/photo-1761070370597-e26aa99f67a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyZXN1bWUlMjBjYW5hZGF8ZW58MHx8fHwxNzY5ODcyOTU3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "resume canada"
-    },
-    {
       "id": "goal-language-cert",
       "imageUrl": "https://images.unsplash.com/photo-1695970383927-1d881f200789?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxsYW5ndWFnZSUyMHRlc3R8ZW58MHx8fHwxNzY5ODcyOTU3fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "language test"
@@ -93,6 +83,16 @@
       "id": "goal-monetize-youtube",
       "imageUrl": "https://images.unsplash.com/photo-1676380367878-c79a5f40edb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx5b3V0dWJlJTIwY3JlYXRvcnxlbnwwfHx8fDE3Njk4NzI5NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "youtube creator"
+    },
+    {
+      "id": "project-analyst",
+      "imageUrl": "https://images.unsplash.com/photo-1611162617474-5b21e879e113?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx5b3V0dWJlJTIwbG9nb3xlbnwwfHx8fDE3NzAyOTM1MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "youtube logo"
+    },
+    {
+      "id": "project-cfo",
+      "imageUrl": "https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx5b3V0dWJlJTIwbG9nb3xlbnwwfHx8fDE3NzAyOTM1MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "youtube channel"
     }
   ]
 }
