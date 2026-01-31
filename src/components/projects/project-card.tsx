@@ -24,7 +24,7 @@ const statusConfig: Record<Project['status'], { label: string; icon: React.Eleme
 };
 
 export function ProjectCard({ project }: { project: Project }) {
-  const statusInfo = statusConfig[project.status];
+  const statusInfo = statusConfig[project.status] || statusConfig.idea;
   const imageUrl = `https://picsum.photos/seed/${project.id}/600/400`;
 
   return (
