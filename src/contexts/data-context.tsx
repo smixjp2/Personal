@@ -4,7 +4,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useUser } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import type { ShoppingItem, WatchlistItem, Book, Income, SavingGoal, Investment, Note, Goal, CalendarEvent, Habit, Affirmation } from '@/lib/types';
+import type { ShoppingItem, WatchlistItem, Book, Income, SavingGoal, Investment, Note, Goal, CalendarEvent, Habit, Affirmation, ReflectionPillar } from '@/lib/types';
 
 interface DataContextType {
   isInitialized: boolean;
@@ -19,6 +19,7 @@ interface DataContextType {
   calendarEvents: CalendarEvent[];
   habits: Habit[];
   affirmations: Affirmation[];
+  reflectionPillars: ReflectionPillar[];
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -59,8 +60,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const { data: affirmations, isLoading: loadingAffirmations } = useCollection<Affirmation>(
     user ? `users/${user.uid}/affirmations` : null
   );
+  const { data: reflectionPillars, isLoading: loadingReflectionPillars } = useCollection<ReflectionPillar>(
+    user ? `users/${user.uid}/reflection-pillars` : null
+  );
   
-  const isInitialized = !loadingShopping && !loadingWatchlist && !loadingReading && !loadingIncome && !loadingSavingGoals && !loadingInvestments && !loadingNotes && !loadingGoals && !loadingCalendarEvents && !loadingHabits && !loadingAffirmations;
+  const isInitialized = !loadingShopping && !loadingWatchlist && !loadingReading && !loadingIncome && !loadingSavingGoals && !loadingInvestments && !loadingNotes && !loadingGoals && !loadingCalendarEvents && !loadingHabits && !loadingAffirmations && !loadingReflectionPillars;
 
   const value: DataContextType = {
     isInitialized,
@@ -75,6 +79,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     calendarEvents: calendarEvents || [],
     habits: habits || [],
     affirmations: affirmations || [],
+    reflectionPillars: reflectionPillars || [],
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

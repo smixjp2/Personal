@@ -93,6 +93,11 @@ export type Habit = BaseEntity & {
   goalId?: string;
 };
 
+export type ReflectionPillar = BaseEntity & {
+  title: string;
+  description: string;
+};
+
 
 export type { IconName };
 

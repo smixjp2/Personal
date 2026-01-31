@@ -166,6 +166,28 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["title", "date", "type", "completed", "createdAt", "updatedAt"]
+    },
+    "ReflectionPillar": {
+      "title": "Reflection Pillar",
+      "description": "A high-level strategic question or theme for user reflection.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["title", "description", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -215,6 +237,10 @@
     "/users/{userId}/calendar-events/{eventId}": {
       "schema": { "$ref": "#/entities/CalendarEvent" },
       "description": "Stores user's calendar events."
+    },
+    "/users/{userId}/reflection-pillars/{pillarId}": {
+      "schema": { "$ref": "#/entities/ReflectionPillar" },
+      "description": "Stores user's strategic reflection pillars."
     }
   }
 }

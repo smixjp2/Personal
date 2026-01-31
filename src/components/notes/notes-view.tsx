@@ -1,38 +1,96 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useData } from '@/contexts/data-context';
 import { useUser, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
-import { doc, setDoc, deleteDoc } from 'firebase/firestore';
-import type { Note } from '@/lib/types';
+import { doc, setDoc, deleteDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import type { Note, ReflectionPillar } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Lightbulb, Trash2, BrainCircuit } from 'lucide-react';
+import { Lightbulb, Trash2, BrainCircuit, MoreHorizontal, Pencil, Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Separator } from '../ui/separator';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import { ManagePillarDialog } from './manage-pillar-dialog';
 
-const reflectionPillars = [
-    { id: 'pillar-projections', title: 'Mes projections dans le futur', description: "Où vous voyez-vous dans 1, 5, 10 ans ? Quels sont vos grands rêves ?" },
-    { id: 'pillar-compliments', title: 'Liste des compliments', description: "Notez les compliments que les gens vous font. C'est une source de confiance et de prise de conscience de vos forces." },
-    { id: 'pillar-market-value', title: 'Ma valeur sur le marché', description: "Combien valez-vous professionnellement ? Quelles compétences sont les plus demandées ?" },
-    { id: 'pillar-investments', title: 'Autres moyens d\'investissement', description: "Explorez de nouvelles avenues pour faire fructifier votre capital au-delà des options actuelles." },
-    { id: 'pillar-us-market', title: 'Intégrer la bourse USA', description: "Quelles sont les étapes, les plateformes et les stratégies pour investir sur le marché américain ?" },
-    { id: 'pillar-retirement', title: 'Retraites complémentaires', description: "Quelles options de retraite existent pour compléter le système de base ?" },
+const defaultPillars = [
+    { title: 'Mes projections dans le futur', description: "Où vous voyez-vous dans 1, 5, 10 ans ? Quels sont vos grands rêves ?" },
+    { title: 'Liste des compliments', description: "Notez les compliments que les gens vous font. C'est une source de confiance et de prise de conscience de vos forces." },
+    { title: 'Ma valeur sur le marché', description: "Combien valez-vous professionnellement ? Quelles compétences sont les plus demandées ?" },
+    { title: 'Autres moyens d\'investissement', description: "Explorez de nouvelles avenues pour faire fructifier votre capital au-delà des options actuelles." },
+    { title: 'Intégrer la bourse USA', description: "Quelles sont les étapes, les plateformes et les stratégies pour investir sur le marché américain ?" },
+    { title: 'Retraites complémentaires', description: "Quelles options de retraite existent pour compléter le système de base ?" },
 ];
 
 export function NotesView() {
-  const { notes, isInitialized } = useData();
+  const { notes, reflectionPillars, isInitialized } = useData();
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
   const [newNoteContent, setNewNoteContent] = useState('');
+
+  useEffect(() => {
+    if (isInitialized && user && firestore && reflectionPillars.length === 0) {
+        const batch = writeBatch(firestore);
+        defaultPillars.forEach(pillar => {
+            const pillarId = uuidv4();
+            const pillarRef = doc(firestore, 'users', user.uid, 'reflection-pillars', pillarId);
+            batch.set(pillarRef, {
+                ...pillar,
+                id: pillarId,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            });
+        });
+        batch.commit().catch(error => {
+            console.error("Failed to seed reflection pillars:", error);
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible d\'initialiser les piliers de réflexion.' });
+        });
+    }
+  }, [isInitialized, user, firestore, reflectionPillars, toast]);
+
+  const addPillar = async (values: {title: string, description: string}) => {
+    if (!user || !firestore) return;
+    const pillarId = uuidv4();
+    const pillarRef = doc(firestore, 'users', user.uid, 'reflection-pillars', pillarId);
+    try {
+        await setDoc(pillarRef, { ...values, id: pillarId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+        toast({ title: 'Pilier ajouté !' });
+    } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible d\'ajouter le pilier.' });
+    }
+  }
+
+  const editPillar = async (pillarId: string, values: {title: string, description: string}) => {
+    if (!user || !firestore) return;
+    const pillarRef = doc(firestore, 'users', user.uid, 'reflection-pillars', pillarId);
+    try {
+        await updateDoc(pillarRef, { ...values, updatedAt: new Date().toISOString() });
+        toast({ title: 'Pilier mis à jour !' });
+    } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de modifier le pilier.' });
+    }
+  }
+
+  const deletePillar = async (pillarId: string) => {
+    if (!user || !firestore) return;
+    const pillarRef = doc(firestore, 'users', user.uid, 'reflection-pillars', pillarId);
+    try {
+        await deleteDoc(pillarRef);
+        toast({ title: 'Pilier supprimé.' });
+    } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer le pilier.' });
+    }
+  }
+
 
   const handleAddNote = async () => {
     if (!user || !firestore || !newNoteContent.trim()) {
@@ -41,10 +99,8 @@ export function NotesView() {
       }
       return;
     }
-
     const noteId = uuidv4();
     const noteRef = doc(firestore, 'users', user.uid, 'notes', noteId);
-    
     const newNote: Note = {
       id: noteId,
       content: newNoteContent.trim(),
@@ -74,22 +130,64 @@ export function NotesView() {
   return (
     <div className="space-y-8">
         <div>
-            <h2 className="text-2xl font-bold font-headline flex items-center gap-2 mb-2">
-                <BrainCircuit className="h-6 w-6 text-primary" />
-                Piliers de Réflexion
-            </h2>
-            <p className="text-muted-foreground">Vos grandes questions stratégiques pour guider vos actions.</p>
+            <div className="flex items-center justify-between mb-2">
+                <div className="space-y-1">
+                    <h2 className="text-2xl font-bold font-headline flex items-center gap-2">
+                        <BrainCircuit className="h-6 w-6 text-primary" />
+                        Piliers de Réflexion
+                    </h2>
+                    <p className="text-muted-foreground">Vos grandes questions stratégiques pour guider vos actions.</p>
+                </div>
+                <ManagePillarDialog onSave={addPillar}>
+                    <Button variant="outline"><Plus className="h-4 w-4 mr-2" />Ajouter un pilier</Button>
+                </ManagePillarDialog>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-                {reflectionPillars.map(pillar => (
-                    <Card key={pillar.id} className="h-full">
-                        <CardHeader>
-                            <CardTitle className="text-lg">{pillar.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground">{pillar.description}</p>
-                        </CardContent>
-                    </Card>
-                ))}
+                {isInitialized ? (
+                    reflectionPillars.map(pillar => (
+                        <Card key={pillar.id} className="h-full flex flex-col">
+                            <CardHeader className="flex-row items-start justify-between">
+                                <CardTitle className="text-lg">{pillar.title}</CardTitle>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-6 w-6 -mt-1 -mr-1">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <ManagePillarDialog pillar={pillar} onSave={(values) => editPillar(pillar.id, values)}>
+                                            <DropdownMenuItem onSelect={e => e.preventDefault()}>
+                                                <Pencil className="mr-2 h-4 w-4" /> Modifier
+                                            </DropdownMenuItem>
+                                        </ManagePillarDialog>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <DropdownMenuItem onSelect={e => e.preventDefault()} className="text-red-500">
+                                                    <Trash2 className="mr-2 h-4 w-4" /> Supprimer
+                                                </DropdownMenuItem>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                                                    <AlertDialogDescription>Cette action est irréversible et supprimera ce pilier de réflexion.</AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => deletePillar(pillar.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </CardHeader>
+                            <CardContent className="flex-grow">
+                                <p className="text-sm text-muted-foreground">{pillar.description}</p>
+                            </CardContent>
+                        </Card>
+                    ))
+                ) : (
+                    Array.from({length: 3}).map((_, i) => <Skeleton key={i} className="h-40 w-full" />)
+                )}
             </div>
         </div>
 
