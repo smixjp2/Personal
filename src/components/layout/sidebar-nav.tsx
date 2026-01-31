@@ -11,6 +11,7 @@ import {
   Lightbulb,
   Target,
   Calendar,
+  Repeat,
 } from "lucide-react";
 
 import {
@@ -25,6 +26,7 @@ import {
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/calendar", label: "Calendrier", icon: Calendar },
+  { href: "/habits", label: "Habitudes", icon: Repeat },
   { href: "/notes", label: "Idées", icon: Lightbulb },
   { href: "/media", label: "Médiathèque", icon: Library },
   { href: "/finances", label: "Finances", icon: Landmark },

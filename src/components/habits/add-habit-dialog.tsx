@@ -37,7 +37,7 @@ import type { Habit } from "@/lib/types";
 import { iconMap, iconNames } from "./habit-icons";
 
 const habitSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
+  name: z.string().min(2, "Le nom doit comporter au moins 2 caractères."),
   frequency: z.enum(["daily", "monthly", "yearly"]),
   icon: z.enum(iconNames),
 });
@@ -58,7 +58,7 @@ export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
   });
 
   function onSubmit(values: z.infer<typeof habitSchema>) {
-    onAddHabit({ ...values, goal: 1 });
+    onAddHabit(values);
     form.reset();
     setIsOpen(false);
   }
@@ -67,14 +67,14 @@ export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus className="mr-2 h-4 w-4" /> Add Habit
+          <Plus className="mr-2 h-4 w-4" /> Ajouter une habitude
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add a New Habit</DialogTitle>
+          <DialogTitle>Ajouter une nouvelle habitude</DialogTitle>
           <DialogDescription>
-            What new habit do you want to build?
+            Quelle nouvelle habitude souhaitez-vous créer ?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -84,9 +84,9 @@ export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Habit Name</FormLabel>
+                  <FormLabel>Nom de l'habitude</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Meditate for 10 minutes" {...field} />
+                    <Input placeholder="ex: Méditer 10 minutes" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -97,17 +97,17 @@ export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
               name="frequency"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Frequency</FormLabel>
+                  <FormLabel>Fréquence</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select how often" />
+                        <SelectValue placeholder="Sélectionner une fréquence" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="yearly">Yearly</SelectItem>
+                      <SelectItem value="daily">Quotidienne</SelectItem>
+                      <SelectItem value="monthly">Mensuelle</SelectItem>
+                      <SelectItem value="yearly">Annuelle</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -119,7 +119,7 @@ export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
               name="icon"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Icon</FormLabel>
+                  <FormLabel>Icône</FormLabel>
                   <FormControl>
                     <RadioGroup
                         onValueChange={field.onChange}
@@ -148,7 +148,7 @@ export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
               )}
             />
             <DialogFooter>
-              <Button type="submit">Add Habit</Button>
+              <Button type="submit">Ajouter l'habitude</Button>
             </DialogFooter>
           </form>
         </Form>

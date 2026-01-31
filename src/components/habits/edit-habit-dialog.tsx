@@ -36,7 +36,7 @@ import type { Habit, IconName } from "@/lib/types";
 import { iconMap, iconNames } from "./habit-icons";
 
 const habitSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
+  name: z.string().min(2, "Le nom doit comporter au moins 2 caractères."),
   frequency: z.enum(["daily", "monthly", "yearly"]),
   icon: z.enum(iconNames),
 });
@@ -70,9 +70,9 @@ export function EditHabitDialog({ habit, onEditHabit, children }: EditHabitDialo
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit Habit</DialogTitle>
+          <DialogTitle>Modifier l'habitude</DialogTitle>
           <DialogDescription>
-            Make changes to your habit.
+            Apportez des modifications à votre habitude.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -82,9 +82,9 @@ export function EditHabitDialog({ habit, onEditHabit, children }: EditHabitDialo
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Habit Name</FormLabel>
+                  <FormLabel>Nom de l'habitude</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Meditate for 10 minutes" {...field} />
+                    <Input placeholder="ex: Méditer 10 minutes" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -95,17 +95,17 @@ export function EditHabitDialog({ habit, onEditHabit, children }: EditHabitDialo
               name="frequency"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Frequency</FormLabel>
+                  <FormLabel>Fréquence</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select how often" />
+                        <SelectValue placeholder="Sélectionner une fréquence" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="yearly">Yearly</SelectItem>
+                      <SelectItem value="daily">Quotidienne</SelectItem>
+                      <SelectItem value="monthly">Mensuelle</SelectItem>
+                      <SelectItem value="yearly">Annuelle</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -117,7 +117,7 @@ export function EditHabitDialog({ habit, onEditHabit, children }: EditHabitDialo
               name="icon"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Icon</FormLabel>
+                  <FormLabel>Icône</FormLabel>
                   <FormControl>
                     <RadioGroup
                         onValueChange={field.onChange}
@@ -146,7 +146,7 @@ export function EditHabitDialog({ habit, onEditHabit, children }: EditHabitDialo
               )}
             />
             <DialogFooter>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit">Sauvegarder</Button>
             </DialogFooter>
           </form>
         </Form>

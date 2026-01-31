@@ -77,6 +77,14 @@ export type CalendarEvent = BaseEntity & {
   completed: boolean;
 };
 
+export type Habit = BaseEntity & {
+  name: string;
+  icon: IconName;
+  frequency: "daily" | "monthly" | "yearly";
+  progress: number; // 0 or 1 for daily, 0-100 for others
+  goal: number;
+};
+
 
 export type { IconName };
 

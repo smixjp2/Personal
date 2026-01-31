@@ -8,6 +8,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -30,34 +31,35 @@ export function HabitTracker() {
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const addHabit = async (newHabitData: Omit<Habit, "id" | "progress">) => {
+  const addHabit = async (newHabitData: Omit<Habit, "id" | "progress" | "goal">) => {
     if (!user || !firestore) {
-      toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add a habit." });
+      toast({ variant: "destructive", title: "Erreur d'authentification", description: "Vous devez être connecté pour ajouter une habitude." });
       return;
     }
     const newHabit: Habit = {
       ...newHabitData,
       id: uuidv4(),
       progress: 0,
+      goal: 1, // Default goal, can be customized later
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     try {
       await setDoc(doc(firestore, "users", user.uid, "habits", newHabit.id), newHabit);
     } catch(error: any) {
-      toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not save new habit." });
+      toast({ variant: "destructive", title: "Erreur Firebase", description: error.message || "Impossible de sauvegarder la nouvelle habitude." });
     }
   };
 
   const editHabit = async (habitId: string, updatedData: { name: string; frequency: "daily" | "monthly" | "yearly"; icon: IconName; }) => {
     if (!user || !firestore) {
-      toast({ variant: "destructive", title: "Authentication Error" });
+      toast({ variant: "destructive", title: "Erreur d'authentification" });
       return;
     }
     try {
       await updateDoc(doc(firestore, "users", user.uid, "habits", habitId), { ...updatedData, updatedAt: new Date().toISOString() });
     } catch (error: any) {
-      toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not update habit." });
+      toast({ variant: "destructive", title: "Erreur Firebase", description: error.message || "Impossible de mettre à jour l'habitude." });
     }
   };
 
@@ -67,7 +69,7 @@ export function HabitTracker() {
     try {
         await updateDoc(doc(firestore, "users", user.uid, "habits", habit.id), { progress: newProgress, updatedAt: new Date().toISOString() });
     } catch(error: any) {
-        toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not update habit." });
+        toast({ variant: "destructive", title: "Erreur Firebase", description: error.message || "Impossible de mettre à jour l'habitude." });
     }
   };
 
@@ -76,7 +78,7 @@ export function HabitTracker() {
     try {
       await deleteDoc(doc(firestore, "users", user.uid, "habits", id));
     } catch (error: any) {
-      toast({ variant: "destructive", title: "Firebase Error", description: error.message || "Could not delete habit." });
+      toast({ variant: "destructive", title: "Erreur Firebase", description: error.message || "Impossible de supprimer l'habitude." });
     }
   };
   
@@ -94,7 +96,7 @@ export function HabitTracker() {
     }
 
     if (filteredHabits.length === 0) {
-      return <p className="text-muted-foreground p-8 text-center">No {frequency} habits yet. Add one to get started!</p>
+      return <p className="text-muted-foreground p-8 text-center">Aucune habitude {frequency === 'daily' ? 'quotidienne' : (frequency === 'monthly' ? 'mensuelle' : 'annuelle')} pour l'instant.</p>
     }
 
     return (
@@ -134,7 +136,7 @@ export function HabitTracker() {
                   <EditHabitDialog habit={habit} onEditHabit={(values) => editHabit(habit.id, values)}>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
                           <Pencil className="h-4 w-4" />
-                          <span className="sr-only">Edit habit</span>
+                          <span className="sr-only">Modifier l'habitude</span>
                       </Button>
                   </EditHabitDialog>
                   <Button 
@@ -144,7 +146,7 @@ export function HabitTracker() {
                       onClick={() => deleteHabit(habit.id)}
                   >
                       <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete habit</span>
+                      <span className="sr-only">Supprimer l'habitude</span>
                   </Button>
                  </div>
               </div>
@@ -159,15 +161,18 @@ export function HabitTracker() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Habit Tracker</CardTitle>
+        <div>
+          <CardTitle>Suivi des Habitudes</CardTitle>
+          <CardDescription>Créez des routines et suivez vos progrès.</CardDescription>
+        </div>
         <AddHabitDialog onAddHabit={addHabit} />
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="daily">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="daily">Daily</TabsTrigger>
-            <TabsTrigger value="monthly">Monthly</TabsTrigger>
-            <TabsTrigger value="yearly">Yearly</TabsTrigger>
+            <TabsTrigger value="daily">Quotidien</TabsTrigger>
+            <TabsTrigger value="monthly">Mensuel</TabsTrigger>
+            <TabsTrigger value="yearly">Annuel</TabsTrigger>
           </TabsList>
           <TabsContent value="daily" className="mt-4">
             {renderHabits("daily")}
