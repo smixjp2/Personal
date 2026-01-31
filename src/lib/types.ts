@@ -66,6 +66,7 @@ export type Project = BaseEntity & {
   description: string;
   channel: "The Morroccan Analyst" | "The Morroccan CFO" | "Course";
   status: "idea" | "scripting" | "recording" | "editing" | "published";
+  imageUrl?: string;
   dueDate?: string;
   objectives?: string[];
   ideas?: string[];

@@ -133,6 +133,7 @@
         "description": { "type": "string" },
         "channel": { "type": "string", "enum": ["The Morroccan Analyst", "The Morroccan CFO", "Course"] },
         "status": { "type": "string", "enum": ["idea", "scripting", "recording", "editing", "published"] },
+        "imageUrl": { "type": "string", "format": "uri" },
         "dueDate": { "type": "string", "format": "date-time" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" },
