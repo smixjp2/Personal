@@ -70,6 +70,12 @@ export function NotesInbox() {
       content: 'Comment intégrer la bourse des USA ?',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'static-retraite-note',
+      content: 'Chercher les options de retraites complémentaires.',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
   ];
 
