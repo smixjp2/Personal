@@ -8,7 +8,7 @@ import type { ProjectTool } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2, Plus, ExternalLink, Edit } from 'lucide-react';
-import { ManageToolDialog } from './manage-tool-dialog';
+import { ManageToolDialog } from './ManageToolDialog';
 import Link from 'next/link';
 import { Skeleton } from '../ui/skeleton';
 import {
